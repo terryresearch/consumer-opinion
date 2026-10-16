@@ -209,10 +209,6 @@ strong{ font-weight:650; color:var(--ink); }
   content:""; flex:1; height:1px; background:var(--rule);
 }
 
-/* Each publication carries its own accent, so the two cards in the mixed
-   condition are clearly distinct. Both hues are cool and neither is
-   valence-loaded — no green-means-good, red-means-bad. The two themes are
-   otherwise identical in weight, so colour never signals the verdict. */
 .verdict-card{
   --card:      #33527e;
   --card-tint: #eef1f7;
@@ -229,17 +225,28 @@ strong{ font-weight:650; color:var(--ink); }
   animation:rise .55s var(--ease) both;
 }
 .verdict-card:last-child{ margin-bottom:0; }
-.verdict-card + .verdict-card{ animation-delay:.09s; }
 
-.verdict-card.theme-indigo{
-  --card:      #33527e;
-  --card-tint: #eef1f7;
-  --card-line: #c3cfe2;
+/* st1: the two verdicts sit side by side. Confirming = green, disconfirming
+   = red, matched in CIELAB lightness and chroma (accent L*42 C*38, tint
+   L*96.5 C*4.5, line L*82 C*16), so they differ only in hue. */
+.verdict-grid{ display:grid; grid-template-columns:1fr 1fr; gap:12px; align-items:stretch; }
+.verdict-grid .verdict-card{ margin-bottom:0; padding:16px 16px 18px; }
+.verdict-grid .verdict-card + .verdict-card{ animation-delay:.09s; }
+.verdict-grid .verdict-source .name{ font-size:16px; }
+.verdict-grid .verdict-source .tag{ font-size:9px; letter-spacing:.07em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.verdict-grid .verdict-headline{ font-size:17px; margin-bottom:9px; }
+.verdict-grid .verdict-body{ font-size:13.5px; line-height:1.6; }
+@media (max-width:520px){ .verdict-grid{ grid-template-columns:1fr; } }
+
+.verdict-card.verdict-confirming{
+  --card:      #2b7042;
+  --card-tint: #eff7f0;
+  --card-line: #b6d3bc;
 }
-.verdict-card.theme-plum{
-  --card:      #6b4a86;
-  --card-tint: #f3eef7;
-  --card-line: #d5c6e2;
+.verdict-card.verdict-disconfirming{
+  --card:      #9c4a4a;
+  --card-tint: #fff2f1;
+  --card-line: #ecc2c0;
 }
 
 /* Source block: descriptor above, masthead below. Stacking keeps every
@@ -1104,24 +1111,30 @@ const STIMULUS = {
     "Its developer says that a short run of slow, full-screen color sweeps exercises every pixel evenly."
   ],
 
-  /* The two magazines. Fictional, described identically. Each carries its
-     own accent; which magazine delivers which verdict is randomised, so
-     colour is counterbalanced against verdict. */
+  /* The two magazines. Fictional, described identically; which magazine
+     delivers which verdict is randomised (name_swap). */
   sources: [
-    { name: "Tech Courier",  theme: "indigo" },
-    { name: "Gear Bulletin", theme: "plum"   }
+    { name: "Tech Courier"  },
+    { name: "Gear Bulletin" }
   ],
   sourceTag: "Established technology magazine",
 
-  /* Mirror images of s1a's verdicts; claim and verdict share "reduction". */
+  /* Mirror images of s1a's verdicts; claim and verdict share "reduction".
+     Shown side by side; the confirming card is tinted green and the
+     disconfirming card red (the user's choice, 16 Oct 2026). Unlike fr1 and
+     s1a, colour therefore signals the verdict. The two tints are matched in
+     CIELAB lightness and chroma, so they differ only in hue and neither card
+     is more conspicuous. */
   verdict: {
     confirming: {
+      theme: "green",
       eyebrow: "Our verdict",
       headline: "The claim holds up.",
       body:
         "We put TintCycle through our standard display test. Based on what we measured, it <strong>did</strong> produce a meaningful reduction in image retention. The developer’s claim <strong>is supported</strong>."
     },
     disconfirming: {
+      theme: "red",
       eyebrow: "Our verdict",
       headline: "The claim does not hold up.",
       body:
@@ -1511,7 +1524,7 @@ const REALISM = {
   function verdictCardHTML(source, kind) {
     const v = STIMULUS.verdict[kind];
     return `
-      <article class="verdict-card theme-${source.theme}">
+      <article class="verdict-card verdict-${kind}">
         <div class="verdict-source">
           <span class="tag">${STIMULUS.sourceTag}</span>
           <span class="name">${source.name}</span>
@@ -1550,7 +1563,7 @@ const REALISM = {
       verdicts = `
         <section class="verdicts">
           <div class="verdicts-label">${STIMULUS.sectionLabelMixed}</div>
-          ${S.confirmFirst ? c + d : d + c}
+          <div class="verdict-grid">${S.confirmFirst ? c + d : d + c}</div>
         </section>`;
     }
     return `
@@ -2224,8 +2237,8 @@ const REALISM = {
     p.name_swap          = S.condition === "mixed" ? S.nameSwap : null;
     p.source_confirm     = S.condition === "mixed" ? S.confirmSrc.name : null;
     p.source_disconfirm  = S.condition === "mixed" ? S.disconfSrc.name : null;
-    p.theme_confirm      = S.condition === "mixed" ? S.confirmSrc.theme : null;
-    p.theme_disconfirm   = S.condition === "mixed" ? S.disconfSrc.theme : null;
+    p.theme_confirm      = S.condition === "mixed" ? STIMULUS.verdict.confirming.theme : null;
+    p.theme_disconfirm   = S.condition === "mixed" ? STIMULUS.verdict.disconfirming.theme : null;
     p.stage              = stage;
     return p;
   }
