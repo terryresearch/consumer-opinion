@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 322" width="820" height="322" role="img" aria-label="A laptop whose screen shows the faint outline of a taskbar.">
+  <rect width="820" height="322" fill="#ffffff"/>
+  <!-- desk shadow -->
+  <ellipse cx="410" cy="292" rx="236" ry="9" fill="#14161a" opacity=".06"/>
+  <!-- lid / bezel -->
+  <rect x="236" y="34" width="348" height="226" rx="14" fill="#2b2f36"/>
+  <!-- screen: a plain light page -->
+  <rect x="250" y="48" width="320" height="198" rx="4" fill="#eceef1"/>
+  <!-- the faint ghost of a taskbar and its icons (image retention) -->
+  <g opacity=".13" fill="#3d434e">
+    <rect x="250" y="226" width="320" height="20"/>
+    <rect x="258" y="230" width="12" height="12" rx="3"/>
+    <rect x="278" y="230" width="12" height="12" rx="3"/>
+    <rect x="298" y="230" width="12" height="12" rx="3"/>
+    <rect x="318" y="230" width="12" height="12" rx="3"/>
+    <rect x="522" y="232" width="40" height="8" rx="2"/>
+  </g>
+  <!-- camera -->
+  <circle cx="410" cy="41" r="2.2" fill="#4a4f58"/>
+  <!-- base / keyboard deck -->
+  <path d="M206 262 H614 L640 280 Q642 286 634 286 H186 Q178 286 180 280 Z" fill="#c9cdd3"/>
+  <rect x="380" y="262" width="60" height="5" rx="2.5" fill="#b4b9c0"/>
+</svg>
