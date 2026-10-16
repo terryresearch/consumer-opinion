@@ -579,7 +579,7 @@ select{ appearance:none; background-image:
   *,*::before,*::after{ animation-duration:.01ms !important; transition-duration:.01ms !important; }
 }
 
-/* =====================  st1: PRE-REVEAL  =============================== */
+/* =====================  st1: INTRODUCTION  ============================= */
 .steps{ margin:18px 0 6px; padding:0; list-style:none; counter-reset:step; }
 .steps li{
   position:relative; padding:0 0 12px 36px; counter-increment:step;
@@ -591,12 +591,32 @@ select{ appearance:none; background-image:
   background:var(--accent-soft); color:var(--accent);
   font-size:12.5px; font-weight:650; display:flex; align-items:center; justify-content:center;
 }
-.tools-label{
-  font-size:10.5px; font-weight:650; letter-spacing:.13em; text-transform:uppercase;
-  color:var(--ink-4); margin:20px 0 12px;
-  display:flex; align-items:center; gap:12px;
+
+/* =====================  st1: FOCAL TOOL IN THE ARTICLE  ==============
+   Highlights which tool the article and the tests are about.            */
+.product-panel{
+  margin:24px 0 0; padding:16px 18px;
+  background:var(--accent-soft); border:1px solid var(--accent-line); border-radius:12px;
+  font-family:var(--sans);
 }
-.tools-label::after{ content:""; flex:1; height:1px; background:var(--rule); }
+.product-label{
+  font-size:10.5px; font-weight:650; letter-spacing:.13em; text-transform:uppercase;
+  color:var(--accent); margin-bottom:10px;
+}
+.product-row{ display:flex; align-items:center; gap:12px; }
+.product-name{ font-size:17px; font-weight:650; color:var(--ink); letter-spacing:-.01em; line-height:1.25; }
+.product-dev{ font-size:12.5px; color:var(--ink-3); }
+.product-tagline{ font-size:14px; line-height:1.5; color:var(--ink-2); margin-top:10px; }
+/* the claim box follows the panel directly */
+.product-panel + .claim-block{ margin-top:14px; }
+
+.verdict-tested{
+  display:flex; align-items:center; gap:7px; margin:-2px 0 12px;
+  font-size:12px; color:var(--ink-3);
+}
+.verdict-tested .app-icon{ width:20px; height:20px; border-radius:5px; }
+.verdict-tested .app-icon svg{ width:12px; height:12px; }
+.verdict-tested strong{ color:var(--ink); font-weight:600; }
 
 /* =====================  st1: APP LISTINGS  ============================
    One look for both tools, wherever they appear. Only the content differs. */
@@ -787,7 +807,7 @@ select{ appearance:none; background-image:
               free display tool, choose between two such tools and answer a few questions.
               The study takes about 2&ndash;3 minutes.</li>
           <li><strong>A display tool at the end.</strong> At the end, the tool you choose runs
-              full-screen in this browser tab for about 15 seconds: slow, dim color sweeps, or a
+              full-screen in this browser tab for about 5 seconds: slow, dim color sweeps, or a
               dark screen with a slow, dim wave. Neither flashes. Nothing is installed and no
               settings are changed. You can stop it at any time with Esc or the Stop button.</li>
           <li><strong>Please do not take part if you have photosensitive epilepsy.</strong></li>
@@ -839,9 +859,7 @@ select{ appearance:none; background-image:
         <p class="lede" id="intro-lede" style="margin-top:12px"></p>
         <ol class="steps" id="intro-steps"></ol>
 
-        <div class="tools-label" id="intro-tools-label"></div>
-        <div class="listing-grid" id="intro-tools"></div>
-        <p class="fineprint" id="intro-footnote" style="margin-top:12px"></p>
+        <p class="fineprint" id="intro-footnote" style="margin-top:4px"></p>
 
         <div class="divider"></div>
         <p class="fineprint">
@@ -866,7 +884,7 @@ select{ appearance:none; background-image:
           <button class="btn" id="article-btn" disabled>Continue to the questions</button>
         </div>
         <p class="fineprint" style="margin-top:14px">
-          The article stays visible on the left while you answer, so you can refer back to it.
+          The article stays on screen while you answer, so you can refer back to it.
         </p>
       </div>
     </div>
@@ -917,7 +935,7 @@ select{ appearance:none; background-image:
         </div>
         <div class="launch-status"><span class="dot"></span>Ready to run on this screen</div>
         <ul class="launch-facts">
-          <li>Runs full-screen for about 15 seconds</li>
+          <li>Runs full-screen for about 5 seconds</li>
           <li>Slow, dim changes; nothing flashes</li>
           <li>Press Esc or Stop at any time</li>
         </ul>
@@ -934,7 +952,7 @@ select{ appearance:none; background-image:
           <div class="hud-line"><strong id="hud-name"></strong> <span id="hud-action"></span></div>
           <div class="hud-bar"><div class="hud-fill" id="hud-fill"></div></div>
         </div>
-        <span class="hud-time tnum" id="hud-time">0:15</span>
+        <span class="hud-time tnum" id="hud-time">0:05</span>
         <button class="run-stop" id="run-stop" type="button">Stop (Esc)</button>
       </div>
       <div class="run-paused" id="run-paused" hidden>Paused while this tab was hidden.</div>
@@ -993,9 +1011,10 @@ select{ appearance:none; background-image:
         <div class="divider"></div>
 
         <p class="fineprint">
-          <strong>A note on what you saw.</strong> This study looks at how people use product
-          tests that agree or disagree. TintCycle, BlankRest, their developers, the two
-          magazines and both product tests were invented for this study, and no test was run.
+          <strong>A note on what you saw.</strong> This study looks at how people respond to
+          product tests that agree or disagree; some participants saw such tests and others did
+          not. TintCycle, BlankRest, their developers, and any magazines or product tests you saw
+          were invented for this study, and no test was run.
           The display you just saw was made by the research team and does nothing to your
           screen. There is no independent evidence that any short screen tool, including
           real apps that make similar claims, reduces or prevents image retention. On most
@@ -1071,6 +1090,13 @@ const STIMULUS = {
     "When a static image, like a taskbar, stays on screen for a long time, a faint ghost of it can linger after the content changes. This is called image retention. Some free tools aim to help, including the browser-based TintCycle."
   ],
 
+  /* The tool the article (and, in the mixed cell, the tests) is about,
+     highlighted as a product panel so it is unmistakable which tool the
+     review covers. Same identity as its listing at the choice. */
+  product: "tintcycle",
+  productLabel: "The tool in this article",
+  testedLabel: "Product tested",
+
   claimLabel: "The developer’s claim",
   claim: "Reduces image retention.",
 
@@ -1107,21 +1133,20 @@ const STIMULUS = {
 };
 
 /* ---------------------------------------------------------------------
-   THE PRE-REVEAL ("How this study works"), identical in both cells.
-   Participants learn up front that the study ends with a tool of their
-   choosing running on their screen, and see both tools before the
-   article, so the choice later is one they were expecting.
+   THE INTRODUCTION ("How this study works"), identical in both cells.
+   Says what the study is and what these tools are, and that a tool will
+   run at the end — but names NO tool. TintCycle is first seen in the
+   article; BlankRest first at the choice.
    --------------------------------------------------------------------- */
 const INTRO = {
   title: "How this study works",
-  lede: "This study is about free display tools: small browser apps that say they keep a screen in good shape.",
+  lede: "This study is about free display tools: small browser apps that say they help keep a screen in good shape, for example by stopping faint “ghost” images from lingering on it.",
   steps: [
     "<strong>Read</strong> a short article about one of these tools.",
-    "<strong>Choose</strong> which of the two tools below you want to run, and answer a few questions.",
-    "<strong>Run it.</strong> At the end, the tool you chose runs full-screen on this screen for about 15 seconds."
+    "<strong>Answer</strong> a few questions, including which display tool you would like to run.",
+    "<strong>Run it.</strong> At the end, the tool you pick runs full-screen on this screen for about 5 seconds."
   ],
-  toolsLabel: "The two tools in this study",
-  footnote: "Both are free, run inside this browser tab, install nothing and change no settings."
+  footnote: "These tools are free, run inside this browser tab, install nothing and change no settings."
 };
 
 /* ---------------------------------------------------------------------
@@ -1131,7 +1156,9 @@ const INTRO = {
    Neither listing carries ratings, reviews or test results.
    --------------------------------------------------------------------- */
 const TOOLS = {
-  runSeconds: 15,
+  runSeconds: 5,
+  fadeSeconds: 0.5,           // fade in from / out to the dark frame
+  passes: 2,                  // sweeps (TintCycle) or waves (BlankRest) in between
   frame: "#1E1E1E",           // dark frame the run fades in from and out to
 
   tintcycle: {
@@ -1143,8 +1170,9 @@ const TOOLS = {
     icon: "cycle",
     action: "Exercising pixels",
     unit: "Pass",
-    /* equal relative luminance (0.099–0.101): sweeps change hue only */
-    colors: ["#286165", "#79496D", "#5B5B2C", "#485788"]
+    /* equal relative luminance (0.099–0.101): sweeps change hue only;
+       passes + 1 colours are used */
+    colors: ["#286165", "#79496D", "#5B5B2C"]
   },
 
   blankrest: {
@@ -1155,15 +1183,15 @@ const TOOLS = {
     description: "Takes your display down to deep black while a slow resting wave passes over it. Reduces image retention in seconds a day.",
     icon: "moon",
     action: "Resting pixels",
-    unit: "Zone",
+    unit: "Wave",
     colors: ["#000000"],
     wave: "#2A2A2A"           // the dim resting wave (relative luminance 0.023)
   },
 
-  meta: "Free · Runs in your browser · About 15 seconds",
+  meta: "Free · Runs in your browser · About 5 seconds",
 
   /* Choice screen */
-  prompt: "Which tool should run on your screen at the end of the study?",
+  prompt: "Which display tool should run on your screen at the end of the study?",
   footer: "Once you confirm, your choice is final."
 };
 
@@ -1244,7 +1272,7 @@ const REALISM = {
    Consumer Opinion Studies — st1 (Study 1b): screen tool, 2 cells
    Flow: consent -> orientation -> article -> [choice, belief x2] beside
          the article -> demographics (response saved) -> the chosen tool
-         runs for 60 s -> realism item -> debrief -> Prolific
+         runs for about 5 s (TOOLS.runSeconds) -> realism item -> debrief -> Prolific
    ===================================================================== */
 
 (function () {
@@ -1444,9 +1472,10 @@ const REALISM = {
   }
 
   /* =====================================================================
-     APP LISTINGS — one renderer for the pre-reveal and the choice, so the
-     two tools look the same wherever they appear. Card order follows the
-     counterbalanced side (S.tintLeft) in both places.
+     APP LISTINGS — the two tools as they appear at the choice (the first
+     time BlankRest is shown; TintCycle's icon, name, developer and tagline
+     also appear in the article's product panel). Card order follows the
+     counterbalanced side (S.tintLeft).
      ===================================================================== */
   const ICONS = {
     cycle: '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12a8 8 0 0 1-14.3 4.9"/><path d="M4 12A8 8 0 0 1 18.3 7.1"/><path d="M18.5 3v4.2h-4.2"/><path d="M5.5 21v-4.2h4.2"/></svg>',
@@ -1473,10 +1502,7 @@ const REALISM = {
     $("#intro-title").textContent = INTRO.title;
     $("#intro-lede").textContent = INTRO.lede;
     $("#intro-steps").innerHTML = INTRO.steps.map(s => `<li>${s}</li>`).join("");
-    $("#intro-tools-label").textContent = INTRO.toolsLabel;
     $("#intro-footnote").textContent = INTRO.footnote;
-    $("#intro-tools").innerHTML = toolOrder()
-      .map(id => `<div class="listing">${listingBody(TOOLS[id])}</div>`).join("");
   }
 
   /* =====================================================================
@@ -1490,10 +1516,30 @@ const REALISM = {
           <span class="tag">${STIMULUS.sourceTag}</span>
           <span class="name">${source.name}</span>
         </div>
+        <div class="verdict-tested">${STIMULUS.testedLabel}: ${iconHTML(TOOLS[STIMULUS.product])}<strong>${TOOLS[STIMULUS.product].name}</strong></div>
         <div class="verdict-eyebrow">${v.eyebrow}</div>
         <h3 class="verdict-headline">${v.headline}</h3>
         <p class="verdict-body">${v.body}</p>
       </article>`;
+  }
+
+  /* The focal tool, highlighted so it is clear which tool the article and
+     the tests are about. Same icon, name, developer and tagline as its
+     listing at the choice. */
+  function productPanelHTML() {
+    const t = TOOLS[STIMULUS.product];
+    return `
+      <aside class="product-panel">
+        <div class="product-label">${STIMULUS.productLabel}</div>
+        <div class="product-row">
+          ${iconHTML(t)}
+          <div class="product-id">
+            <div class="product-name">${t.name}</div>
+            <div class="product-dev">${t.developer}</div>
+          </div>
+        </div>
+        <div class="product-tagline">${t.tagline}</div>
+      </aside>`;
   }
 
   function articleHTML() {
@@ -1516,6 +1562,7 @@ const REALISM = {
       <figure class="article-figure"><img src="${STIMULUS.image}" alt="${STIMULUS.imageAlt}" width="820" height="322" decoding="async"></figure>
       <div class="article-body">
         ${STIMULUS.body.map(p => `<p>${p}</p>`).join("")}
+        ${productPanelHTML()}
         <div class="claim-block">
           <div class="claim-label">${STIMULUS.claimLabel}</div>
           <div class="claim-text">“${STIMULUS.claim}”</div>
@@ -1561,8 +1608,8 @@ const REALISM = {
   /* =====================================================================
      3. MEASURES — choice, then belief in each tool, stacked and locked
      ===================================================================== */
-  /* progress: the measures + demographics + the run */
-  function totalSteps() { return S.queue.length + 2; }
+  /* progress: the measures + demographics (the screens that show the bar) */
+  function totalSteps() { return S.queue.length + 1; }
 
   function setProgress(pane, step) {
     $(".progress-count", pane).textContent = `${step} of ${totalSteps()}`;
@@ -1867,13 +1914,14 @@ const REALISM = {
   }
 
   /* =====================================================================
-     5. THE RUN — the chosen tool, full-screen, 15 s of VISIBLE time
-     Three passes (TintCycle: colour sweeps; BlankRest: a dim resting wave
-     over black), framed by 1-s fades in and out of the dark frame. A status
+     5. THE RUN — the chosen tool, full-screen, 5 s of VISIBLE time
+     TOOLS.passes passes (TintCycle: colour sweeps; BlankRest: a dim resting
+     wave over black), framed by TOOLS.fadeSeconds fades in and out of the
+     dark frame. A status
      bar shows the tool, what it is doing, the pass, progress and time.
      Every frame is a pure function of visible time, so a dropped frame
      cannot produce a jump. Stop / Esc / leaving full-screen ends the
-     display, not the 15-second slot. The timer pauses while the tab is
+     display, not the 5-second slot. The timer pauses while the tab is
      hidden. Starts full-window at once; upgraded to full-screen when the
      browser grants it (some browsers never answer the request).
      ===================================================================== */
@@ -1886,7 +1934,7 @@ const REALISM = {
 
   /* timeline, in seconds of visible time */
   function timeline(total) {
-    const fade = 1, passes = 3, pass = (total - 2 * fade) / passes;
+    const fade = TOOLS.fadeSeconds, passes = TOOLS.passes, pass = (total - 2 * fade) / passes;
     return { total, fade, passes, pass };
   }
   /* which pass, and how far through it (0..1); -1 = fading in, passes = fading out */
@@ -1906,7 +1954,7 @@ const REALISM = {
     const soft = 0.3 * W;                         // width of the soft edge / wave
 
     if (toolId === "tintcycle") {
-      const C = tool.colors.map(hex);              // 4 colours, 3 sweeps
+      const C = tool.colors.map(hex);              // passes + 1 colours (3 colours, 2 sweeps)
       if (i === -1)            { ctx.fillStyle = css(mix(F, C[0], p)); ctx.fillRect(0, 0, W, H); return; }
       if (i === tl.passes)     { ctx.fillStyle = css(mix(C[C.length - 1], F, p)); ctx.fillRect(0, 0, W, H); return; }
       const from = C[i], to = C[i + 1], e = ease(p);
@@ -2045,7 +2093,7 @@ const REALISM = {
       stage.hidden = true;
       $("#run-stopped").hidden = true;
       $("#end-text").textContent = S.run.stopped
-        ? `You stopped ${tool.name} after ${Math.max(1, Math.round(S.run.stop_at_ms / 1000))} seconds.`
+        ? (s => `You stopped ${tool.name} after ${s} second${s === 1 ? "" : "s"}.`)(Math.max(1, Math.floor(S.run.stop_at_ms / 1000)))
         : `${tool.name} has finished running on this screen.`;
       $("#run-end").hidden = false;
       document.removeEventListener("keydown", onKey);
