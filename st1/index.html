@@ -112,6 +112,7 @@ strong{ font-weight:650; color:var(--ink); }
 
 .btn-row{ display:flex; align-items:center; gap:12px; margin-top:28px; }
 .btn-row.end{ justify-content:flex-end; }
+.btn-row[hidden]{ display:none; }
 
 /* =====================  SPLIT LAYOUT  ==============================
    Stimulus pinned to the left half, measures on the right half.       */
@@ -636,7 +637,7 @@ select{ appearance:none; background-image:
 .listing-head{ display:flex; align-items:center; gap:11px; }
 .listing-id{ display:flex; flex-direction:column; min-width:0; }
 .listing-name{ font-size:16px; font-weight:650; letter-spacing:-.01em; color:var(--ink); line-height:1.25; }
-.listing-dev{ font-size:12px; color:var(--ink-4); line-height:1.3; }
+.listing-dev{ font-size:12.5px; color:var(--ink-3); line-height:1.3; }
 .listing-tagline{ font-size:13.5px; font-weight:550; line-height:1.4; color:var(--ink); }
 .listing-desc{ font-size:13px; line-height:1.5; color:var(--ink-2); }
 .listing-meta{
@@ -661,7 +662,22 @@ select{ appearance:none; background-image:
 .tool-card{ cursor:pointer; padding-top:14px; transition:border-color .15s, background .15s, box-shadow .15s; }
 .tool-card:hover{ border-color:var(--accent-line); }
 .tool-card input{ position:absolute; opacity:0; pointer-events:none; }
-.tool-card .pick{ display:flex; align-items:center; gap:8px; margin-bottom:2px; }
+.tool-card .card-top{ display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:2px; min-height:18px; }
+.tool-card .option-label{ font-size:10.5px; font-weight:650; letter-spacing:.11em; text-transform:uppercase; color:var(--ink-4); }
+.tool-card .pick{ display:flex; align-items:center; gap:8px; }
+/* before both options have been seen: nothing is selectable */
+.tool-cards.is-staged .tool-card{ cursor:default; }
+.tool-cards.is-staged .tool-card:hover{ border-color:var(--rule); }
+.tool-cards.is-staged .pick{ display:none; }
+.option-slot{
+  display:flex; align-items:center; justify-content:center;
+  background:transparent; border:1.5px dashed var(--rule); min-height:220px;
+}
+.option-slot span{ font-size:11px; font-weight:650; letter-spacing:.11em; text-transform:uppercase; color:var(--ink-4); }
+.tool-card.is-entering{ animation:rise .45s var(--ease) both; }
+.reveal-row{ margin-top:16px; }
+.tool-question{ font-size:16.5px; line-height:1.4; font-weight:550; color:var(--ink); margin:20px 0 0; letter-spacing:-.01em; }
+.tool-intro-help{ margin-bottom:18px; color:var(--ink-3); font-size:13.5px; }
 .tool-card .radio{
   flex:0 0 auto; width:18px; height:18px; border-radius:50%;
   border:1.5px solid var(--rule); background:var(--paper);
@@ -689,6 +705,7 @@ select{ appearance:none; background-image:
   color:var(--ink-2); border:1px solid var(--ink-4); border-radius:5px; padding:2px 7px;
 }
 .measure-block.is-done .tool-footer{ display:none; }
+.measure-block.is-done .tool-question{ display:none; }
 .measure-block > .eyebrow{ margin-bottom:12px; }
 
 @media (max-width:560px){ .listing-grid{ grid-template-columns:1fr; } }
@@ -1203,7 +1220,14 @@ const TOOLS = {
 
   meta: "Free · Runs in your browser · About 5 seconds",
 
-  /* Choice screen */
+  /* Choice screen: an introduction, then the two options one at a time
+     (option 1, then "Show the second option"), then the question. The
+     option shown first sits on the left; which tool that is alternates
+     within each cell (label_order). */
+  choiceIntro: "In this study, you can choose one of two display tools to try.",
+  choiceIntroHelp: "The two tools come from different developers. Whichever you choose runs on your screen at the end of the study. Here they are, one at a time.",
+  revealLabel: "Show the second option",
+  optionLabel: "Option",
   prompt: "Which display tool should run on your screen at the end of the study?",
   footer: "Once you confirm, your choice is final."
 };
@@ -1503,7 +1527,7 @@ const REALISM = {
         ${iconHTML(t)}
         <span class="listing-id">
           <span class="listing-name">${t.name}</span>
-          <span class="listing-dev">${t.developer}</span>
+          <span class="listing-dev">by ${t.developer}</span>
         </span>
       </span>
       <span class="listing-tagline">${t.tagline}</span>
@@ -1548,7 +1572,7 @@ const REALISM = {
           ${iconHTML(t)}
           <div class="product-id">
             <div class="product-name">${t.name}</div>
-            <div class="product-dev">${t.developer}</div>
+            <div class="product-dev">by ${t.developer}</div>
           </div>
         </div>
         <div class="product-tagline">${t.tagline}</div>
@@ -1657,8 +1681,9 @@ const REALISM = {
       wrap.appendChild(el("div", "eyebrow", m.eyebrow));
     }
     const isChoice = m.type === "toolchoice";
-    wrap.appendChild(el("h2", "measure-prompt", isChoice ? TOOLS.prompt : m.prompt));
-    if (!isChoice && m.help) wrap.appendChild(el("p", "measure-help", m.help));
+    wrap.appendChild(el("h2", "measure-prompt", isChoice ? TOOLS.choiceIntro : m.prompt));
+    if (isChoice) wrap.appendChild(el("p", "measure-help tool-intro-help", TOOLS.choiceIntroHelp));
+    else if (m.help) wrap.appendChild(el("p", "measure-help", m.help));
 
     const body = el("div", "measure-body");
     wrap.appendChild(body);
@@ -1669,13 +1694,14 @@ const REALISM = {
     next.disabled = true;
     btnRow.appendChild(next);
     wrap.appendChild(btnRow);
+    if (isChoice) btnRow.hidden = true;          // shown once both options have been seen
 
     const state = { value: undefined };
     const ready = () => state.value !== undefined;
     const refresh = () => { next.disabled = !ready(); };
 
     if (m.type === "slider100")       buildSlider100(body, m, state, refresh);
-    else if (isChoice)                buildToolChoice(body, m, state, refresh);
+    else if (isChoice)                buildToolChoice(body, m, state, refresh, btnRow);
 
     stack.appendChild(wrap);
     setProgress(pane, S.idx + 1);
@@ -1710,6 +1736,7 @@ const REALISM = {
            else happens, so it survives any later drop-out. Write-once: a
            reload in the same tab restores this choice instead of asking again. */
         S.choiceMeta = Object.assign({}, state.meta, {
+          cards_layout: state.layout(),
           t_choice_ms: ms,
           viewport_w: window.innerWidth,
           viewport_h: window.innerHeight
@@ -1732,43 +1759,87 @@ const REALISM = {
     }
   }
 
-  /* ---------- the tool choice: two cards, select then confirm ---------- */
-  function buildToolChoice(host, m, state, refresh) {
-    const grid = el("div", "tool-cards listing-grid");
-    toolOrder().forEach(id => {
-      const t = TOOLS[id];
+  /* ---------- the tool choice ------------------------------------------
+     Option 1 appears alone (option 2's slot is marked but empty); the
+     participant clicks "Show the second option"; option 2 appears; only then
+     can either be selected, and the question and Confirm button appear.
+     The option shown first sits on the left; which tool that is alternates
+     within each cell (S.tintLeft, from label_order). */
+  function buildToolChoice(host, m, state, refresh, btnRow) {
+    const order = toolOrder();
+    const grid = el("div", "tool-cards listing-grid is-staged");
+    const cards = order.map((id, k) => {
       const card = el("label", "listing tool-card");
       card.dataset.tool = id;
       card.innerHTML = `
-        <input type="radio" name="${m.field}" value="${id}">
-        <span class="pick"><span class="radio"></span><span class="pick-label">Choose</span></span>
-        ${listingBody(t)}
+        <input type="radio" name="${m.field}" value="${id}" disabled>
+        <span class="card-top">
+          <span class="option-label">${TOOLS.optionLabel} ${k + 1}</span>
+          <span class="pick"><span class="radio"></span><span class="pick-label">Choose</span></span>
+        </span>
+        ${listingBody(TOOLS[id])}
         <span class="tool-badge">Your choice</span>`;
-      grid.appendChild(card);
+      return card;
     });
+    const slot = el("div", "listing option-slot", `<span>${TOOLS.optionLabel} 2</span>`);
+    grid.appendChild(cards[0]);
+    grid.appendChild(slot);
     host.appendChild(grid);
-    host.appendChild(el("p", "tool-footer", TOOLS.footer));
 
-    state.meta = { first_pick: null, n_switches: 0,
-                   cards_layout: null };
+    const revealRow = el("div", "btn-row reveal-row");
+    const revealBtn = el("button", "btn", TOOLS.revealLabel);
+    revealBtn.type = "button";
+    revealRow.appendChild(revealBtn);
+    host.appendChild(revealRow);
+
+    const question = el("h3", "tool-question", TOOLS.prompt);
+    const footer = el("p", "tool-footer", TOOLS.footer);
+    question.hidden = true; footer.hidden = true;
+    host.appendChild(question);
+    host.appendChild(footer);
+
+    state.meta = { first_shown: order[0], t_option1_ms: null,
+                   first_pick: null, n_switches: 0, cards_layout: null };
+    const shownAt = Date.now();
+
+    const revealSecond = instant => {
+      if (!instant) state.meta.t_option1_ms = Date.now() - shownAt;
+      slot.replaceWith(cards[1]);
+      if (!instant) cards[1].classList.add("is-entering");
+      revealRow.remove();
+      grid.classList.remove("is-staged");
+      grid.querySelectorAll("input").forEach(i => { i.disabled = false; });
+      question.hidden = false; footer.hidden = false; btnRow.hidden = false;
+      requestAnimationFrame(() => {
+        if (!instant) {
+          const motion = !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+          btnRow.scrollIntoView({ block: "nearest", behavior: motion ? "smooth" : "auto" });
+        }
+      });
+    };
+    revealBtn.addEventListener("click", () => revealSecond(false));
+
+    /* row vs stacked, measured when the choice is confirmed (horizontal
+       positions, since option 2's entrance animation shifts it vertically) */
+    state.layout = () => {
+      const c = grid.querySelectorAll(".tool-card");
+      return Math.abs(c[1].getBoundingClientRect().left - c[0].getBoundingClientRect().left) > 20
+        ? "row" : "stacked";
+    };
+
     grid.addEventListener("change", e => {
       if (state.meta.first_pick === null) state.meta.first_pick = e.target.value;
       else if (state.value !== e.target.value) state.meta.n_switches += 1;
       state.value = e.target.value;
       refresh();
     });
-    /* row vs stacked, at the moment of choosing */
-    requestAnimationFrame(() => {
-      const cards = grid.querySelectorAll(".tool-card");
-      state.meta.cards_layout = cards[0].getBoundingClientRect().top === cards[1].getBoundingClientRect().top
-        ? "row" : "stacked";
-    });
 
+    /* reload after a confirmed choice: both options at once, choice restored */
     const restored = store.get("choice");
     if (restored && TOOLS[restored]) {
       S.choiceRestored = true;
-      const inp = grid.querySelector(`input[value="${restored}"]`);
-      inp.checked = true;
+      revealSecond(true);
+      grid.querySelector(`input[value="${restored}"]`).checked = true;
       state.value = restored;
       state.meta.restored = true;
     }
@@ -2025,7 +2096,7 @@ const REALISM = {
     });
     $("#run-title").textContent = tool.name;
     $("#end-title").textContent = tool.name;
-    $("#run-dev").textContent = tool.developer;
+    $("#run-dev").textContent = "by " + tool.developer;
     $("#run-start").textContent = "Run " + tool.name;
     $("#hud-name").textContent = tool.name;
     show("screen-run");
