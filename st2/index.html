@@ -684,6 +684,13 @@ select{ appearance:none; background-image:
 .tool-card .card-top{ display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:2px; min-height:18px; }
 .tool-card .option-label{ font-size:10.5px; font-weight:650; letter-spacing:.11em; text-transform:uppercase; color:var(--ink-4); }
 .tool-card .pick{ display:flex; align-items:center; gap:8px; }
+/* option 1 is the article's tool: a small reminder, in the article panel's colours */
+.listing-flag{
+  align-self:flex-start; margin:-2px 0 2px; padding:3px 8px; border-radius:5px;
+  background:var(--accent-soft); border:1px solid var(--accent-line); color:var(--accent);
+  font-size:10.5px; font-weight:650; letter-spacing:.08em; text-transform:uppercase; line-height:1.3;
+}
+.measure-block.is-done .listing-flag{ background:transparent; }
 /* before both options have been seen: nothing is selectable */
 .tool-cards.is-staged .tool-card{ cursor:default; }
 .tool-cards.is-staged .tool-card:hover{ border-color:var(--rule); }
@@ -1259,11 +1266,12 @@ const TOOLS = {
   meta: "Free · In your browser · 15 seconds",
 
   /* Choice screen: an introduction, then the two options one at a time
-     (option 1, then "Show the second option"), then the question. Option 1
-     sits on the left; whether that is the article's tool alternates within
-     each cell (label_order). */
+     (option 1, then "Show the second option"), then the question. Option 1,
+     on the left, is always the article's tool. */
   choiceIntro: "In this study, you can choose one of two eye-care tools to try.",
   choiceIntroHelp: "The two tools come from different developers. Whichever you choose runs on your screen at the end of the study. Here they are, one at a time.",
+  /* option 1 is always the article's tool; this label reminds them */
+  focalFlag: "The tool in this article",
   revealLabel: "Show the second option",
   optionLabel: "Option",
   prompt: "Which eye-care tool should run on your screen at the end of the study?",
@@ -1392,7 +1400,6 @@ const REALISM = {
     pair: null,          // "a_blink": brand A is the blink coach; "a_move": brand A is the eye-movement routine
     focal: null,         // the tool the article is about: "blink" | "move"
     other: null,
-    focalFirst: true,    // the article's tool is option 1 (left) at the choice
     tools: null,         // { blink: {...}, move: {...} }, each with its brand resolved
     answers: {},
     timings: {},
@@ -1467,7 +1474,6 @@ const REALISM = {
      Only ever active on localhost / file:// — inert once deployed.
      ?preview=control|mixed  &swap=1 (disconfirming first)
      &pair=a_move (brand A is the eye-movement routine)  &focal=move
-     &order=second (the article's tool is option 2)
      &jump=intro|measures|run|done  &tool=blink|move */
   const PREVIEW = (function () {
     const host = location.hostname;
@@ -1531,7 +1537,6 @@ const REALISM = {
       S.confirmFirst = q.get("swap") !== "1";
       S.pair = q.get("pair") === "a_move" ? "a_move" : "a_blink";
       S.focal = q.get("focal") === "move" ? "move" : "blink";
-      S.focalFirst = q.get("order") !== "second";
       S.nameSwap = false;
       S.labelOrder = "preview";
     } else {
@@ -1557,14 +1562,13 @@ const REALISM = {
 
       /* `label_order` is the strictly cycling counterbalance handed back by
          assign(), WITHIN the cell: focal_blink|focal_move (which tool the
-         article is about), a_blink|a_move (which brand each tool carries),
-         focal_first|focal_second (which tool is option 1, on the left) and,
-         in the mixed cell, confirm_first|disconfirm_first. */
+         article is about), a_blink|a_move (which brand each tool carries)
+         and, in the mixed cell, confirm_first|disconfirm_first. The article's
+         tool is always option 1 (the user's choice, 19 Oct 2026). */
       S.labelOrder = a.factors.label_order || "";
       const parts = S.labelOrder.split("|");
       S.focal      = parts.indexOf("focal_move") !== -1 ? "move" : "blink";
       S.pair       = parts.indexOf("a_move") !== -1 ? "a_move" : "a_blink";
-      S.focalFirst = parts.indexOf("focal_second") === -1;
       if (S.condition === "mixed") {
         S.confirmFirst = parts.indexOf("disconfirm_first") === -1;
         S.nameSwap     = Math.random() < 0.5;   // nuisance factor, randomised
@@ -1608,7 +1612,8 @@ const REALISM = {
      tile colour belongs to the BRAND, not the mechanism. */
   const iconHTML = (t, size) =>
     `<span class="app-icon icon-${t.brand}${size ? " " + size : ""}" aria-hidden="true">${t.mark}</span>`;
-  const toolOrder = () => S.focalFirst ? [S.focal, S.other] : [S.other, S.focal];
+  /* the article's tool is always option 1, shown first and on the left */
+  const toolOrder = () => [S.focal, S.other];
 
   function listingBody(t) {
     return `
@@ -1846,7 +1851,7 @@ const REALISM = {
             choice: state.value,
             choice_name: S.tools[state.value].name,
             chose_focal: state.value === S.focal,
-            focal: S.focal, pair: S.pair, focal_first: S.focalFirst,
+            focal: S.focal, pair: S.pair,
             condition: S.condition, label_order: S.labelOrder
           }, S.choiceMeta));
         wrap.querySelector(`.tool-card[data-tool="${state.value}"]`).classList.add("is-chosen");
@@ -1867,8 +1872,8 @@ const REALISM = {
      Option 1 appears alone (option 2's slot is marked but empty); the
      participant clicks "Show the second option"; option 2 appears; only then
      can either be selected, and the question and Confirm button appear.
-     Option 1 sits on the left; whether that is the article's tool
-     alternates within each cell (S.focalFirst, from label_order). */
+     Option 1, on the left, is always the article's tool, with a small
+     reminder label; option 2 is the other tool. */
   function buildToolChoice(host, m, state, refresh, btnRow) {
     const order = toolOrder();
     const grid = el("div", "tool-cards listing-grid is-staged");
@@ -1881,6 +1886,7 @@ const REALISM = {
           <span class="option-label">${TOOLS.optionLabel} ${k + 1}</span>
           <span class="pick"><span class="radio"></span><span class="pick-label">Choose</span></span>
         </span>
+        ${id === S.focal ? `<span class="listing-flag">${TOOLS.focalFlag}</span>` : ""}
         ${listingBody(S.tools[id])}
         <span class="tool-badge">Your choice</span>`;
       return card;
@@ -2513,7 +2519,6 @@ const REALISM = {
     p.label_order        = S.labelOrder;
     p.focal              = S.focal;
     p.pair               = S.pair;
-    p.focal_first        = S.focalFirst;
     p.focal_brand        = f.brand;
     p.focal_name         = f.name;
     p.other_name         = o.name;
