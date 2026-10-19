@@ -736,91 +736,36 @@ select{ appearance:none; background-image:
 
 @media (max-width:560px){ .listing-grid{ grid-template-columns:1fr; } }
 
-/* =====================  st1/st2: THE RUN  ============================
-   Dark frame #1E1E1E (relative luminance 0.013). The survey fades into it
-   and back out of it over 2 s, never a hard cut from white. The routine
-   is drawn on the same dark frame.                                       */
-#screen-run{ background:#1E1E1E; color:#bdbdbd; }
-#screen-run.is-active{ animation:to-dark 2s linear both; }
-@keyframes to-dark{ from{ background:var(--canvas); } to{ background:#1E1E1E; } }
-#screen-realism.from-dark{ animation:from-dark 2s linear both; }
-@keyframes from-dark{ from{ background:#1E1E1E; } to{ background:var(--canvas); } }
-
-.run-panel{
-  margin:auto; max-width:440px; width:100%; padding:24px; text-align:center;
-  animation:rise .4s var(--ease) both;
+/* =====================  st2: THE ROUTINE  ============================
+   The chosen routine's poster, as large as the window allows, with the
+   downloads beside it.                                                    */
+.deliver{
+  flex:1; min-height:0; overflow-y:auto;
+  display:flex; align-items:center; justify-content:center; gap:clamp(28px,4vw,64px);
+  padding:clamp(20px,4vh,48px) 24px;
 }
-.run-panel[hidden]{ display:none; }
-/* the launch card waits for the 2-s fade to dark before it appears */
-#run-launch{ animation:rise .5s var(--ease) 1.6s both; }
-
-.launch-card{
-  text-align:left; background:#26282c; border:1px solid #34373d; border-radius:16px;
-  padding:22px 22px 20px; box-shadow:0 20px 50px -24px rgba(0,0,0,.7);
+.deliver-poster{
+  margin:0; flex:0 0 auto;
+  height:min(calc(100dvh - 2 * clamp(20px,4vh,48px)), 1100px); aspect-ratio:850 / 1100;
+  border-radius:6px; overflow:hidden; background:var(--paper);
+  box-shadow:0 1px 2px rgba(20,22,26,.06), 0 24px 60px -28px rgba(20,22,26,.35);
+  animation:poster-in .7s var(--ease) both;
 }
-.launch-head{ display:flex; align-items:center; gap:14px; }
-.launch-name{ font-size:20px; font-weight:650; color:#ececec; letter-spacing:-.01em; }
-.launch-dev{ font-size:12.5px; color:#8f949c; margin-top:2px; }
-.launch-status{
-  display:flex; align-items:center; gap:8px; margin:18px 0 10px;
-  font-size:13px; color:#c8ccd2;
+.deliver-poster img{ display:block; width:100%; height:100%; }
+@keyframes poster-in{ from{ opacity:0; transform:translateY(14px) scale(.985); } to{ opacity:1; transform:none; } }
+.deliver-side{ width:min(360px, 100%); animation:rise .5s var(--ease) .25s both; }
+.deliver-head{ display:flex; align-items:center; gap:12px; margin:4px 0 14px; }
+.deliver-id{ display:flex; flex-direction:column; }
+.deliver-name{ font-size:16px; font-weight:650; color:var(--ink); letter-spacing:-.01em; }
+.deliver-dev{ font-size:12.5px; color:var(--ink-3); }
+.deliver-title{ font-size:24px; line-height:1.25; margin-bottom:10px; }
+.deliver-text{ font-size:14.5px; }
+.deliver-actions{ display:flex; flex-wrap:wrap; gap:10px; margin:22px 0 12px; }
+.deliver-actions .btn{ text-decoration:none; display:inline-flex; align-items:center; }
+@media (max-width:900px){
+  .deliver{ flex-direction:column; align-items:center; }
+  .deliver-poster{ height:auto; width:min(560px, 100%); }
 }
-.launch-status .dot{ width:8px; height:8px; border-radius:50%; background:#8fa89a; }
-.launch-how{ margin:0 0 12px; font-size:14px; line-height:1.55; color:#d6dade; }
-.launch-facts{ margin:0 0 18px; padding:0 0 0 18px; color:#9aa0a8; font-size:13px; line-height:1.7; }
-.launch-card .run-btn{ width:100%; }
-.launch-card .run-text{ margin:14px 0 16px; }
-
-.run-eyebrow{
-  font-size:11px; font-weight:650; letter-spacing:.11em; text-transform:uppercase;
-  color:#8a8a8a; margin-bottom:10px;
-}
-.run-text{ font-size:14.5px; line-height:1.6; color:#a8a8a8; margin:14px 0 0; }
-/* neutral grey: the run's own controls carry neither brand's colour */
-.btn.run-btn{ background:#4a4f57; color:#f2f2f2; border-color:#5a6068; }
-.btn.run-btn:hover:not(:disabled){ background:#555b64; }
-
-.run-stage{ position:fixed; inset:0; z-index:50; background:#1E1E1E; }
-.run-stage[hidden]{ display:none; }
-.run-stage canvas{ display:block; width:100%; height:100%; }
-
-/* status bar: what the tool is doing, progress, time, stop */
-.run-hud{
-  position:absolute; left:50%; bottom:22px; transform:translateX(-50%);
-  display:flex; align-items:center; gap:12px;
-  width:min(520px, calc(100% - 32px));
-  padding:10px 10px 10px 12px; border-radius:12px;
-  background:rgba(12,13,15,.55); border:1px solid rgba(255,255,255,.08);
-  color:#b9bec5; font-size:13px;
-  -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px);
-}
-.hud-text{ flex:1; min-width:0; }
-.hud-line{ white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.hud-line strong{ color:#e4e6e9; font-weight:600; }
-.hud-bar{ height:3px; border-radius:3px; background:rgba(255,255,255,.12); margin-top:7px; overflow:hidden; }
-.hud-fill{ height:100%; width:0; background:#b3b8bf; border-radius:3px; }
-.hud-time{ color:#9aa0a8; }
-.tnum{ font-variant-numeric:tabular-nums; }
-.run-stop{
-  font:inherit; font-size:12.5px; color:#c4c4c4; background:transparent; cursor:pointer;
-  border:1px solid #5e636b; border-radius:7px; padding:5px 10px;
-}
-.run-stop:hover{ border-color:#9a9a9a; }
-.run-stop:focus-visible{ outline:2px solid #9a9a9a; outline-offset:2px; }
-/* the routine's cue: same place and type for both tools */
-.run-cue{
-  position:absolute; left:50%; top:19%; transform:translateX(-50%);
-  width:min(680px, calc(100% - 48px)); text-align:center; pointer-events:none;
-  font-size:clamp(19px,2.1vw,26px); font-weight:500; line-height:1.35; letter-spacing:-.01em;
-  color:#dfe4e7;
-}
-.run-cue.cue-in{ animation:cue-in .45s var(--ease) both; }
-@keyframes cue-in{ from{ opacity:0; transform:translate(-50%,4px); } to{ opacity:1; transform:translate(-50%,0); } }
-.run-paused{
-  position:absolute; top:18px; left:50%; transform:translateX(-50%);
-  font-size:13px; color:#9A9A9A; background:rgba(0,0,0,.35); padding:6px 12px; border-radius:7px;
-}
-.run-paused[hidden]{ display:none; }
 
 /* =====================  st1: REALISM ITEM  =========================== */
 .realism-label{ font-size:17px; line-height:1.45; margin-bottom:16px; }
@@ -866,13 +811,9 @@ select{ appearance:none; background-image:
 
         <ul class="consent-list">
           <li><strong>What you will do.</strong> You will read a short article about a
-              free eye-care tool, choose between two such tools and answer a few questions.
-              The study takes about 3 minutes.</li>
-          <li><strong>A short eye routine at the end.</strong> At the end, the tool you choose
-              runs full-screen in this browser tab for 15 seconds and guides your eyes through a
-              short routine, such as slow blinks or following a moving dot. Nothing flashes,
-              nothing is installed, your camera is not used and no settings are changed. You can
-              stop it at any time with Esc or the Stop button.</li>
+              free eye-care routine, choose between two such routines and answer a few
+              questions. At the end you will see the routine you chose and can download it if
+              you like. The study takes about 3 minutes.</li>
           <li><strong>Voluntary participation.</strong> Taking part is entirely voluntary.
               You may stop at any time by closing this window, without giving a reason and
               without penalty. Answers you give before leaving the study are kept unless you
@@ -983,58 +924,24 @@ select{ appearance:none; background-image:
     </div>
   </section>
 
-  <!-- ================= 6. THE RUN ================= -->
-  <section id="screen-run" class="screen run-screen">
-    <!-- launch card: dark, reached by a slow fade from the survey page -->
-    <div class="run-panel" id="run-launch">
-      <div class="launch-card">
-        <div class="launch-head">
-          <span class="app-icon lg" id="run-icon"></span>
-          <div>
-            <div class="launch-name" id="run-title"></div>
-            <div class="launch-dev" id="run-dev"></div>
-          </div>
+  <!-- ================= 6. THE ROUTINE (poster + downloads) ================= -->
+  <section id="screen-deliver" class="screen">
+    <div class="deliver">
+      <figure class="deliver-poster"><img id="deliver-img" alt="" width="850" height="1100" decoding="async"></figure>
+      <div class="deliver-side">
+        <div class="eyebrow">Your routine</div>
+        <div class="deliver-head" id="deliver-head"></div>
+        <h1 class="deliver-title" id="deliver-title"></h1>
+        <p class="deliver-text" id="deliver-text"></p>
+        <div class="deliver-actions">
+          <a class="btn" id="deliver-pdf" href="#"></a>
+          <a class="btn ghost" id="deliver-png" href="#"></a>
         </div>
-        <div class="launch-status"><span class="dot"></span>Ready on this screen</div>
-        <p class="launch-how" id="run-how"></p>
-        <ul class="launch-facts" id="run-facts"></ul>
-        <button class="btn run-btn" id="run-start"></button>
-      </div>
-    </div>
-
-    <!-- the stage the tool paints; requestFullscreen() is called on it -->
-    <div class="run-stage" id="run-stage" hidden>
-      <canvas id="run-canvas"></canvas>
-      <div class="run-cue" id="run-cue" aria-live="polite"></div>
-      <div class="run-hud">
-        <span class="app-icon sm" id="hud-icon"></span>
-        <div class="hud-text">
-          <div class="hud-line"><strong id="hud-name"></strong> <span id="hud-action"></span></div>
-          <div class="hud-bar"><div class="hud-fill" id="hud-fill"></div></div>
+        <p class="fineprint" id="deliver-note"></p>
+        <div class="divider"></div>
+        <div class="btn-row" style="margin-top:0">
+          <button class="btn ghost" id="deliver-continue" type="button">Continue</button>
         </div>
-        <span class="hud-time tnum" id="hud-time">0:15</span>
-        <button class="run-stop" id="run-stop" type="button">Stop (Esc)</button>
-      </div>
-      <div class="run-paused" id="run-paused" hidden>Paused while this tab was hidden.</div>
-    </div>
-
-    <!-- after a stop: the display has ended but the slot has not -->
-    <div class="run-panel" id="run-stopped" hidden>
-      <div class="run-eyebrow">Stopped</div>
-      <p class="run-text" id="run-stopped-text"></p>
-    </div>
-
-    <div class="run-panel" id="run-end" hidden>
-      <div class="launch-card">
-        <div class="launch-head">
-          <span class="app-icon lg" id="end-icon"></span>
-          <div>
-            <div class="launch-name" id="end-title"></div>
-            <div class="launch-dev">Finished</div>
-          </div>
-        </div>
-        <p class="run-text" id="end-text" style="text-align:left"></p>
-        <button class="btn run-btn" id="run-continue">Continue</button>
       </div>
     </div>
   </section>
@@ -1099,8 +1006,8 @@ select{ appearance:none; background-image:
 
 <script>
 /* =====================================================================
-   Consumer Opinion Studies — st2 (Study 1b): eye-strain tools, 2 cells
-   Configuration: endpoints, stimulus copy, the two tools, completion.
+   Consumer Opinion Studies — st2 (Study 1b): eye-care routines, 2 cells
+   Configuration: endpoints, stimulus copy, the two routines, completion.
    Everything a researcher would want to edit lives in this file.
    ===================================================================== */
 
@@ -1123,48 +1030,48 @@ const CONFIG = {
 };
 
 /* ---------------------------------------------------------------------
-   STIMULUS — the article, about ONE of the two tools (the "focal" tool,
-   counterbalanced). {NAME} is the focal tool's name. Identical in both
+   STIMULUS — the article, about ONE of the two routines (the "focal"
+   routine, counterbalanced). {NAME} is its name. Identical in both
    conditions; the mixed condition adds the two verdict cards beneath it.
    --------------------------------------------------------------------- */
 const STIMULUS = {
-  kicker: "Health & Tech",
+  kicker: "Health",
 
   /* The setting of the problem (a laptop at the end of the day), not
-     either tool, so it favours neither. Drawn for the study. */
+     either routine, so it favours neither. Drawn for the study. */
   image: "img/desk.svg",
   imageAlt: "A laptop on a desk at dusk, with a pair of glasses and a mug beside it.",
 
-  headline: "Can a 15-second routine ease eye strain?",
+  headline: "Can a one-minute routine ease eye strain?",
 
   body: [
-    "Long hours at a screen leave many people with tired, uncomfortable eyes, a problem known as digital eye strain. Some free browser tools aim to help, including {NAME}."
+    "Long hours at a screen leave many people with tired, uncomfortable eyes, a problem known as digital eye strain. Some free one-page routines aim to help, including {NAME}."
   ],
 
-  productLabel: "The tool in this article",
-  testedLabel: "Product tested",
+  productLabel: "The routine in this article",
+  testedLabel: "Routine tested",
 
-  claimLabel: "The developer’s claim",
+  claimLabel: "The creator’s claim",
   claim: "Reduces eye strain.",
 
-  /* The ONLY sentence that differs with the focal tool (besides its name):
-     what its developer says it does. Parallel, matched in length, effort
-     and tone (neither "relax" nor "moisture"). */
+  /* The ONLY sentence that differs with the focal routine (besides its
+     name): what its creator says it does. Parallel, matched in length,
+     effort and tone. */
   mechanism: {
-    blink: "Its developer says that a few slow, complete blinks spread fresh tears over eyes that dry out during screen use.",
-    move:  "Its developer says that a few slow, steady eye movements loosen eye muscles that tighten during screen use."
+    blink: "Its creator says that a few slow, complete blinks spread fresh tears over eyes that dry out during screen use.",
+    move:  "Its creator says that a few slow, steady eye movements loosen eye muscles that tighten during screen use."
   },
 
   /* The two magazines. Fictional, described identically; which magazine
      delivers which verdict is randomised (name_swap). */
   sources: [
-    { name: "Tech Courier"  },
-    { name: "Gear Bulletin" }
+    { name: "Health Courier"    },
+    { name: "Wellness Bulletin" }
   ],
-  sourceTag: "Established technology magazine",
+  sourceTag: "Established health magazine",
 
-  /* Mirror images; claim and verdict share "eye strain". The tool is named
-     once per card, in the "Product tested" chip. Shown side by
+  /* Mirror images; claim and verdict share "eye strain". The routine is
+     named once per card, in the "Routine tested" chip. Shown side by
      side; the confirming card is tinted green and the disconfirming card
      red (as st1). The tints are matched in CIELAB lightness and chroma. */
   verdict: {
@@ -1173,122 +1080,107 @@ const STIMULUS = {
       eyebrow: "Our verdict",
       headline: "The claim holds up.",
       body:
-        "We had a panel of office workers use the tool every day for two weeks. Based on what we measured, it <strong>did</strong> produce a meaningful reduction in eye strain. The developer’s claim <strong>is supported</strong>."
+        "We had a panel of office workers follow the routine every day for two weeks. Based on what we measured, it <strong>did</strong> produce a meaningful reduction in eye strain. The creator’s claim <strong>is supported</strong>."
     },
     disconfirming: {
       theme: "red",
       eyebrow: "Our verdict",
       headline: "The claim does not hold up.",
       body:
-        "We had a panel of office workers use the tool every day for two weeks. Based on what we measured, it <strong>did not</strong> produce a meaningful reduction in eye strain. The developer’s claim <strong>is not supported</strong>."
+        "We had a panel of office workers follow the routine every day for two weeks. Based on what we measured, it <strong>did not</strong> produce a meaningful reduction in eye strain. The creator’s claim <strong>is not supported</strong>."
     }
   },
 
-  sectionLabelMixed: "Independent product tests"
+  sectionLabelMixed: "Independent tests"
 };
 
 /* ---------------------------------------------------------------------
    THE INTRODUCTION ("How this study works"), identical in both cells.
-   Says what the study is and what these tools are, and that a tool will
-   run at the end — but names NO tool.
+   Says what the study is and that a routine is theirs to keep at the
+   end — but names NO routine.
    --------------------------------------------------------------------- */
 const INTRO = {
   title: "How this study works",
-  lede: "This study is about free eye-care tools: small browser apps that guide you through a short routine meant to ease eye strain from screens.",
+  lede: "This study is about free eye-care routines: one-page guides to a few simple eye exercises, meant to ease eye strain from screens.",
   steps: [
-    "<strong>Read</strong> a short article about one of these tools.",
-    "<strong>Answer</strong> a few questions, including which eye-care tool you would like to try.",
-    "<strong>Try it.</strong> At the end, the tool you pick runs full-screen and guides you through its 15-second routine."
+    "<strong>Read</strong> a short article about one of these routines.",
+    "<strong>Answer</strong> a few questions, including which routine you would like to get.",
+    "<strong>Get it.</strong> At the end, you will see the routine you picked and can download it as a one-page PDF to keep."
   ],
-  footnote: "These tools are free, run inside this browser tab and install nothing. You can stop a routine at any time."
+  footnote: "The routines are free, and downloading is optional."
 };
 
 /* ---------------------------------------------------------------------
-   THE TWO TOOLS. Each tool = a MECHANISM (its listing copy and its
-   routine) + a BRAND (name, developer, icon). Which brand goes with
-   which mechanism is counterbalanced (label_order a_blink / a_move), so
-   brand names must suit either mechanism and the two listings must work
-   under either name. Neither listing carries ratings, reviews or tests.
+   THE TWO ROUTINES. Each = a MECHANISM (listing copy, poster) + a BRAND
+   (name, creator, letter mark). Which brand goes with which mechanism is
+   counterbalanced (label_order a_blink / a_move), so names must suit
+   either routine and the listings must work under either name. Neither
+   listing carries ratings, reviews or tests. (The object keeps its
+   original name, TOOLS.)
    --------------------------------------------------------------------- */
 const TOOLS = {
-  /* Plain, human-sounding names in the style of real eye-care utilities
-     (EyeLeo, CareUEyes); checked 19 Oct 2026: no app (App Store, Google
-     Play), US trademark or web presence. Neither hints at a mechanism.
-     Each name, developer and icon mark travel together as one identity. */
+  /* Plain names in the style of real eye-care products; checked 19 Oct
+     2026: no app, US trademark or web presence. Each name, creator and
+     mark travel together as one identity. */
   brands: {
-    a: { name: "EyeNest", developer: "Whitfield Software", mark: "N" },
-    b: { name: "EyeDen",  developer: "Corbett Software",   mark: "D" }
+    a: { name: "EyeNest", developer: "Whitfield Studio", mark: "N" },
+    b: { name: "EyeDen",  developer: "Corbett Studio",   mark: "D" }
   },
 
-  /* Listings: different in voice (as real listings are), matched in length,
-     effort and appeal; the last line, the claim, is identical. Either brand
-     can sit on either listing. */
+  /* Listings: different in voice, as real ones are; matched in length,
+     effort and appeal; the last line, the claim, is identical. */
   mechanisms: {
     blink: {
-      tagline: "Paced blinking for screen-tired eyes.",
-      description: "We blink less often, and less fully, at a screen. {NAME} paces you through a few slow, complete blinks that spread fresh tears across your eyes. Use it once or twice a day. Reduces eye strain.",
-      how: "Close your eyes when the eye on screen closes. Count slowly to two, then open them.",
-      cueStart: "Blink along with the eye",
-      cues: ["Close your eyes slowly", "Hold", "Open"]
+      title: "The one-minute blink routine",
+      fileTitle: "one-minute-blink-routine",
+      tagline: "A one-minute routine of slow, complete blinks.",
+      description: "We blink less often, and less fully, at a screen. {NAME} takes you through a few slow, complete blinks that spread fresh tears across your eyes. Once or twice a day. Reduces eye strain."
     },
     move: {
-      tagline: "Guided eye movements for long screen days.",
-      description: "Screens keep your eyes fixed at one distance for hours. {NAME} guides them through a few slow, steady movements that loosen your focusing muscles. Best done once or twice a day. Reduces eye strain.",
-      how: "Keep your head still and follow the dot with your eyes as it moves.",
-      cueStart: "Follow the dot with your eyes",
-      cues: ["Side to side", "Up and down", "Figure eight"]
+      title: "The one-minute eye-movement routine",
+      fileTitle: "one-minute-eye-movement-routine",
+      tagline: "A one-minute routine of slow eye movements.",
+      description: "Screens keep your eyes fixed at one distance for hours. {NAME} takes you through a few slow, steady eye movements that loosen your focusing muscles. Once or twice a day. Reduces eye strain."
     }
   },
 
-  /* the routine: 15 s of visible time on one timeline for both tools.
-     0.5 fade in + 2.0 lead-in + 3 steps x 3.8 + 0.6 "Done" + 0.5 fade out */
-  run: {
-    seconds: 15,
-    fadeIn: 0.5, lead: 2.0, steps: 3, step: 3.8, done: 0.6, fadeOut: 0.5,
-    precue: 0.5,                            // each step's cue shows 0.5 s early
-    blink: { close: 1.0, hold: 1.5, open: 0.8 },   // then 0.5 s rest, eye open
-    move:  { action: 3.3 },                        // then 0.5 s rest at the centre
-    unit: "Step",
-    frame: "#1E1E1E",
-    colors: {
-      line: "#cfd6da", white: "rgba(226,232,235,.09)",
-      irisIn: "#5f747c", irisOut: "#7f949b", irisRing: "rgba(20,26,30,.35)",
-      pupil: "#181d21", glint: "rgba(255,255,255,.6)",
-      dot: "#e8ece9", glow: "rgba(232,236,233,.26)"
-    },
-    cueEnd: "Done",
-    facts: [
-      "Runs full-screen for 15 seconds",
-      "Press Esc or Stop at any time"
-    ]
-  },
-
-  meta: "Free · In your browser · 15 seconds",
+  meta: "Free · One-page PDF · About 1 minute a day",
 
   /* Choice screen: an introduction, then the two options one at a time
      (option 1, then "Show the second option"), then the question. Option 1,
-     on the left, is always the article's tool. */
-  choiceIntro: "In this study, you can choose one of two eye-care tools to try.",
-  choiceIntroHelp: "The two tools come from different developers. Whichever you choose runs on your screen at the end of the study. Here they are, one at a time.",
-  /* option 1 is always the article's tool; this label reminds them */
-  focalFlag: "The tool in this article",
+     on the left, is always the article's routine. */
+  choiceIntro: "In this study, you can choose one of two eye-care routines to download.",
+  choiceIntroHelp: "The two routines come from different creators. You will see the one you choose at the end of the study and can download it as a one-page PDF. Here they are, one at a time.",
+  /* option 1 is always the article's routine; this label reminds them */
+  focalFlag: "The routine in this article",
   revealLabel: "Show the second option",
   optionLabel: "Option",
-  prompt: "Which eye-care tool should run on your screen at the end of the study?",
+  prompt: "Which eye-care routine would you like to download at the end of the study?",
   footer: "Once you confirm, your choice is final."
 };
 
 /* ---------------------------------------------------------------------
-   DEBRIEF ({NAMES} = both tool names). Condition-neutral.
+   THE ROUTINE SCREEN, after the demographics: the chosen routine's poster
+   with two downloads.
+   --------------------------------------------------------------------- */
+const DELIVERY = {
+  text: "Here is the routine you chose. Download it to print, or to keep on your computer.",
+  pdf: "Download PDF",
+  png: "Download image",
+  note: "Downloading is optional."
+};
+
+/* ---------------------------------------------------------------------
+   DEBRIEF ({NAMES} = both routine names). Condition-neutral.
    --------------------------------------------------------------------- */
 const DEBRIEF =
   "<strong>A note on what you saw.</strong> This study looks at how people respond to product tests " +
   "that agree or disagree; some participants saw such tests and others did not. {NAMES}, their " +
-  "developers, and any magazines or product tests you saw were invented for this study, and no test " +
-  "was run. The routine you just tried was made by the research team. Research on blinking and " +
-  "eye-movement routines is mixed, and none has been shown to reliably reduce eye strain. Eye-care " +
-  "professionals often suggest the 20-20-20 habit: every 20 minutes, look at something about 20 feet " +
-  "away for 20 seconds. If your eyes are often sore, dry or blurry, consider seeing an eye doctor.";
+  "creators, and any magazines or tests you saw were invented for this study, and no test was run. " +
+  "The routine you saw was made by the research team. Research on blinking and eye-movement routines " +
+  "is mixed, and none has been shown to reliably reduce eye strain. Eye-care professionals often " +
+  "suggest the 20-20-20 habit: every 20 minutes, look at something about 20 feet away for 20 seconds. " +
+  "If your eyes are often sore, dry or blurry, consider seeing an eye doctor.";
 
 </script>
 
@@ -1297,25 +1189,25 @@ const DEBRIEF =
    MEASURES
    One screen beside the article, questions stacked and locked once
    answered (as in s1a): the tool choice first, so no question precedes
-   it, then belief in each tool's claim (the article's tool first).
-   Demographics follow; the chosen tool runs after them; one realism item
-   comes after the run. {NAME} is the tool the item is about.
+   it, then belief in each routine's claim (the article's routine first).
+   Demographics follow; the chosen routine is shown after them; one realism
+   item comes after it. {NAME} is the routine the item is about.
    ===================================================================== */
 
 const ALL = ["control", "mixed"];
 
 const MEASURES = [
 
-  /* ---------- DV (primary): which tool runs ------------------------- */
+  /* ---------- DV (primary): which routine they get ----------------- */
   {
     id: "choice",
     when: ALL,
     type: "toolchoice",
     eyebrow: "Your choice",
-    field: "dv_choice"          // "blink" | "move"; dv_focal = chose the article's tool
+    field: "dv_choice"          // "blink" | "move"; dv_focal = chose the article's routine
   },
 
-  /* ---------- belief in each tool's claim (0-100, no default) -------- */
+  /* ---------- belief in each routine's claim (0-100, no default) ----- */
   {
     id: "belief_focal",
     when: ALL,
@@ -1356,15 +1248,15 @@ const DEMOGRAPHICS = [
   },
   {
     field: "familiarity", type: "scale7",
-    label: "Before today, how familiar were you with eye exercises, blinking exercises or eye-care apps?",
+    label: "Before today, how familiar were you with eye exercises, blinking exercises or eye-care routines?",
     left: "Not at all familiar", right: "Extremely familiar"
   }
 ];
 
-/* ---------- After the run ------------------------------------------- */
+/* ---------- After the routine is shown ------------------------------ */
 const REALISM = {
   field: "realism",
-  label: "Before you used it, did you think the tool you chose was a real product that people can use?",
+  label: "Before you saw it, did you think the routine you chose was a real one that people use?",
   options: ["Yes", "No", "Not sure"]
 };
 
@@ -1372,14 +1264,15 @@ const REALISM = {
 
 <script>
 /* =====================================================================
-   Consumer Opinion Studies — st2 (Study 1b): eye-strain tools, 2 cells
+   Consumer Opinion Studies — st2 (Study 1b): eye-care routines, 2 cells
    Flow: consent -> orientation -> article -> [choice, belief x2] beside
-         the article -> demographics (response saved) -> the chosen tool's
-         15-s guided routine runs full-screen -> realism item -> debrief
-   Two tools: a blink coach ("blink") and an eye-movement routine
-   ("move"). Which brand (name, developer, icon) each carries, which one
-   the article is about, and which is shown first are all counterbalanced
-   within each cell (label_order, from assign()).
+         the article -> demographics (response saved) -> the chosen
+         routine is shown as a one-page poster, with downloads (PDF / PNG)
+         -> realism item -> debrief
+   Two routines: blinking ("blink") and eye movements ("move"). Which
+   brand (name, creator, letter mark) each carries and which one the
+   article is about are counterbalanced within each cell (label_order,
+   from assign()). The article's routine is always option 1.
    ===================================================================== */
 
 (function () {
@@ -1405,7 +1298,7 @@ const REALISM = {
     timings: {},
     choiceMeta: null,
     choiceRestored: false,
-    run: null,
+    delivery: null,
     queue: [],
     idx: 0,
     screenEnteredAt: 0
@@ -1441,7 +1334,7 @@ const REALISM = {
     return txt ? JSON.parse(txt) : null;
   }
 
-  /* fire-and-forget event log (breadcrumbs, the choice, the run) */
+  /* fire-and-forget event log (breadcrumbs, the choice, the downloads) */
   function logEvent(kind, detail) {
     return rpc("log_event", {
       p_study: CONFIG.studyId,
@@ -1474,7 +1367,7 @@ const REALISM = {
      Only ever active on localhost / file:// — inert once deployed.
      ?preview=control|mixed  &swap=1 (disconfirming first)
      &pair=a_move (brand A is the eye-movement routine)  &focal=move
-     &jump=intro|measures|run|done  &tool=blink|move */
+     &jump=intro|measures|deliver|done  &tool=blink|move */
   const PREVIEW = (function () {
     const host = location.hostname;
     const local = host === "localhost" || host === "127.0.0.1" || location.protocol === "file:";
@@ -2022,7 +1915,7 @@ const REALISM = {
   }
 
   /* =====================================================================
-     4. DEMOGRAPHICS — then the response is saved, BEFORE the run
+     4. DEMOGRAPHICS — then the response is saved, BEFORE the routine is shown
      ===================================================================== */
   function renderDemographics() {
     const host = $("#demo-body");
@@ -2091,8 +1984,8 @@ const REALISM = {
       S.timings.t_demographics = Date.now() - started;
       Object.assign(S.answers, vals);
       try {
-        await submit("before_run");
-        startRunScreen();
+        await submit("before_delivery");
+        startDelivery();
       } catch (e) {
         console.error(e);
         btn.disabled = false;
@@ -2105,365 +1998,52 @@ const REALISM = {
   }
 
   /* =====================================================================
-     5. THE RUN — the chosen tool's guided routine, full-screen, 15 s of
-     VISIBLE time, on one timeline for both tools (TOOLS.run):
-       fade in 0.5 s · lead-in 1.5 s · 3 steps of 4 s (3.3 s guided, 0.7 s
-       rest) · "Done" 0.5 s · fade out 0.5 s.
-       blink: an eye on screen closes over 1 s, stays closed 1.5 s, opens
-              over 0.8 s; the participant blinks along (one per step).
-       move:  a soft dot glides from the centre side to side, then up and
-              down, then in a figure eight, and rests at the centre.
-     Same frame, graphic size, cue position, status bar ("Step k of 3")
-     and pacing for both. The cue for each step appears 0.5 s before it.
-     Every frame is a pure function of visible time, so a dropped frame
-     cannot produce a jump. Stop / Esc / leaving full-screen ends the
-     routine, not the 15-second slot. The timer pauses while the tab is
-     hidden. Starts full-window at once; upgraded to full-screen when the
-     browser grants it (some browsers never answer the request).
-     Reduced-motion settings are logged, not acted on: the motion IS the
-     routine, and changing one tool only would break the match.
+     5. THE ROUTINE — the chosen routine as a one-page poster (the same for
+     every participant who chose it with that brand), with two downloads.
+     The poster files are pre-rendered per routine x brand:
+     img/routine-<blink|move>-<a|b>.png and .pdf. Downloads are logged.
      ===================================================================== */
-  const RUN = TOOLS.run;
-  const smooth = p => p <= 0 ? 0 : p >= 1 ? 1 : p * p * (3 - 2 * p);
-  const easeSine = p => p <= 0 ? 0 : p >= 1 ? 1 : (1 - Math.cos(Math.PI * p)) / 2;
-  const mmss = s => { s = Math.max(0, Math.ceil(s)); return Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0"); };
+  const posterPath = (t, ext) => `img/routine-${t.id}-${t.brand}.${ext}`;
+  const posterFile = (t, ext) => `${t.name}-${t.fileTitle}.${ext}`;
 
-  /* where visible time t falls: phase "in" | "lead" | "step" | "done" | "out",
-     the step index k (for "step"), u = seconds into the phase or step */
-  function phaseAt(t) {
-    const R = RUN, s0 = R.fadeIn + R.lead, s1 = s0 + R.steps * R.step;
-    if (t < R.fadeIn) return { ph: "in", u: t };
-    if (t < s0) return { ph: "lead", u: t - R.fadeIn };
-    if (t < s1) { const k = Math.floor((t - s0) / R.step); return { ph: "step", k, u: t - s0 - k * R.step }; }
-    if (t < s1 + R.done) return { ph: "done", u: t - s1 };
-    return { ph: "out", u: Math.min(R.fadeOut, t - s1 - R.done) };
-  }
-  /* graphics opacity: fade in and out with the run */
-  function alphaAt(t) {
-    const f = phaseAt(t);
-    return f.ph === "in" ? smooth(f.u / RUN.fadeIn) : f.ph === "out" ? 1 - smooth(f.u / RUN.fadeOut) : 1;
-  }
-
-  /* blink: how open the coached eye is (1 open, 0 closed) */
-  function eyeOpen(t) {
-    const f = phaseAt(t), B = RUN.blink;
-    if (f.ph !== "step") return 1;
-    const u = f.u;
-    if (u < B.close) return 1 - easeSine(u / B.close);
-    if (u < B.close + B.hold) return 0;
-    if (u < B.close + B.hold + B.open) return easeSine((u - B.close - B.hold) / B.open);
-    return 1;
-  }
-
-  /* move: the three paths, as offsets from the centre at angle th */
-  function pathPoint(k, th, W, H) {
-    const ax = Math.min(W * 0.24, 340), ay = Math.min(H * 0.22, 210);
-    if (k === 0) return [ax * Math.sin(th), 0];
-    if (k === 1) return [0, ay * Math.sin(th)];
-    return [0.85 * ax * Math.sin(th), 0.55 * ay * Math.sin(2 * th)];
-  }
-  /* the dot leaves the centre from rest, slows to a stop at every turn and
-     comes back to rest at the centre (a = 0..1 through the guided part) */
-  function dotPath(k, a, W, H) {
-    const env = a < 0.12 ? smooth(a / 0.12) : a > 0.88 ? smooth((1 - a) / 0.12) : 1;
-    const [x, y] = pathPoint(k, 2 * Math.PI * a, W, H);
-    return [W / 2 + env * x, H / 2 + env * y];
-  }
-  function dotAt(t, W, H) {
-    const f = phaseAt(t);
-    if (f.ph !== "step" || f.u >= RUN.move.action) return [W / 2, H / 2];
-    return dotPath(f.k, f.u / RUN.move.action, W, H);
-  }
-
-  /* the step the status bar and cue refer to: each step's cue starts
-     RUN.precue seconds before the step itself */
-  function cueStepAt(t) {
-    const s0 = RUN.fadeIn + RUN.lead;
-    return Math.max(0, Math.min(RUN.steps - 1, Math.floor((t - s0 + RUN.precue) / RUN.step)));
-  }
-  const finishing = t => t >= RUN.fadeIn + RUN.lead + RUN.steps * RUN.step - RUN.precue;
-
-  /* the on-screen cue at visible time t */
-  function cueAt(tool, t) {
-    const f = phaseAt(t), s0 = RUN.fadeIn + RUN.lead;
-    if (finishing(t)) return RUN.cueEnd;
-    if (t < s0 - RUN.precue) return tool.cueStart;
-    if (tool.id === "move") return tool.cues[cueStepAt(t)];
-    /* blink: "close" from the pre-cue until fully closed, then "hold", then "open" */
-    if (f.ph !== "step") return tool.cues[0];
-    const B = RUN.blink;
-    if (f.u >= RUN.step - RUN.precue) return tool.cues[0];
-    if (f.u < B.close) return tool.cues[0];
-    if (f.u < B.close + B.hold) return tool.cues[1];
-    return tool.cues[2];
-  }
-
-  function drawEye(ctx, cx, cy, w, open, a) {
-    const hw = w / 2, h = w * 0.21;
-    const upC = cy + h * 0.35 - h * 2.35 * open;  // control point, upper lid
-    const loC = cy + h * 0.35 + h * 1.25 * open;  // control point, lower lid
-    const C = RUN.colors;
-    const lid = c => { ctx.moveTo(cx - hw, cy); ctx.quadraticCurveTo(cx, c, cx + hw, cy); };
-    ctx.save();
-    ctx.globalAlpha = a;
-    if (open > 0.02) {
-      ctx.beginPath();
-      lid(upC); ctx.quadraticCurveTo(cx, loC, cx - hw, cy); ctx.closePath();
-      ctx.fillStyle = C.white; ctx.fill();
-      ctx.save(); ctx.clip();
-      const r = h * 1.02, iy = cy + h * 0.06;
-      const g = ctx.createRadialGradient(cx, iy, r * 0.3, cx, iy, r);
-      g.addColorStop(0, C.irisIn); g.addColorStop(1, C.irisOut);
-      ctx.fillStyle = g;        ctx.beginPath(); ctx.arc(cx, iy, r, 0, 2 * Math.PI); ctx.fill();
-      ctx.strokeStyle = C.irisRing; ctx.lineWidth = Math.max(1.5, r * 0.05);
-      ctx.beginPath(); ctx.arc(cx, iy, r * 0.97, 0, 2 * Math.PI); ctx.stroke();
-      ctx.fillStyle = C.pupil;  ctx.beginPath(); ctx.arc(cx, iy, r * 0.44, 0, 2 * Math.PI); ctx.fill();
-      ctx.fillStyle = C.glint;  ctx.beginPath(); ctx.arc(cx + r * 0.3, iy - r * 0.3, r * 0.12, 0, 2 * Math.PI); ctx.fill();
-      ctx.restore();
-    }
-    ctx.lineCap = "round"; ctx.lineJoin = "round";
-    ctx.strokeStyle = C.line;
-    ctx.lineWidth = Math.max(2, w * 0.011);
-    ctx.beginPath(); lid(upC); ctx.stroke();
-    ctx.globalAlpha = a * (0.4 + 0.6 * (1 - open));
-    ctx.lineWidth = Math.max(1.5, w * 0.008);
-    ctx.beginPath(); lid(loC); ctx.stroke();
-    /* lashes appear as the eye closes */
-    const k = 1 - open;
-    if (k > 0.05) {
-      ctx.globalAlpha = a * k;
-      [0.22, 0.36, 0.5, 0.64, 0.78].forEach(u => {
-        const x = (1 - u) * (1 - u) * (cx - hw) + 2 * u * (1 - u) * cx + u * u * (cx + hw);
-        const y = (1 - u) * (1 - u) * cy + 2 * u * (1 - u) * upC + u * u * cy;
-        const sp = (u - 0.5) * 0.9;
-        ctx.beginPath(); ctx.moveTo(x, y + w * 0.012);
-        ctx.lineTo(x + sp * w * 0.05, y + w * 0.012 + w * 0.045 * k); ctx.stroke();
-      });
-    }
-    ctx.restore();
-  }
-
-  function drawDot(ctx, x, y, r, a) {
-    ctx.save();
-    ctx.globalAlpha = a;
-    const g = ctx.createRadialGradient(x, y, 0, x, y, r * 3.2);
-    g.addColorStop(0, RUN.colors.glow); g.addColorStop(1, "rgba(0,0,0,0)");
-    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, r * 3.2, 0, 2 * Math.PI); ctx.fill();
-    ctx.fillStyle = RUN.colors.dot; ctx.beginPath(); ctx.arc(x, y, r, 0, 2 * Math.PI); ctx.fill();
-    ctx.restore();
-  }
-
-  /* Paint one frame. Exported (preview only) so the checks can sample it. */
-  function paintTool(ctx, W, H, toolId, t) {
-    ctx.fillStyle = RUN.frame; ctx.fillRect(0, 0, W, H);
-    const a = alphaAt(t);
-    if (toolId === "blink") {
-      drawEye(ctx, W / 2, H / 2, Math.min(W * 0.3, H * 0.46, 440), eyeOpen(t), a);
-      return;
-    }
-    /* faint guide: the path of the step the cue is on */
-    const k = cueStepAt(t);
-    ctx.save();
-    ctx.globalAlpha = 0.11 * a;
-    ctx.strokeStyle = RUN.colors.dot; ctx.lineWidth = 1.5; ctx.setLineDash([2, 7]); ctx.lineCap = "round";
-    ctx.beginPath();
-    for (let n = 0; n <= 120; n++) {
-      const [x, y] = pathPoint(k, 2 * Math.PI * n / 120, W, H);
-      if (n === 0) ctx.moveTo(W / 2 + x, H / 2 + y); else ctx.lineTo(W / 2 + x, H / 2 + y);
-    }
-    ctx.stroke();
-    ctx.restore();
-    const [x, y] = dotAt(t, W, H);
-    drawDot(ctx, x, y, Math.max(9, Math.min(14, Math.min(W, H) * 0.014)), a);
-  }
-
-  function startRunScreen(toolOverride) {
-    const toolId = toolOverride || S.answers.dv_choice;
-    const tool = S.tools[toolId];
-    const total = RUN.seconds * 1000;
-    const reduced = !motionOK();          // logged only
-    S.run = {
-      tool: toolId, tool_name: tool.name, mode: null, fullscreen_ok: false, reduced_motion: reduced,
-      started: false, stopped: false, ended: false,
-      stop_cause: null, stop_at_ms: null,
-      visible_ms: 0, wall_ms: 0, hidden_n: 0, hidden_ms: 0,
-      launch_wait_ms: null
-    };
-
-    [["#run-icon", "lg"], ["#hud-icon", "sm"], ["#end-icon", "lg"]].forEach(([sel, sz]) => {
-      $(sel).outerHTML = iconHTML(tool, sz).replace("<span ", `<span id="${sel.slice(1)}" `);
-    });
-    $("#run-title").textContent = tool.name;
-    $("#end-title").textContent = tool.name;
-    $("#run-dev").textContent = "by " + tool.developer;
-    $("#run-how").textContent = tool.how;
-    $("#run-facts").innerHTML = RUN.facts.map(f => `<li>${fill(f, tool)}</li>`).join("");
-    $("#run-start").textContent = "Start " + tool.name;
-    $("#hud-name").textContent = tool.name;
-    show("screen-run");
+  function startDelivery(toolOverride) {
+    const id = toolOverride || S.answers.dv_choice;
+    const t = S.tools[id];
     const shownAt = Date.now();
+    S.delivery = { routine: id, routine_name: t.name, shown: true,
+                   pdf: false, png: false, first_download_ms: null, ms_on_page: null };
 
-    const stage = $("#run-stage");
-    const canvas = $("#run-canvas");
-    const cue = $("#run-cue");
-    const ctx = canvas.getContext("2d");
-    let W = 0, H = 0, last = 0, hiddenAt = 0, wallStart = 0, raf = 0, clock = 0, pausedTimer = 0, cueText = "";
+    const img = $("#deliver-img");
+    img.src = posterPath(t, "png");
+    img.alt = `${t.name}: ${t.title}. A one-page routine.`;
+    $("#deliver-head").innerHTML = `${iconHTML(t)}<span class="deliver-id"><span class="deliver-name">${t.name}</span><span class="deliver-dev">by ${t.developer}</span></span>`;
+    $("#deliver-title").textContent = t.title;
+    $("#deliver-text").textContent = DELIVERY.text;
+    $("#deliver-note").textContent = DELIVERY.note;
 
-    /* crisp on high-density screens; drawing is in CSS pixels */
-    const size = () => {
-      const dpr = Math.min(2, window.devicePixelRatio || 1);
-      W = Math.max(1, stage.clientWidth || window.innerWidth);
-      H = Math.max(1, stage.clientHeight || window.innerHeight);
-      canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const link = (sel, ext, label) => {
+      const a = $(sel);
+      a.href = posterPath(t, ext);
+      a.setAttribute("download", posterFile(t, ext));
+      a.textContent = label;
+      a.onclick = () => {
+        const ms = Date.now() - shownAt;
+        S.delivery[ext] = true;
+        if (S.delivery.first_download_ms === null) S.delivery.first_download_ms = ms;
+        logEvent("download", { format: ext, routine: id, routine_name: t.name, ms });
+      };
     };
+    link("#deliver-pdf", "pdf", DELIVERY.pdf);
+    link("#deliver-png", "png", DELIVERY.png);
 
-    const setCue = txt => {
-      if (txt === cueText) return;
-      cueText = txt;
-      cue.textContent = txt;
-      cue.classList.remove("cue-in"); void cue.offsetWidth; cue.classList.add("cue-in");
-    };
+    show("screen-deliver");
+    logEvent("delivery", { routine: id, routine_name: t.name });
 
-    const hud = () => {
-      const t = S.run.visible_ms / 1000;
-      $("#hud-action").textContent = finishing(t)
-        ? "· Finishing"
-        : `· ${RUN.unit} ${cueStepAt(t) + 1} of ${RUN.steps}`;
-      $("#hud-fill").style.width = (100 * S.run.visible_ms / total) + "%";
-      const left = mmss((total - S.run.visible_ms) / 1000);
-      $("#hud-time").textContent = left;
-      if (S.run.stopped) $("#run-stopped-text").textContent =
-        `The routine has stopped. The study continues in ${left}.`;
-      else setCue(cueAt(tool, t));
-    };
-
-    /* The clock is a 250-ms timer, not animation frames: browsers stop
-       rendering frames for windows that are covered or not on screen, and the
-       slot must still end. Animation frames only paint. */
-    const tick = () => {
-      if (S.run.ended) return;
-      const now = performance.now();
-      if (document.visibilityState === "visible") {
-        S.run.visible_ms = Math.min(total, S.run.visible_ms + (now - last));
-      }
-      last = now;
-      hud();
-      if (S.run.visible_ms >= total) finish();
-    };
-    const frame = () => {
-      if (S.run.ended) return;
-      tick();
-      if (!S.run.ended && !S.run.stopped) paintTool(ctx, W, H, toolId, S.run.visible_ms / 1000);
-      raf = requestAnimationFrame(frame);
-    };
-
-    const leaveFullscreen = () => {
-      const d = document;
-      if (d.fullscreenElement || d.webkitFullscreenElement) {
-        const fn = d.exitFullscreen || d.webkitExitFullscreen;
-        try { const p = fn.call(d); if (p && p.catch) p.catch(() => {}); } catch (e) { /* already out */ }
-      }
-    };
-
-    const stop = cause => {
-      if (!S.run.started || S.run.stopped || S.run.ended) return;
-      S.run.stopped = true;
-      S.run.stop_cause = cause;
-      S.run.stop_at_ms = Math.round(S.run.visible_ms);
-      ctx.fillStyle = RUN.frame; ctx.fillRect(0, 0, W, H);
-      leaveFullscreen();
-      stage.hidden = true;
-      $("#run-stopped").hidden = false;
-      hud();
-    };
-
-    const finish = () => {
-      if (S.run.ended) return;
-      S.run.ended = true;
-      cancelAnimationFrame(raf);
-      clearInterval(clock);
-      S.run.wall_ms = Date.now() - wallStart;
-      S.run.visible_ms = Math.round(S.run.visible_ms);
-      leaveFullscreen();
-      stage.hidden = true;
-      $("#run-stopped").hidden = true;
-      $("#end-text").textContent = S.run.stopped
-        ? (s => `You stopped ${tool.name} after ${s} second${s === 1 ? "" : "s"}.`)(Math.max(1, Math.floor(S.run.stop_at_ms / 1000)))
-        : `${tool.name} has finished its routine.`;
-      $("#run-end").hidden = false;
-      document.removeEventListener("keydown", onKey);
-      window.removeEventListener("resize", size);
-      logEvent("run", Object.assign({}, S.run, { completed: !S.run.stopped }));
-    };
-
-    const onKey = e => { if (e.key === "Escape" || e.key === "Esc") stop("esc_key"); };
-    const onFs = () => {
-      const fs = document.fullscreenElement || document.webkitFullscreenElement;
-      if (fs) {
-        if (!S.run.ended && !S.run.stopped) { S.run.mode = "fullscreen"; S.run.fullscreen_ok = true; }
-        size();
-      } else if (S.run.mode === "fullscreen") {
-        stop("left_fullscreen");                     // Esc in full-screen arrives here
-      }
-    };
-    const onVis = () => {
-      if (!S.run.started || S.run.ended) return;
-      if (document.visibilityState === "hidden") {
-        S.run.hidden_n += 1; hiddenAt = Date.now();
-      } else if (hiddenAt) {
-        S.run.hidden_ms += Date.now() - hiddenAt; hiddenAt = 0;
-        last = performance.now();
-        if (!S.run.stopped) {
-          const note = $("#run-paused");
-          note.hidden = false;
-          clearTimeout(pausedTimer);
-          pausedTimer = setTimeout(() => { note.hidden = true; }, 3500);
-        }
-      }
-    };
-
-    $("#run-start").onclick = () => {
-      if (S.run.started) return;
-      S.run.started = true;
-      S.run.launch_wait_ms = Date.now() - shownAt;
-      $("#run-launch").hidden = true;
-      stage.hidden = false;
-      size();
-      ctx.fillStyle = RUN.frame; ctx.fillRect(0, 0, W, H);
-
-      document.addEventListener("keydown", onKey);
-      document.addEventListener("fullscreenchange", onFs);
-      document.addEventListener("webkitfullscreenchange", onFs);
-      document.addEventListener("visibilitychange", onVis);
-      window.addEventListener("resize", size);
-
-      S.run.mode = "window";
-      wallStart = Date.now();
-      last = performance.now();
-      logEvent("run_start", { tool: toolId, tool_name: tool.name });
-      clock = setInterval(tick, 250);
-      raf = requestAnimationFrame(frame);
-
-      /* requestFullscreen must be called inside this click handler */
-      const req = stage.requestFullscreen || stage.webkitRequestFullscreen;
-      if (req) {
-        try {
-          const p = req.call(stage);
-          if (p && p.catch) p.catch(() => { /* stays full-window */ });
-        } catch (e) { /* stays full-window */ }
-      }
-    };
-
-    $("#run-stop").onclick = () => stop("stop_button");
-
-    $("#run-continue").onclick = () => {
-      document.removeEventListener("fullscreenchange", onFs);
-      document.removeEventListener("webkitfullscreenchange", onFs);
-      document.removeEventListener("visibilitychange", onVis);
+    $("#deliver-continue").onclick = () => {
+      S.delivery.ms_on_page = Date.now() - shownAt;
+      S.timings.t_delivery = S.delivery.ms_on_page;
       renderRealism();
       show("screen-realism");
-      $("#screen-realism").classList.add("from-dark");
     };
   }
 
@@ -2508,9 +2088,9 @@ const REALISM = {
   }
 
   /* =====================================================================
-     7. SUBMIT — called twice: before the run (so the choice, beliefs and
+     7. SUBMIT — called twice: before the routine is shown (so the choice, beliefs and
      demographics are safe if someone leaves during it) and after the
-     realism item (adds the run and realism). Each call replaces the row.
+     realism item (adds the downloads and realism). Each call replaces the row.
      ===================================================================== */
   function buildPayload(stage) {
     const p = Object.assign({}, S.answers);
@@ -2546,7 +2126,7 @@ const REALISM = {
       user_agent:        navigator.userAgent,
       page_ms:           S.timings,
       choice:            S.choiceMeta,
-      run:               S.run
+      delivery:          S.delivery
     };
     await rpc("submit", {
       p_study: CONFIG.studyId,
@@ -2648,9 +2228,9 @@ const REALISM = {
       $("#stimulus-pane").insertBefore($("#article-full"), $("#stimulus-pane").firstChild);
       show("screen-measures");
       renderMeasure();
-    } else if (jump === "run") {
+    } else if (jump === "deliver") {
       S.answers.dv_choice = q.get("tool") === "move" ? "move" : "blink";
-      startRunScreen(S.answers.dv_choice);
+      startDelivery(S.answers.dv_choice);
     } else if (jump === "done") {
       renderDebrief();
       show("screen-done");
@@ -2664,7 +2244,7 @@ const REALISM = {
     initIntro();
     initWithdraw();
     if (PREVIEW) {
-      window.__ST2 = { S, buildPayload, paintTool, phaseAt, alphaAt, eyeOpen, dotAt, cueAt, cueStepAt };
+      window.__ST2 = { S, buildPayload };
       previewJump();
     }
   });
