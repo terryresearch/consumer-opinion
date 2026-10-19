@@ -1,0 +1,2670 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Consumer Opinion Study</title>
+<style>
+/* =====================================================================
+   Consumer Opinion Studies — st2 (Study 1b): eye-strain tools
+   Shared look from s1a/fr1; st1/st2 additions are at the end of the file.
+   ===================================================================== */
+
+:root{
+  --ink:            #14161a;
+  --ink-2:          #3d434e;
+  --ink-3:          #6b7280;
+  --ink-4:          #9aa1ad;
+  --rule:           #e3e5ea;
+  --rule-soft:      #eef0f3;
+  --paper:          #ffffff;
+  --canvas:         #f6f6f4;
+  --panel:          #fbfbfa;
+  --accent:         #1f3d5c;
+  --accent-soft:    #eaeff4;
+  --accent-line:    #b9c7d6;
+  --focus:          #2f6feb;
+
+  --serif: "Iowan Old Style", "Charter", Georgia, "Times New Roman", serif;
+  --sans:  -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto,
+           "Helvetica Neue", Arial, sans-serif;
+
+  --measure-max: 620px;
+  --ease: cubic-bezier(.22,.61,.36,1);
+}
+
+*,*::before,*::after{ box-sizing:border-box; }
+
+html,body{ height:100%; }
+body{
+  margin:0;
+  font-family:var(--sans);
+  color:var(--ink);
+  background:var(--canvas);
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+}
+
+/* =====================  App shell  ================================== */
+/* Fixed-viewport shell: the app never scrolls as a whole. Each screen
+   scrolls inside itself, so the stimulus pane and the measure pane keep
+   their own independent scroll positions in the split view. */
+#app{
+  height:100vh; height:100dvh; overflow:hidden;
+  display:flex; flex-direction:column;
+}
+
+.screen{ display:none; flex:1; min-height:0; }
+.screen.is-active{ display:flex; flex-direction:column; }
+
+/* Centred single-column screens (consent, article, demographics, done) */
+.centered{
+  flex:1; display:flex; align-items:flex-start; justify-content:center;
+  padding:clamp(28px,6vh,72px) 24px 96px;
+  overflow-y:auto;
+}
+.centered > .sheet{
+  width:100%; max-width:var(--measure-max);
+  background:var(--paper);
+  border:1px solid var(--rule);
+  border-radius:14px;
+  padding:clamp(28px,4vw,44px);
+  box-shadow:0 1px 2px rgba(20,22,26,.04), 0 12px 32px -18px rgba(20,22,26,.18);
+  animation:rise .45s var(--ease) both;
+}
+.centered > .sheet.wide{ max-width:760px; }
+
+@keyframes rise{ from{ opacity:0; transform:translateY(10px);} to{ opacity:1; transform:none; } }
+
+/* =====================  Typography  ================================= */
+h1,h2,h3{ margin:0; font-weight:600; letter-spacing:-.012em; }
+h1{ font-size:clamp(22px,2.4vw,27px); line-height:1.25; }
+h2{ font-size:19px; line-height:1.35; }
+p{ margin:0 0 1em; line-height:1.65; color:var(--ink-2); }
+p:last-child{ margin-bottom:0; }
+strong{ font-weight:650; color:var(--ink); }
+
+.eyebrow{
+  font-size:11px; font-weight:650; letter-spacing:.11em; text-transform:uppercase;
+  color:var(--ink-4); margin:0 0 10px;
+}
+
+.lede{ font-size:15.5px; color:var(--ink-2); }
+.fineprint{ font-size:13px; line-height:1.6; color:var(--ink-3); }
+
+/* =====================  Buttons  ==================================== */
+.btn{
+  appearance:none; border:1px solid transparent; cursor:pointer;
+  font-family:inherit; font-size:15px; font-weight:550; letter-spacing:-.005em;
+  padding:13px 26px; border-radius:9px;
+  background:var(--accent); color:#fff;
+  transition:background .16s var(--ease), transform .12s var(--ease), opacity .16s;
+}
+.btn:hover:not(:disabled){ background:#152c43; }
+.btn:active:not(:disabled){ transform:translateY(1px); }
+.btn:disabled{ background:#d7dae0; color:#9aa1ad; cursor:not-allowed; }
+.btn.ghost{
+  background:transparent; color:var(--ink-3); border-color:var(--rule);
+}
+.btn.ghost:hover:not(:disabled){ background:var(--rule-soft); color:var(--ink-2); }
+.btn:focus-visible{ outline:2px solid var(--focus); outline-offset:2px; }
+
+.btn-row{ display:flex; align-items:center; gap:12px; margin-top:28px; }
+.btn-row.end{ justify-content:flex-end; }
+.btn-row[hidden]{ display:none; }
+
+/* =====================  SPLIT LAYOUT  ==============================
+   Stimulus pinned to the left half, measures on the right half.       */
+.split{
+  flex:1; min-height:0;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+}
+
+.pane-stimulus{
+  min-height:0; overflow-y:auto;
+  background:var(--panel);
+  border-right:1px solid var(--rule);
+  padding:clamp(28px,4vh,56px) clamp(24px,3.4vw,52px) 72px;
+  display:flex; justify-content:flex-end;
+}
+.pane-stimulus > .article{ width:100%; max-width:520px; }
+
+.pane-measure{
+  min-height:0; overflow-y:auto;
+  background:var(--canvas);
+  padding:clamp(28px,4vh,56px) clamp(24px,3.4vw,52px) 72px;
+  display:flex; justify-content:flex-start;
+}
+/* A fixed column, so every question's slider is the same width however long
+   its prompt is. 560px keeps the belief question on one line. */
+.pane-measure > .measure{ width:100%; max-width:560px; }
+
+/* =====================  THE ARTICLE  ================================ */
+.article{ animation:rise .5s var(--ease) both; }
+
+.masthead{
+  display:flex; align-items:baseline; gap:10px;
+  padding-bottom:12px; margin-bottom:26px;
+  border-bottom:1.5px solid var(--ink);
+}
+.masthead .brand{
+  font-family:var(--serif); font-size:19px; font-weight:600;
+  letter-spacing:.01em; color:var(--ink);
+}
+.masthead .section{
+  font-size:10.5px; font-weight:650; letter-spacing:.13em; text-transform:uppercase;
+  color:var(--ink-4);
+}
+
+.article-headline{
+  font-family:var(--serif); font-weight:600;
+  font-size:clamp(25px,2.7vw,31px); line-height:1.2; letter-spacing:-.015em;
+  margin:0 0 14px; color:var(--ink);
+}
+/* Product illustration. Sits between headline and body, identical in
+   every condition. */
+.article-figure{
+  margin:4px 0 20px; padding:0;
+  background:var(--paper);
+  border:1px solid var(--rule);
+  border-radius:12px;
+  overflow:hidden;
+  display:flex; justify-content:center;
+}
+.article-figure img{ display:block; width:100%; height:auto; }
+.article-body p{
+  font-family:var(--serif); font-size:16px; line-height:1.72; color:var(--ink-2);
+  margin:0 0 1.05em;
+}
+
+/* The manufacturer's claim — set as a pull quote */
+.claim-block{
+  margin:26px 0; padding:20px 24px;
+  background:var(--paper);
+  border:1px solid var(--rule);
+  border-left:3px solid var(--ink);
+  border-radius:0 8px 8px 0;
+}
+.claim-block .claim-label{
+  font-size:10.5px; font-weight:650; letter-spacing:.13em; text-transform:uppercase;
+  color:var(--ink-4); margin-bottom:8px;
+}
+.claim-block .claim-text{
+  font-family:var(--serif); font-size:20px; line-height:1.35; font-weight:600;
+  color:var(--ink); letter-spacing:-.01em;
+}
+
+/* =====================  VERDICT CARDS  =============================
+   Both verdicts share an IDENTICAL visual treatment. Only the wording
+   differs, so no colour cue is confounded with the manipulation.      */
+.verdicts{ margin-top:32px; }
+
+.verdicts-label{
+  font-size:10.5px; font-weight:650; letter-spacing:.13em; text-transform:uppercase;
+  color:var(--ink-4);
+  display:flex; align-items:center; gap:12px; margin-bottom:16px;
+}
+.verdicts-label::after{
+  content:""; flex:1; height:1px; background:var(--rule);
+}
+
+.verdict-card{
+  --card:      #33527e;
+  --card-tint: #eef1f7;
+  --card-line: #c3cfe2;
+
+  position:relative;
+  background:var(--card-tint);
+  border:1px solid var(--card-line);
+  border-left:3px solid var(--card);
+  border-radius:11px;
+  padding:20px 24px 22px;
+  margin-bottom:14px;
+  box-shadow:0 1px 2px rgba(20,22,26,.04), 0 10px 26px -20px rgba(20,22,26,.3);
+  animation:rise .55s var(--ease) both;
+}
+.verdict-card:last-child{ margin-bottom:0; }
+
+/* st1: the two verdicts sit side by side. Confirming = green, disconfirming
+   = red, matched in CIELAB lightness and chroma (accent L*42 C*38, tint
+   L*96.5 C*4.5, line L*82 C*16), so they differ only in hue. */
+.verdict-grid{ display:grid; grid-template-columns:1fr 1fr; gap:12px; align-items:stretch; }
+.verdict-grid .verdict-card{ margin-bottom:0; padding:16px 16px 18px; }
+.verdict-grid .verdict-card + .verdict-card{ animation-delay:.09s; }
+.verdict-grid .verdict-source .name{ font-size:16px; }
+.verdict-grid .verdict-source .tag{ font-size:9px; letter-spacing:.07em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.verdict-grid .verdict-headline{ font-size:17px; margin-bottom:9px; }
+.verdict-grid .verdict-body{ font-size:13.5px; line-height:1.6; }
+@media (max-width:520px){ .verdict-grid{ grid-template-columns:1fr; } }
+
+.verdict-card.verdict-confirming{
+  --card:      #2b7042;
+  --card-tint: #eff7f0;
+  --card-line: #b6d3bc;
+}
+.verdict-card.verdict-disconfirming{
+  --card:      #9c4a4a;
+  --card-tint: #fff2f1;
+  --card-line: #ecc2c0;
+}
+
+/* Source block: descriptor above, masthead below. Stacking keeps every
+   card identical in height regardless of how long the title is. */
+.verdict-source{
+  padding-bottom:12px; margin-bottom:14px;
+  border-bottom:1px solid var(--card-line);
+}
+.verdict-source .tag{
+  display:block;
+  font-size:9.5px; font-weight:650; letter-spacing:.12em; text-transform:uppercase;
+  color:var(--ink-4); margin-bottom:5px;
+}
+.verdict-source .name{
+  display:block;
+  font-family:var(--serif); font-size:17px; font-weight:600;
+  color:var(--card); letter-spacing:.005em; line-height:1.25;
+}
+
+.verdict-eyebrow{
+  font-size:10.5px; font-weight:650; letter-spacing:.13em; text-transform:uppercase;
+  color:var(--card); opacity:.85; margin-bottom:7px;
+}
+.verdict-headline{
+  font-family:var(--serif); font-size:19.5px; line-height:1.3; font-weight:600;
+  letter-spacing:-.012em; color:var(--ink); margin:0 0 11px;
+}
+.verdict-body{
+  font-size:14.5px; line-height:1.65; color:var(--ink-2); margin:0;
+}
+
+/* =====================  MEASURES  =================================== */
+/* All measures share one screen: each question is a block added beneath the
+   last, and answered blocks stay in place, locked and greyed. */
+.measure-block{ animation:rise .38s var(--ease) both; }
+.measure-block + .measure-block{ margin-top:30px; padding-top:28px; border-top:1px solid var(--rule); }
+/* animation:none releases the entrance animation's held opacity so the fade applies */
+.measure-block.is-done{ animation:none; opacity:.5; filter:grayscale(1); pointer-events:none; user-select:none; }
+.measure-block.is-done .measure-help{ display:none; }
+
+.progress{
+  display:flex; align-items:center; gap:12px; margin-bottom:26px;
+}
+.progress-track{
+  flex:1; height:3px; background:var(--rule); border-radius:3px; overflow:hidden;
+}
+.progress-fill{
+  height:100%; background:var(--accent); border-radius:3px; width:0;
+  transition:width .45s var(--ease);
+}
+.progress-count{
+  font-size:11.5px; font-weight:550; color:var(--ink-4); letter-spacing:.03em;
+  font-variant-numeric:tabular-nums; white-space:nowrap;
+}
+
+.measure-prompt{
+  font-size:19px; line-height:1.4; font-weight:550; letter-spacing:-.012em;
+  color:var(--ink); margin:0 0 8px;
+}
+.measure-help{ font-size:13px; line-height:1.55; color:var(--ink-4); margin:0 0 26px; }
+
+/* ---------- 0-100 slider ---------- */
+.slider-wrap{ padding:6px 0 4px; }
+.slider-value{
+  text-align:center; margin-bottom:18px; height:42px;
+  display:flex; align-items:center; justify-content:center;
+}
+.slider-value .num{
+  font-size:33px; font-weight:600; letter-spacing:-.02em; color:var(--accent);
+  font-variant-numeric:tabular-nums;
+}
+.slider-value .pct{ font-size:18px; font-weight:550; color:var(--accent-line); margin-left:2px; }
+.slider-value .placeholder{ font-size:13.5px; color:var(--ink-4); }
+
+.track-outer{ position:relative; padding:14px 0; cursor:pointer; }
+.track{
+  position:relative; height:5px; background:var(--rule); border-radius:5px;
+}
+.track-fill{
+  position:absolute; inset:0 auto 0 0; width:0;
+  background:var(--accent); border-radius:5px; opacity:0;
+  transition:opacity .2s;
+}
+.track-ticks{ position:absolute; inset:0; pointer-events:none; }
+.track-ticks span{
+  position:absolute; top:50%; width:1px; height:9px; margin-top:-4.5px;
+  background:var(--rule); transform:translateX(-50%);
+}
+.thumb{
+  position:absolute; top:50%; left:0; width:22px; height:22px; margin:-11px 0 0 -11px;
+  background:#fff; border:2px solid var(--accent); border-radius:50%;
+  box-shadow:0 2px 8px rgba(31,61,92,.22);
+  opacity:0; transform:scale(.6); pointer-events:none;
+  transition:opacity .18s var(--ease), transform .18s var(--ease);
+}
+.is-engaged .thumb{ opacity:1; transform:scale(1); }
+.is-engaged .track-fill{ opacity:1; }
+.track-outer:focus-visible{ outline:2px solid var(--focus); outline-offset:6px; border-radius:6px; }
+
+.track-labels{
+  display:flex; justify-content:space-between; gap:16px; margin-top:14px;
+}
+.track-labels span{ font-size:12.5px; color:var(--ink-3); line-height:1.4; max-width:44%; }
+.track-labels span:last-child{ text-align:right; }
+
+/* ---------- bipolar slider (mixed cell) ---------- */
+.bipolar .track-ticks span.center{ height:15px; margin-top:-7.5px; background:var(--ink-4); }
+.bipolar .track-fill{
+  background:var(--accent); border-radius:5px;
+}
+.bipolar-labels{
+  display:grid; grid-template-columns:1fr auto 1fr; gap:14px; margin-top:16px;
+  align-items:start;
+}
+.bipolar-labels .side{
+  font-size:12.5px; line-height:1.45; color:var(--ink-2);
+}
+.bipolar-labels .side .who{ display:block; font-weight:600; color:var(--ink); margin-bottom:2px; }
+.bipolar-labels .side.right{ text-align:right; }
+.bipolar-labels .mid{
+  font-size:11.5px; line-height:1.35; color:var(--ink-4); text-align:center;
+  padding-top:1px;
+}
+.bipolar-readout{
+  text-align:center; height:42px; display:flex; align-items:center; justify-content:center;
+  font-size:13.5px; color:var(--ink-3); margin-bottom:16px; line-height:1.45;
+}
+.bipolar-readout strong{ color:var(--accent); font-weight:600; }
+
+/* ---------- semantic differential ---------- */
+.semdiff-scale{
+  display:grid; grid-template-columns:minmax(76px,1fr) auto minmax(76px,1fr);
+  gap:10px; align-items:center;
+  padding:0 0 12px; margin-bottom:4px;
+}
+.semdiff-row{
+  display:grid; grid-template-columns:minmax(76px,1fr) auto minmax(76px,1fr);
+  gap:10px; align-items:center;
+  padding:11px 0; border-top:1px solid var(--rule-soft);
+}
+.semdiff-row:first-of-type{ border-top:1px solid var(--rule); }
+.semdiff-row .anchor{ font-size:13px; line-height:1.35; color:var(--ink-2); }
+.semdiff-row .anchor.right{ text-align:right; }
+
+.opt-row{ display:flex; gap:6px; }
+.opt{
+  position:relative; width:31px; height:31px; flex:0 0 auto;
+  display:flex; align-items:center; justify-content:center;
+}
+.opt input{
+  position:absolute; inset:0; opacity:0; margin:0; cursor:pointer; z-index:2;
+}
+.opt .dot{
+  width:100%; height:100%; border-radius:50%;
+  border:1.5px solid var(--rule); background:var(--paper);
+  transition:border-color .15s, background .15s, transform .15s var(--ease);
+}
+.opt:hover .dot{ border-color:var(--accent-line); }
+.opt input:checked + .dot{
+  border-color:var(--accent); background:var(--accent);
+  box-shadow:inset 0 0 0 3.5px var(--paper);
+  transform:scale(1.06);
+}
+.opt input:focus-visible + .dot{ outline:2px solid var(--focus); outline-offset:2px; }
+
+.scale-numbers{ display:flex; gap:6px; }
+.scale-numbers span{
+  width:31px; text-align:center; font-size:11px; color:var(--ink-4);
+  font-variant-numeric:tabular-nums;
+}
+
+/* ---------- likert rows (stacked statement + scale) ---------- */
+.likert-item{ padding:18px 0; border-top:1px solid var(--rule-soft); }
+.likert-item:first-of-type{ border-top:1px solid var(--rule); }
+.likert-item .statement{
+  font-size:14.5px; line-height:1.5; color:var(--ink); margin-bottom:14px;
+}
+.likert-scale{ display:flex; gap:6px; align-items:flex-start; }
+.likert-opt{
+  flex:1; min-width:0; display:flex; flex-direction:column;
+  align-items:center; gap:6px; cursor:pointer;
+}
+.likert-opt .dot{
+  width:29px; height:29px; border-radius:50%;
+  border:1.5px solid var(--rule); background:var(--paper);
+  transition:border-color .15s, background .15s, transform .15s var(--ease);
+}
+.likert-opt:hover .dot{ border-color:var(--accent-line); }
+.likert-opt input{ position:absolute; opacity:0; pointer-events:none; }
+.likert-opt input:checked + .dot{
+  border-color:var(--accent); background:var(--accent);
+  box-shadow:inset 0 0 0 3.5px var(--paper); transform:scale(1.06);
+}
+.likert-opt input:focus-visible + .dot{ outline:2px solid var(--focus); outline-offset:2px; }
+.likert-opt .lab{
+  font-size:10.5px; line-height:1.25; color:var(--ink-4); text-align:center;
+  min-height:1.25em;
+}
+
+/* ---------- single choice ---------- */
+.choice-list{ display:flex; flex-direction:column; gap:10px; }
+.choice{
+  display:flex; align-items:flex-start; gap:13px; cursor:pointer;
+  padding:15px 17px; border:1px solid var(--rule); border-radius:10px;
+  background:var(--paper); transition:border-color .15s, background .15s, box-shadow .15s;
+}
+.choice:hover{ border-color:var(--accent-line); }
+.choice input{ position:absolute; opacity:0; pointer-events:none; }
+.choice .radio{
+  flex:0 0 auto; width:19px; height:19px; margin-top:1px; border-radius:50%;
+  border:1.5px solid var(--rule); background:var(--paper);
+  transition:border-color .15s, background .15s;
+}
+.choice input:checked ~ .radio{
+  border-color:var(--accent); background:var(--accent);
+  box-shadow:inset 0 0 0 3.5px var(--paper);
+}
+.choice:has(input:checked){
+  border-color:var(--accent); background:var(--accent-soft);
+}
+.choice input:focus-visible ~ .radio{ outline:2px solid var(--focus); outline-offset:2px; }
+.choice .text{ font-size:14.5px; line-height:1.5; color:var(--ink); }
+
+/* ---------- textarea / inputs ---------- */
+textarea, input[type="number"], input[type="text"], select{
+  width:100%; font-family:inherit; font-size:15px; color:var(--ink);
+  padding:12px 14px; border:1px solid var(--rule); border-radius:9px;
+  background:var(--paper); transition:border-color .15s, box-shadow .15s;
+}
+textarea{ min-height:110px; resize:vertical; line-height:1.6; }
+textarea:focus, input:focus, select:focus{
+  outline:none; border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-soft);
+}
+input[type="number"]{ max-width:150px; }
+select{ appearance:none; background-image:
+  url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b7280' stroke-width='1.6' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat; background-position:right 14px center; padding-right:38px; }
+
+/* =====================  Consent  ==================================== */
+.consent-list{ margin:0 0 4px; padding:0; list-style:none; }
+.consent-list li{
+  position:relative; padding:0 0 12px 22px;
+  font-size:14.5px; line-height:1.6; color:var(--ink-2);
+}
+.consent-list li::before{
+  content:""; position:absolute; left:3px; top:9px;
+  width:5px; height:5px; border-radius:50%; background:var(--accent-line);
+}
+.divider{ height:1px; background:var(--rule); margin:26px 0; }
+
+.agree{
+  display:flex; align-items:flex-start; gap:13px; cursor:pointer;
+  padding:16px 18px; border:1px solid var(--rule); border-radius:10px;
+  background:var(--paper); transition:border-color .15s, background .15s;
+}
+.agree:hover{ border-color:var(--accent-line); }
+.agree:has(input:checked){ border-color:var(--accent); background:var(--accent-soft); }
+.agree input{ position:absolute; opacity:0; pointer-events:none; }
+.agree .box{
+  flex:0 0 auto; width:20px; height:20px; margin-top:1px; border-radius:5px;
+  border:1.5px solid var(--rule); background:var(--paper);
+  display:flex; align-items:center; justify-content:center;
+  transition:border-color .15s, background .15s;
+}
+.agree .box svg{ opacity:0; transition:opacity .15s; }
+.agree input:checked ~ .box{ border-color:var(--accent); background:var(--accent); }
+.agree input:checked ~ .box svg{ opacity:1; }
+.agree input:focus-visible ~ .box{ outline:2px solid var(--focus); outline-offset:2px; }
+.agree .text{ font-size:14.5px; line-height:1.5; color:var(--ink); font-weight:500; }
+
+/* =====================  Demographics  =============================== */
+.demo-item{ padding:22px 0; border-top:1px solid var(--rule-soft); }
+.demo-item:first-of-type{ border-top:none; padding-top:6px; }
+.demo-label{ font-size:15px; line-height:1.5; color:var(--ink); font-weight:500; margin-bottom:14px; }
+.demo-radios{ display:flex; flex-direction:column; gap:8px; }
+.demo-radios .choice{ padding:12px 15px; }
+.demo-radios .choice .text{ font-size:14px; }
+.input-row{ display:flex; align-items:center; gap:10px; }
+.input-row .suffix{ font-size:14px; color:var(--ink-3); }
+
+/* =====================  Completion  ================================= */
+.done-mark{
+  width:46px; height:46px; border-radius:50%; background:var(--accent-soft);
+  display:flex; align-items:center; justify-content:center; margin-bottom:22px;
+}
+.code-box{
+  margin-top:20px; padding:18px 20px; border:1px dashed var(--accent-line);
+  border-radius:10px; background:var(--accent-soft); text-align:center;
+}
+.code-box .label{
+  font-size:11px; font-weight:650; letter-spacing:.11em; text-transform:uppercase;
+  color:var(--ink-3); margin-bottom:7px;
+}
+.code-box .code{
+  font-size:21px; font-weight:600; letter-spacing:.05em; color:var(--accent);
+  font-family:ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+/* =====================  Misc  ======================================= */
+.err{
+  font-size:13.5px; color:#a3312a; margin-top:14px; line-height:1.5;
+  display:none;
+}
+.err.show{ display:block; }
+.saving{ font-size:12.5px; color:var(--ink-4); margin-top:14px; }
+
+/* =====================  Responsive  =================================
+   Below 900px the split stacks: the article sits on top in a scrollable
+   band, the measure sits beneath it. The requested left/right split is
+   preserved wherever the viewport can carry it.                        */
+@media (max-width:900px){
+  .split{ grid-template-columns:1fr; grid-template-rows:minmax(180px,38vh) 1fr; }
+  .pane-stimulus{
+    border-right:none; border-bottom:1px solid var(--rule);
+    padding:24px 20px 28px; justify-content:center;
+  }
+  .pane-measure{ padding:26px 20px 80px; justify-content:center; }
+  .pane-stimulus > .article{ max-width:560px; }
+  .article-headline{ font-size:22px; }
+  .measure-prompt{ font-size:17.5px; }
+  .semdiff-row, .semdiff-scale{ grid-template-columns:minmax(60px,1fr) auto minmax(60px,1fr); gap:8px; }
+  .opt{ width:28px; height:28px; }
+  .scale-numbers span{ width:28px; }
+  .bipolar-labels{ gap:10px; }
+}
+
+@media (max-width:560px){
+  .semdiff-row{
+    grid-template-columns:1fr; gap:8px; justify-items:center; text-align:center;
+  }
+  .semdiff-row .anchor.right{ text-align:center; }
+  .semdiff-scale{ display:none; }
+  .opt{ width:34px; height:34px; }
+}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{ animation-duration:.01ms !important; transition-duration:.01ms !important; }
+}
+
+/* =====================  st1: INTRODUCTION  ============================= */
+.steps{ margin:18px 0 6px; padding:0; list-style:none; counter-reset:step; }
+.steps li{
+  position:relative; padding:0 0 12px 36px; counter-increment:step;
+  font-size:14.5px; line-height:1.55; color:var(--ink-2);
+}
+.steps li::before{
+  content:counter(step); position:absolute; left:0; top:-1px;
+  width:24px; height:24px; border-radius:50%;
+  background:var(--accent-soft); color:var(--accent);
+  font-size:12.5px; font-weight:650; display:flex; align-items:center; justify-content:center;
+}
+
+/* =====================  st1: FOCAL TOOL IN THE ARTICLE  ==============
+   Highlights which tool the article and the tests are about.            */
+.product-panel{
+  margin:24px 0 0; padding:16px 18px;
+  background:var(--accent-soft); border:1px solid var(--accent-line); border-radius:12px;
+  font-family:var(--sans);
+}
+.product-label{
+  font-size:10.5px; font-weight:650; letter-spacing:.13em; text-transform:uppercase;
+  color:var(--accent); margin-bottom:10px;
+}
+.product-row{ display:flex; align-items:center; gap:12px; }
+.product-name{ font-size:17px; font-weight:650; color:var(--ink); letter-spacing:-.01em; line-height:1.25; }
+.product-dev{ font-size:12.5px; color:var(--ink-3); }
+/* the claim box follows the panel directly */
+.product-panel + .claim-block{ margin-top:14px; }
+
+.verdict-tested{
+  display:flex; align-items:center; gap:7px; margin:-2px 0 12px;
+  font-size:12px; color:var(--ink-3);
+}
+.verdict-tested .app-icon{ width:20px; height:20px; border-radius:5px; }
+.verdict-tested .app-icon svg{ width:12px; height:12px; }
+.verdict-tested strong{ color:var(--ink); font-weight:600; }
+
+/* =====================  st1: APP LISTINGS  ============================
+   One look for both tools, wherever they appear. Only the content differs. */
+.listing-grid{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.listing{
+  position:relative; display:flex; flex-direction:column; gap:8px;
+  padding:16px 16px 14px; border:1px solid var(--rule); border-radius:12px;
+  background:var(--paper);
+}
+.listing-head{ display:flex; align-items:center; gap:11px; }
+.listing-id{ display:flex; flex-direction:column; min-width:0; }
+.listing-name{ font-size:16px; font-weight:650; letter-spacing:-.01em; color:var(--ink); line-height:1.25; }
+.listing-dev{ font-size:12.5px; color:var(--ink-3); line-height:1.3; }
+.listing-tagline{ font-size:13.5px; font-weight:550; line-height:1.4; color:var(--ink); }
+.listing-desc{ font-size:13px; line-height:1.5; color:var(--ink-2); }
+.listing-meta{
+  font-size:11.5px; color:var(--ink-4); margin-top:auto; padding-top:9px;
+  border-top:1px solid var(--rule-soft);
+}
+
+.app-icon{
+  flex:0 0 auto; width:40px; height:40px; border-radius:10px;
+  display:inline-flex; align-items:center; justify-content:center;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.08), 0 1px 2px rgba(20,22,26,.18);
+}
+.app-icon svg{ width:22px; height:22px; }
+/* one colour per BRAND (travels with the name, so it is counterbalanced
+   against the mechanism and against being the article's tool) */
+.app-icon.icon-a,
+.app-icon.icon-b{
+  background-image:linear-gradient(150deg, rgba(255,255,255,.10), rgba(0,0,0,.10));
+  color:#fff; font-family:var(--sans); font-weight:650; letter-spacing:-.01em; line-height:1;
+  font-size:19px;
+}
+/* muted and matched: equal CIELAB lightness and chroma (L*46, C*14); hues
+   87° and 267°, each equally far from the green and the red verdict tints */
+.app-icon.icon-a{ background-color:#5E6E84; }
+.app-icon.icon-b{ background-color:#776C56; }
+.app-icon.lg{ font-size:25px; }
+.app-icon.sm{ font-size:14px; }
+.app-icon.xs{ font-size:11.5px; }
+.verdict-tested .app-icon{ font-size:11px; }
+.app-icon.lg{ width:52px; height:52px; border-radius:13px; }
+.app-icon.lg svg{ width:28px; height:28px; }
+.app-icon.sm{ width:28px; height:28px; border-radius:7px; }
+.app-icon.sm svg{ width:16px; height:16px; }
+.app-icon.xs{ width:22px; height:22px; border-radius:6px; }
+.app-icon.xs svg{ width:13px; height:13px; }
+
+/* belief items: a chip naming the tool the question is about */
+.measure-tool{ display:flex; align-items:center; gap:8px; margin:0 0 10px; font-size:12.5px; color:var(--ink-3); }
+.measure-tool-name{ font-size:13.5px; font-weight:650; color:var(--ink); }
+
+/* =====================  st1: TOOL CHOICE  ============================= */
+.tool-card{ cursor:pointer; padding-top:14px; transition:border-color .15s, background .15s, box-shadow .15s; }
+.tool-card:hover{ border-color:var(--accent-line); }
+.tool-card input{ position:absolute; opacity:0; pointer-events:none; }
+.tool-card .card-top{ display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:2px; min-height:18px; }
+.tool-card .option-label{ font-size:10.5px; font-weight:650; letter-spacing:.11em; text-transform:uppercase; color:var(--ink-4); }
+.tool-card .pick{ display:flex; align-items:center; gap:8px; }
+/* before both options have been seen: nothing is selectable */
+.tool-cards.is-staged .tool-card{ cursor:default; }
+.tool-cards.is-staged .tool-card:hover{ border-color:var(--rule); }
+.tool-cards.is-staged .pick{ display:none; }
+.option-slot{
+  display:flex; align-items:center; justify-content:center;
+  background:transparent; border:1.5px dashed var(--rule); min-height:220px;
+}
+.option-slot span{ font-size:11px; font-weight:650; letter-spacing:.11em; text-transform:uppercase; color:var(--ink-4); }
+.tool-card.is-entering{ animation:rise .45s var(--ease) both; }
+.reveal-row{ margin-top:16px; }
+.tool-question{ font-size:16.5px; line-height:1.4; font-weight:550; color:var(--ink); margin:20px 0 0; letter-spacing:-.01em; }
+.tool-intro-help{ margin-bottom:18px; color:var(--ink-3); font-size:13.5px; }
+.tool-card .radio{
+  flex:0 0 auto; width:18px; height:18px; border-radius:50%;
+  border:1.5px solid var(--rule); background:var(--paper);
+  transition:border-color .15s, background .15s;
+}
+.tool-card .pick-label{ font-size:11px; font-weight:650; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-4); }
+.tool-card input:checked ~ .pick .radio{
+  border-color:var(--accent); background:var(--accent);
+  box-shadow:inset 0 0 0 3.5px var(--paper);
+}
+.tool-card input:checked ~ .pick .pick-label{ color:var(--accent); }
+.tool-card:has(input:checked){ border-color:var(--accent); background:var(--accent-soft); box-shadow:0 0 0 1px var(--accent) inset; }
+.tool-card:has(input:checked) .listing-meta{ border-top-color:var(--accent-line); }
+.tool-card input:focus-visible ~ .pick .radio{ outline:2px solid var(--focus); outline-offset:2px; }
+.tool-card .tool-badge{ display:none; }
+.tool-footer{ font-size:13px; color:var(--ink-3); margin:14px 0 0; }
+
+/* after confirming: greyed and locked like any answered block, but the
+   chosen card stays plainly marked */
+.measure-block.is-done .tool-card.is-chosen{ border-color:var(--ink-3); background:var(--rule-soft); box-shadow:none; }
+.measure-block.is-done .tool-card .pick{ display:none; }
+.measure-block.is-done .tool-card.is-chosen .tool-badge{
+  display:inline-block; align-self:flex-start; margin-top:2px;
+  font-size:10.5px; font-weight:650; letter-spacing:.11em; text-transform:uppercase;
+  color:var(--ink-2); border:1px solid var(--ink-4); border-radius:5px; padding:2px 7px;
+}
+.measure-block.is-done .tool-footer{ display:none; }
+.measure-block.is-done .tool-question{ display:none; }
+.measure-block > .eyebrow{ margin-bottom:12px; }
+
+@media (max-width:560px){ .listing-grid{ grid-template-columns:1fr; } }
+
+/* =====================  st1/st2: THE RUN  ============================
+   Dark frame #1E1E1E (relative luminance 0.013). The survey fades into it
+   and back out of it over 2 s, never a hard cut from white. The routine
+   is drawn on the same dark frame.                                       */
+#screen-run{ background:#1E1E1E; color:#bdbdbd; }
+#screen-run.is-active{ animation:to-dark 2s linear both; }
+@keyframes to-dark{ from{ background:var(--canvas); } to{ background:#1E1E1E; } }
+#screen-realism.from-dark{ animation:from-dark 2s linear both; }
+@keyframes from-dark{ from{ background:#1E1E1E; } to{ background:var(--canvas); } }
+
+.run-panel{
+  margin:auto; max-width:440px; width:100%; padding:24px; text-align:center;
+  animation:rise .4s var(--ease) both;
+}
+.run-panel[hidden]{ display:none; }
+/* the launch card waits for the 2-s fade to dark before it appears */
+#run-launch{ animation:rise .5s var(--ease) 1.6s both; }
+
+.launch-card{
+  text-align:left; background:#26282c; border:1px solid #34373d; border-radius:16px;
+  padding:22px 22px 20px; box-shadow:0 20px 50px -24px rgba(0,0,0,.7);
+}
+.launch-head{ display:flex; align-items:center; gap:14px; }
+.launch-name{ font-size:20px; font-weight:650; color:#ececec; letter-spacing:-.01em; }
+.launch-dev{ font-size:12.5px; color:#8f949c; margin-top:2px; }
+.launch-status{
+  display:flex; align-items:center; gap:8px; margin:18px 0 10px;
+  font-size:13px; color:#c8ccd2;
+}
+.launch-status .dot{ width:8px; height:8px; border-radius:50%; background:#8fa89a; }
+.launch-how{ margin:0 0 12px; font-size:14px; line-height:1.55; color:#d6dade; }
+.launch-facts{ margin:0 0 18px; padding:0 0 0 18px; color:#9aa0a8; font-size:13px; line-height:1.7; }
+.launch-card .run-btn{ width:100%; }
+.launch-card .run-text{ margin:14px 0 16px; }
+
+.run-eyebrow{
+  font-size:11px; font-weight:650; letter-spacing:.11em; text-transform:uppercase;
+  color:#8a8a8a; margin-bottom:10px;
+}
+.run-text{ font-size:14.5px; line-height:1.6; color:#a8a8a8; margin:14px 0 0; }
+/* neutral grey: the run's own controls carry neither brand's colour */
+.btn.run-btn{ background:#4a4f57; color:#f2f2f2; border-color:#5a6068; }
+.btn.run-btn:hover:not(:disabled){ background:#555b64; }
+
+.run-stage{ position:fixed; inset:0; z-index:50; background:#1E1E1E; }
+.run-stage[hidden]{ display:none; }
+.run-stage canvas{ display:block; width:100%; height:100%; }
+
+/* status bar: what the tool is doing, progress, time, stop */
+.run-hud{
+  position:absolute; left:50%; bottom:22px; transform:translateX(-50%);
+  display:flex; align-items:center; gap:12px;
+  width:min(520px, calc(100% - 32px));
+  padding:10px 10px 10px 12px; border-radius:12px;
+  background:rgba(12,13,15,.55); border:1px solid rgba(255,255,255,.08);
+  color:#b9bec5; font-size:13px;
+  -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px);
+}
+.hud-text{ flex:1; min-width:0; }
+.hud-line{ white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.hud-line strong{ color:#e4e6e9; font-weight:600; }
+.hud-bar{ height:3px; border-radius:3px; background:rgba(255,255,255,.12); margin-top:7px; overflow:hidden; }
+.hud-fill{ height:100%; width:0; background:#b3b8bf; border-radius:3px; }
+.hud-time{ color:#9aa0a8; }
+.tnum{ font-variant-numeric:tabular-nums; }
+.run-stop{
+  font:inherit; font-size:12.5px; color:#c4c4c4; background:transparent; cursor:pointer;
+  border:1px solid #5e636b; border-radius:7px; padding:5px 10px;
+}
+.run-stop:hover{ border-color:#9a9a9a; }
+.run-stop:focus-visible{ outline:2px solid #9a9a9a; outline-offset:2px; }
+/* the routine's cue: same place and type for both tools */
+.run-cue{
+  position:absolute; left:50%; top:19%; transform:translateX(-50%);
+  width:min(680px, calc(100% - 48px)); text-align:center; pointer-events:none;
+  font-size:clamp(19px,2.1vw,26px); font-weight:500; line-height:1.35; letter-spacing:-.01em;
+  color:#dfe4e7;
+}
+.run-cue.cue-in{ animation:cue-in .45s var(--ease) both; }
+@keyframes cue-in{ from{ opacity:0; transform:translate(-50%,4px); } to{ opacity:1; transform:translate(-50%,0); } }
+.run-paused{
+  position:absolute; top:18px; left:50%; transform:translateX(-50%);
+  font-size:13px; color:#9A9A9A; background:rgba(0,0,0,.35); padding:6px 12px; border-radius:7px;
+}
+.run-paused[hidden]{ display:none; }
+
+/* =====================  st1: REALISM ITEM  =========================== */
+.realism-label{ font-size:17px; line-height:1.45; margin-bottom:16px; }
+
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- ================= 0. DEVICE CHECK (phones and tablets) ================= -->
+  <section id="screen-device" class="screen">
+    <div class="centered">
+      <div class="sheet">
+        <div class="eyebrow">Research study</div>
+        <h1>Please use a desktop or laptop computer</h1>
+        <p class="lede" style="margin-top:14px">
+          This study can only be completed on a desktop or laptop computer, and it looks like
+          you are using a phone or tablet.
+        </p>
+        <div class="divider"></div>
+        <p class="fineprint">
+          If you would like to take part, please open the study link again on a desktop or
+          laptop. Otherwise, please return your submission on Prolific; you will not be
+          penalised.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 1. CONSENT ================= -->
+  <section id="screen-consent" class="screen is-active">
+    <div class="centered">
+      <div class="sheet">
+        <div class="eyebrow">Research study</div>
+        <h1>Before you begin</h1>
+        <p class="lede" style="margin-top:14px">
+          You are invited to take part in a short research study about how people
+          evaluate everyday consumer products. Please read this page before deciding
+          whether to take part.
+        </p>
+
+        <div class="divider"></div>
+
+        <ul class="consent-list">
+          <li><strong>What you will do.</strong> You will read a short article about a
+              free eye-care tool, choose between two such tools and answer a few questions.
+              The study takes about 3 minutes.</li>
+          <li><strong>A short eye routine at the end.</strong> At the end, the tool you choose
+              runs full-screen in this browser tab for 15 seconds and guides your eyes through a
+              short routine, such as slow blinks or following a moving dot. Nothing flashes,
+              nothing is installed, your camera is not used and no settings are changed. You can
+              stop it at any time with Esc or the Stop button.</li>
+          <li><strong>Voluntary participation.</strong> Taking part is entirely voluntary.
+              You may stop at any time by closing this window, without giving a reason and
+              without penalty. Answers you give before leaving the study are kept unless you
+              ask us to remove them.</li>
+          <li><strong>Anonymity.</strong> Your responses are anonymous. We do not collect
+              your name, email address, or any other directly identifying information.</li>
+          <li><strong>Use of the data.</strong> Responses are stored securely and analysed
+              only in aggregate for academic research purposes.</li>
+          <li><strong>Risks and benefits.</strong> There are no anticipated risks beyond
+              those of ordinary daily life. There is no direct benefit to you other than
+              any compensation stated in the recruitment advertisement.</li>
+          <li><strong>Questions.</strong> If you have questions about this study, you may
+              contact the research team using the details provided where you found this
+              study.</li>
+        </ul>
+
+        <div class="divider"></div>
+
+        <label class="agree">
+          <input type="checkbox" id="consent-agree">
+          <span class="box">
+            <svg width="12" height="9" viewBox="0 0 12 9" fill="none">
+              <path d="M1 4.2L4.3 7.5L11 1" stroke="#fff" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+          <span class="text">
+            I am 18 or older, I have read the information above, and I agree to take part.
+          </span>
+        </label>
+
+        <div class="btn-row">
+          <button class="btn" id="consent-btn" disabled>I agree — begin the study</button>
+        </div>
+        <div class="err" id="consent-err"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 2. HOW THIS STUDY WORKS (pre-reveal) ================= -->
+  <section id="screen-intro" class="screen">
+    <div class="centered">
+      <div class="sheet">
+        <div class="eyebrow">About this study</div>
+        <h1 id="intro-title"></h1>
+        <p class="lede" id="intro-lede" style="margin-top:12px"></p>
+        <ol class="steps" id="intro-steps"></ol>
+
+        <p class="fineprint" id="intro-footnote" style="margin-top:4px"></p>
+
+        <div class="divider"></div>
+        <p class="fineprint">
+          There are no right or wrong answers. We are interested in your own judgment.
+          The article stays on screen while you choose and answer.
+        </p>
+
+        <div class="btn-row">
+          <button class="btn" id="intro-btn">Continue to the article</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 3. ARTICLE ================= -->
+  <section id="screen-article" class="screen">
+    <div class="centered">
+      <div class="sheet wide">
+        <div class="eyebrow">Please read the following</div>
+        <div id="article-full" class="article" style="margin-top:18px"></div>
+        <div class="btn-row">
+          <button class="btn" id="article-btn" disabled>Continue to the questions</button>
+        </div>
+        <p class="fineprint" style="margin-top:14px">
+          The article stays on screen while you answer, so you can refer back to it.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 4. MEASURES (split view) ================= -->
+  <section id="screen-measures" class="screen">
+    <div class="split">
+      <!-- the article node is moved in here from the reading screen -->
+      <div class="pane-stimulus" id="stimulus-pane"></div>
+      <div class="pane-measure" id="measure-pane"></div>
+    </div>
+  </section>
+
+  <!-- ================= 5. DEMOGRAPHICS ================= -->
+  <section id="screen-demographics" class="screen">
+    <div class="centered">
+      <div class="sheet">
+        <div class="progress">
+          <div class="progress-track"><div class="progress-fill" id="demo-progress"></div></div>
+          <div class="progress-count" id="demo-count"></div>
+        </div>
+        <div class="eyebrow">Almost done</div>
+        <h1>A few questions about you</h1>
+        <p class="measure-help" style="margin-top:10px">
+          These help us describe the sample. They are not linked to your identity.
+        </p>
+        <div id="demo-body"></div>
+        <div class="btn-row">
+          <button class="btn" id="demo-btn" disabled>Continue</button>
+        </div>
+        <div class="err" id="demo-err"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 6. THE RUN ================= -->
+  <section id="screen-run" class="screen run-screen">
+    <!-- launch card: dark, reached by a slow fade from the survey page -->
+    <div class="run-panel" id="run-launch">
+      <div class="launch-card">
+        <div class="launch-head">
+          <span class="app-icon lg" id="run-icon"></span>
+          <div>
+            <div class="launch-name" id="run-title"></div>
+            <div class="launch-dev" id="run-dev"></div>
+          </div>
+        </div>
+        <div class="launch-status"><span class="dot"></span>Ready on this screen</div>
+        <p class="launch-how" id="run-how"></p>
+        <ul class="launch-facts" id="run-facts"></ul>
+        <button class="btn run-btn" id="run-start"></button>
+      </div>
+    </div>
+
+    <!-- the stage the tool paints; requestFullscreen() is called on it -->
+    <div class="run-stage" id="run-stage" hidden>
+      <canvas id="run-canvas"></canvas>
+      <div class="run-cue" id="run-cue" aria-live="polite"></div>
+      <div class="run-hud">
+        <span class="app-icon sm" id="hud-icon"></span>
+        <div class="hud-text">
+          <div class="hud-line"><strong id="hud-name"></strong> <span id="hud-action"></span></div>
+          <div class="hud-bar"><div class="hud-fill" id="hud-fill"></div></div>
+        </div>
+        <span class="hud-time tnum" id="hud-time">0:15</span>
+        <button class="run-stop" id="run-stop" type="button">Stop (Esc)</button>
+      </div>
+      <div class="run-paused" id="run-paused" hidden>Paused while this tab was hidden.</div>
+    </div>
+
+    <!-- after a stop: the display has ended but the slot has not -->
+    <div class="run-panel" id="run-stopped" hidden>
+      <div class="run-eyebrow">Stopped</div>
+      <p class="run-text" id="run-stopped-text"></p>
+    </div>
+
+    <div class="run-panel" id="run-end" hidden>
+      <div class="launch-card">
+        <div class="launch-head">
+          <span class="app-icon lg" id="end-icon"></span>
+          <div>
+            <div class="launch-name" id="end-title"></div>
+            <div class="launch-dev">Finished</div>
+          </div>
+        </div>
+        <p class="run-text" id="end-text" style="text-align:left"></p>
+        <button class="btn run-btn" id="run-continue">Continue</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 7. REALISM ITEM ================= -->
+  <section id="screen-realism" class="screen">
+    <div class="centered">
+      <div class="sheet">
+        <div class="eyebrow">One last question</div>
+        <div id="realism-body"></div>
+        <div class="btn-row">
+          <button class="btn" id="realism-btn" disabled>Submit and finish</button>
+        </div>
+        <div class="err" id="realism-err"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 8. DONE / DEBRIEF ================= -->
+  <section id="screen-done" class="screen">
+    <div class="centered">
+      <div class="sheet">
+        <div class="done-mark">
+          <svg width="21" height="16" viewBox="0 0 21 16" fill="none">
+            <path d="M2 8.2L7.4 13.6L19 2" stroke="#1f3d5c" stroke-width="2.4"
+                  stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <h1>Thank you — your responses have been recorded.</h1>
+        <p class="lede" style="margin-top:14px">
+          That is the end of the study. We appreciate the time you gave it.
+        </p>
+
+        <div class="divider"></div>
+
+        <p class="fineprint" id="debrief-text"></p>
+        <p class="fineprint" style="margin-top:12px">
+          If you would like your responses removed now that you know this, you can remove
+          them below. You will still be paid.
+        </p>
+        <div class="btn-row" style="margin-top:14px">
+          <button class="btn ghost" id="withdraw-btn" type="button">Remove my responses</button>
+        </div>
+        <p class="fineprint" id="withdraw-note" style="margin-top:10px" hidden></p>
+
+        <div class="code-box">
+          <div class="label" id="code-label">Your completion code</div>
+          <div class="code" id="done-code"></div>
+        </div>
+
+        <div id="return-block" hidden>
+          <div class="btn-row">
+            <button class="btn" id="return-btn">Return to Prolific now</button>
+          </div>
+          <p class="fineprint" id="return-note" style="margin-top:12px"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<script>
+/* =====================================================================
+   Consumer Opinion Studies — st2 (Study 1b): eye-strain tools, 2 cells
+   Configuration: endpoints, stimulus copy, the two tools, completion.
+   Everything a researcher would want to edit lives in this file.
+   ===================================================================== */
+
+const CONFIG = {
+  studyId: "st2",
+  supabaseUrl: "https://uwrgeizwyybwtzwztrln.supabase.co",
+  supabaseKey: "sb_publishable_L7a-Ve4_pt-A3MkqNpaMqg_bU5wMoxd",
+
+  /* Seconds the article must be on screen before "Continue" unlocks. */
+  minReadSeconds: 7,
+
+  /* Completion. Same Prolific completion code as fr1 and s1a: enter it as the
+     study's completion code on Prolific. */
+  completionUrl: "https://app.prolific.com/submissions/complete?cc=CEKK0PFF",
+  completionCode: "CEKK0PFF",
+
+  /* The debrief carries a "Remove my responses" button, so it stays up
+     long enough to read before the automatic return. */
+  completionDelaySeconds: 25
+};
+
+/* ---------------------------------------------------------------------
+   STIMULUS — the article, about ONE of the two tools (the "focal" tool,
+   counterbalanced). {NAME} is the focal tool's name. Identical in both
+   conditions; the mixed condition adds the two verdict cards beneath it.
+   --------------------------------------------------------------------- */
+const STIMULUS = {
+  kicker: "Health & Tech",
+
+  /* The setting of the problem (a laptop at the end of the day), not
+     either tool, so it favours neither. Drawn for the study. */
+  image: "img/desk.svg",
+  imageAlt: "A laptop on a desk at dusk, with a pair of glasses and a mug beside it.",
+
+  headline: "Can a 15-second routine ease eye strain?",
+
+  body: [
+    "Long hours at a screen leave many people with tired, uncomfortable eyes, a problem known as digital eye strain. Some free browser tools aim to help, including {NAME}."
+  ],
+
+  productLabel: "The tool in this article",
+  testedLabel: "Product tested",
+
+  claimLabel: "The developer’s claim",
+  claim: "Reduces eye strain.",
+
+  /* The ONLY sentence that differs with the focal tool (besides its name):
+     what its developer says it does. Parallel, matched in length, effort
+     and tone (neither "relax" nor "moisture"). */
+  mechanism: {
+    blink: "Its developer says that a few slow, complete blinks spread fresh tears over eyes that dry out during screen use.",
+    move:  "Its developer says that a few slow, steady eye movements loosen eye muscles that tighten during screen use."
+  },
+
+  /* The two magazines. Fictional, described identically; which magazine
+     delivers which verdict is randomised (name_swap). */
+  sources: [
+    { name: "Tech Courier"  },
+    { name: "Gear Bulletin" }
+  ],
+  sourceTag: "Established technology magazine",
+
+  /* Mirror images; claim and verdict share "eye strain". The tool is named
+     once per card, in the "Product tested" chip. Shown side by
+     side; the confirming card is tinted green and the disconfirming card
+     red (as st1). The tints are matched in CIELAB lightness and chroma. */
+  verdict: {
+    confirming: {
+      theme: "green",
+      eyebrow: "Our verdict",
+      headline: "The claim holds up.",
+      body:
+        "We had a panel of office workers use the tool every day for two weeks. Based on what we measured, it <strong>did</strong> produce a meaningful reduction in eye strain. The developer’s claim <strong>is supported</strong>."
+    },
+    disconfirming: {
+      theme: "red",
+      eyebrow: "Our verdict",
+      headline: "The claim does not hold up.",
+      body:
+        "We had a panel of office workers use the tool every day for two weeks. Based on what we measured, it <strong>did not</strong> produce a meaningful reduction in eye strain. The developer’s claim <strong>is not supported</strong>."
+    }
+  },
+
+  sectionLabelMixed: "Independent product tests"
+};
+
+/* ---------------------------------------------------------------------
+   THE INTRODUCTION ("How this study works"), identical in both cells.
+   Says what the study is and what these tools are, and that a tool will
+   run at the end — but names NO tool.
+   --------------------------------------------------------------------- */
+const INTRO = {
+  title: "How this study works",
+  lede: "This study is about free eye-care tools: small browser apps that guide you through a short routine meant to ease eye strain from screens.",
+  steps: [
+    "<strong>Read</strong> a short article about one of these tools.",
+    "<strong>Answer</strong> a few questions, including which eye-care tool you would like to try.",
+    "<strong>Try it.</strong> At the end, the tool you pick runs full-screen and guides you through its 15-second routine."
+  ],
+  footnote: "These tools are free, run inside this browser tab and install nothing. You can stop a routine at any time."
+};
+
+/* ---------------------------------------------------------------------
+   THE TWO TOOLS. Each tool = a MECHANISM (its listing copy and its
+   routine) + a BRAND (name, developer, icon). Which brand goes with
+   which mechanism is counterbalanced (label_order a_blink / a_move), so
+   brand names must suit either mechanism and the two listings must work
+   under either name. Neither listing carries ratings, reviews or tests.
+   --------------------------------------------------------------------- */
+const TOOLS = {
+  /* Plain, human-sounding names in the style of real eye-care utilities
+     (EyeLeo, CareUEyes); checked 19 Oct 2026: no app (App Store, Google
+     Play), US trademark or web presence. Neither hints at a mechanism.
+     Each name, developer and icon mark travel together as one identity. */
+  brands: {
+    a: { name: "EyeNest", developer: "Whitfield Software", mark: "N" },
+    b: { name: "EyeDen",  developer: "Corbett Software",   mark: "D" }
+  },
+
+  /* Listings: different in voice (as real listings are), matched in length,
+     effort and appeal; the last line, the claim, is identical. Either brand
+     can sit on either listing. */
+  mechanisms: {
+    blink: {
+      tagline: "Paced blinking for screen-tired eyes.",
+      description: "We blink less often, and less fully, at a screen. {NAME} paces you through a few slow, complete blinks that spread fresh tears across your eyes. Use it once or twice a day. Reduces eye strain.",
+      how: "Close your eyes when the eye on screen closes. Count slowly to two, then open them.",
+      cueStart: "Blink along with the eye",
+      cues: ["Close your eyes slowly", "Hold", "Open"]
+    },
+    move: {
+      tagline: "Guided eye movements for long screen days.",
+      description: "Screens keep your eyes fixed at one distance for hours. {NAME} guides them through a few slow, steady movements that loosen your focusing muscles. Best done once or twice a day. Reduces eye strain.",
+      how: "Keep your head still and follow the dot with your eyes as it moves.",
+      cueStart: "Follow the dot with your eyes",
+      cues: ["Side to side", "Up and down", "Figure eight"]
+    }
+  },
+
+  /* the routine: 15 s of visible time on one timeline for both tools.
+     0.5 fade in + 2.0 lead-in + 3 steps x 3.8 + 0.6 "Done" + 0.5 fade out */
+  run: {
+    seconds: 15,
+    fadeIn: 0.5, lead: 2.0, steps: 3, step: 3.8, done: 0.6, fadeOut: 0.5,
+    precue: 0.5,                            // each step's cue shows 0.5 s early
+    blink: { close: 1.0, hold: 1.5, open: 0.8 },   // then 0.5 s rest, eye open
+    move:  { action: 3.3 },                        // then 0.5 s rest at the centre
+    unit: "Step",
+    frame: "#1E1E1E",
+    colors: {
+      line: "#cfd6da", white: "rgba(226,232,235,.09)",
+      irisIn: "#5f747c", irisOut: "#7f949b", irisRing: "rgba(20,26,30,.35)",
+      pupil: "#181d21", glint: "rgba(255,255,255,.6)",
+      dot: "#e8ece9", glow: "rgba(232,236,233,.26)"
+    },
+    cueEnd: "Done",
+    facts: [
+      "Runs full-screen for 15 seconds",
+      "Press Esc or Stop at any time"
+    ]
+  },
+
+  meta: "Free · In your browser · 15 seconds",
+
+  /* Choice screen: an introduction, then the two options one at a time
+     (option 1, then "Show the second option"), then the question. Option 1
+     sits on the left; whether that is the article's tool alternates within
+     each cell (label_order). */
+  choiceIntro: "In this study, you can choose one of two eye-care tools to try.",
+  choiceIntroHelp: "The two tools come from different developers. Whichever you choose runs on your screen at the end of the study. Here they are, one at a time.",
+  revealLabel: "Show the second option",
+  optionLabel: "Option",
+  prompt: "Which eye-care tool should run on your screen at the end of the study?",
+  footer: "Once you confirm, your choice is final."
+};
+
+/* ---------------------------------------------------------------------
+   DEBRIEF ({NAMES} = both tool names). Condition-neutral.
+   --------------------------------------------------------------------- */
+const DEBRIEF =
+  "<strong>A note on what you saw.</strong> This study looks at how people respond to product tests " +
+  "that agree or disagree; some participants saw such tests and others did not. {NAMES}, their " +
+  "developers, and any magazines or product tests you saw were invented for this study, and no test " +
+  "was run. The routine you just tried was made by the research team. Research on blinking and " +
+  "eye-movement routines is mixed, and none has been shown to reliably reduce eye strain. Eye-care " +
+  "professionals often suggest the 20-20-20 habit: every 20 minutes, look at something about 20 feet " +
+  "away for 20 seconds. If your eyes are often sore, dry or blurry, consider seeing an eye doctor.";
+
+</script>
+
+<script>
+/* =====================================================================
+   MEASURES
+   One screen beside the article, questions stacked and locked once
+   answered (as in s1a): the tool choice first, so no question precedes
+   it, then belief in each tool's claim (the article's tool first).
+   Demographics follow; the chosen tool runs after them; one realism item
+   comes after the run. {NAME} is the tool the item is about.
+   ===================================================================== */
+
+const ALL = ["control", "mixed"];
+
+const MEASURES = [
+
+  /* ---------- DV (primary): which tool runs ------------------------- */
+  {
+    id: "choice",
+    when: ALL,
+    type: "toolchoice",
+    eyebrow: "Your choice",
+    field: "dv_choice"          // "blink" | "move"; dv_focal = chose the article's tool
+  },
+
+  /* ---------- belief in each tool's claim (0-100, no default) -------- */
+  {
+    id: "belief_focal",
+    when: ALL,
+    type: "slider100",
+    tool: "focal",
+    eyebrow: "Your judgment",
+    prompt: "How likely is it that {NAME} actually reduces eye strain?",
+    help: "Drag the slider, or click anywhere on the line, to answer.",
+    leftLabel: "Very unlikely",
+    rightLabel: "Very likely",
+    field: "dv_belief_focal"
+  },
+  {
+    id: "belief_other",
+    when: ALL,
+    type: "slider100",
+    tool: "other",
+    eyebrow: "Your judgment",
+    prompt: "How likely is it that {NAME} actually reduces eye strain?",
+    help: "Drag the slider, or click anywhere on the line, to answer.",
+    leftLabel: "Very unlikely",
+    rightLabel: "Very likely",
+    field: "dv_belief_other"
+  }
+];
+
+/* ---------- Demographics (shown without the stimulus) --------------- */
+const DEMOGRAPHICS = [
+  { field: "age", type: "number", label: "What is your age?", min: 18, max: 110, suffix: "years" },
+  {
+    field: "gender", type: "radio", label: "What is your gender?",
+    options: ["Woman", "Man", "Prefer not to say"]
+  },
+  {
+    field: "strain_freq", type: "scale7",
+    label: "How often do your eyes feel tired or strained after time at a screen?",
+    left: "Never", right: "Always"
+  },
+  {
+    field: "familiarity", type: "scale7",
+    label: "Before today, how familiar were you with eye exercises, blinking exercises or eye-care apps?",
+    left: "Not at all familiar", right: "Extremely familiar"
+  }
+];
+
+/* ---------- After the run ------------------------------------------- */
+const REALISM = {
+  field: "realism",
+  label: "Before you used it, did you think the tool you chose was a real product that people can use?",
+  options: ["Yes", "No", "Not sure"]
+};
+
+</script>
+
+<script>
+/* =====================================================================
+   Consumer Opinion Studies — st2 (Study 1b): eye-strain tools, 2 cells
+   Flow: consent -> orientation -> article -> [choice, belief x2] beside
+         the article -> demographics (response saved) -> the chosen tool's
+         15-s guided routine runs full-screen -> realism item -> debrief
+   Two tools: a blink coach ("blink") and an eye-movement routine
+   ("move"). Which brand (name, developer, icon) each carries, which one
+   the article is about, and which is shown first are all counterbalanced
+   within each cell (label_order, from assign()).
+   ===================================================================== */
+
+(function () {
+  "use strict";
+
+  /* ---------------- session state ---------------- */
+  const S = {
+    pid: null,
+    pidSource: null,
+    isTest: false,
+    blurCount: 0,
+    hiddenCount: 0,
+    startedAt: 0,
+    condition: null,
+    labelOrder: null,
+    confirmFirst: null,
+    nameSwap: false,
+    pair: null,          // "a_blink": brand A is the blink coach; "a_move": brand A is the eye-movement routine
+    focal: null,         // the tool the article is about: "blink" | "move"
+    other: null,
+    focalFirst: true,    // the article's tool is option 1 (left) at the choice
+    tools: null,         // { blink: {...}, move: {...} }, each with its brand resolved
+    answers: {},
+    timings: {},
+    choiceMeta: null,
+    choiceRestored: false,
+    run: null,
+    queue: [],
+    idx: 0,
+    screenEnteredAt: 0
+  };
+
+  const MECHS = ["blink", "move"];
+
+  const $  = (s, r) => (r || document).querySelector(s);
+  const el = (tag, cls, html) => {
+    const n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (html != null) n.innerHTML = html;
+    return n;
+  };
+  /* copy templates: {NAME} and {DEV} become a tool's brand */
+  const fill = (str, t) => String(str).replace(/\{NAME\}/g, t.name).replace(/\{DEV\}/g, t.developer);
+  const motionOK = () => !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  /* ---------------- Supabase RPC ---------------- */
+  async function rpc(fn, body) {
+    if (PREVIEW) { console.log("[preview] skipped", fn, body); return { preview: true }; }
+    const res = await fetch(`${CONFIG.supabaseUrl}/rest/v1/rpc/${fn}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        apikey: CONFIG.supabaseKey,
+        Authorization: `Bearer ${CONFIG.supabaseKey}`
+      },
+      body: JSON.stringify(body)
+    });
+    if (!res.ok) throw new Error(`${fn} failed: ${res.status} ${await res.text()}`);
+    const txt = await res.text();
+    return txt ? JSON.parse(txt) : null;
+  }
+
+  /* fire-and-forget event log (breadcrumbs, the choice, the run) */
+  function logEvent(kind, detail) {
+    return rpc("log_event", {
+      p_study: CONFIG.studyId,
+      p_pid: S.pid,
+      p_kind: kind,
+      p_detail: detail
+    }).catch(e => console.warn("log_event", kind, e));
+  }
+
+  function makeUid() {
+    if (crypto.randomUUID) return crypto.randomUUID();
+    return "s-" + Date.now() + "-" + Math.random().toString(36).slice(2, 12);
+  }
+
+  const store = {
+    get(k) { try { return sessionStorage.getItem(CONFIG.studyId + "_" + k); } catch (e) { return null; } },
+    set(k, v) { try { sessionStorage.setItem(CONFIG.studyId + "_" + k, v); } catch (e) { /* private mode */ } }
+  };
+
+  /* ---------------- screen switching ---------------- */
+  function show(id) {
+    document.querySelectorAll(".screen").forEach(s => s.classList.remove("is-active"));
+    $("#" + id).classList.add("is-active");
+    window.scrollTo(0, 0);
+    const pane = $("#" + id + " .pane-measure");
+    if (pane) pane.scrollTop = 0;
+  }
+
+  /* Preview mode: forces a condition and disables all database writes.
+     Only ever active on localhost / file:// — inert once deployed.
+     ?preview=control|mixed  &swap=1 (disconfirming first)
+     &pair=a_move (brand A is the eye-movement routine)  &focal=move
+     &order=second (the article's tool is option 2)
+     &jump=intro|measures|run|done  &tool=blink|move */
+  const PREVIEW = (function () {
+    const host = location.hostname;
+    const local = host === "localhost" || host === "127.0.0.1" || location.protocol === "file:";
+    if (!local) return null;
+    const c = new URLSearchParams(location.search).get("preview");
+    return ["control", "mixed"].indexOf(c) !== -1 ? c : null;
+  })();
+
+  /* =====================================================================
+     1. CONSENT
+     ===================================================================== */
+  function initConsent() {
+    const box  = $("#consent-agree");
+    const btn  = $("#consent-btn");
+    const err  = $("#consent-err");
+    box.addEventListener("change", () => { btn.disabled = !box.checked; });
+
+    btn.addEventListener("click", async () => {
+      btn.disabled = true;
+      btn.textContent = "Starting…";
+      err.classList.remove("show");
+      try {
+        await startSession();
+        renderArticle();
+        renderIntro();
+        show("screen-intro");
+      } catch (e) {
+        console.error(e);
+        btn.disabled = false;
+        btn.textContent = "I agree — begin the study";
+        err.textContent = "We could not start the study. Please check your connection and try again.";
+        err.classList.add("show");
+      }
+    });
+  }
+
+  function initIntro() {
+    $("#intro-btn").addEventListener("click", () => {
+      show("screen-article");
+      beginReadTimer();
+    });
+  }
+
+  async function startSession() {
+    const q = new URLSearchParams(location.search);
+
+    /* participant id: Prolific PID when present, else a stable random id */
+    const prolific = q.get("PROLIFIC_PID") || q.get("participant_id") || "";
+    if (prolific) { S.pid = prolific; S.pidSource = "prolific"; }
+    else {
+      let anon = store.get("pid");
+      if (!anon) { anon = "anon-" + makeUid(); store.set("pid", anon); }
+      S.pid = anon; S.pidSource = "anonymous";
+    }
+    S.isTest = q.get("test") === "1";
+    S.startedAt = Date.now();
+
+    if (PREVIEW) {
+      S.condition = PREVIEW;
+      S.confirmFirst = q.get("swap") !== "1";
+      S.pair = q.get("pair") === "a_move" ? "a_move" : "a_blink";
+      S.focal = q.get("focal") === "move" ? "move" : "blink";
+      S.focalFirst = q.get("order") !== "second";
+      S.nameSwap = false;
+      S.labelOrder = "preview";
+    } else {
+      const a = await rpc("assign", {
+        p_study: CONFIG.studyId,
+        p_pid: S.pid,
+        p_session: store.get("sid") || (function () {
+          const v = makeUid(); store.set("sid", v); return v;
+        })(),
+        p_meta: {
+          prolific_study_id: q.get("STUDY_ID") || "",
+          prolific_session:  q.get("SESSION_ID") || "",
+          pid_source:        S.pidSource,
+          is_test:           S.isTest,
+          user_agent:        navigator.userAgent,
+          screen_w:          window.screen.width,
+          screen_h:          window.screen.height,
+          is_mobile:         window.matchMedia("(max-width: 900px)").matches
+        }
+      });
+
+      S.condition = a.factors.condition;
+
+      /* `label_order` is the strictly cycling counterbalance handed back by
+         assign(), WITHIN the cell: focal_blink|focal_move (which tool the
+         article is about), a_blink|a_move (which brand each tool carries),
+         focal_first|focal_second (which tool is option 1, on the left) and,
+         in the mixed cell, confirm_first|disconfirm_first. */
+      S.labelOrder = a.factors.label_order || "";
+      const parts = S.labelOrder.split("|");
+      S.focal      = parts.indexOf("focal_move") !== -1 ? "move" : "blink";
+      S.pair       = parts.indexOf("a_move") !== -1 ? "a_move" : "a_blink";
+      S.focalFirst = parts.indexOf("focal_second") === -1;
+      if (S.condition === "mixed") {
+        S.confirmFirst = parts.indexOf("disconfirm_first") === -1;
+        S.nameSwap     = Math.random() < 0.5;   // nuisance factor, randomised
+      } else {
+        S.confirmFirst = true;
+        S.nameSwap     = false;
+      }
+    }
+    resolveTools();
+    applySources();
+    S.queue = MEASURES.filter(m => m.when.indexOf(S.condition) !== -1);
+  }
+
+  /* Each tool = its mechanism (listing copy, routine) + a brand (name,
+     developer, icon). S.pair says which brand goes with which mechanism. */
+  function resolveTools() {
+    const brandOf = S.pair === "a_blink" ? { blink: "a", move: "b" } : { blink: "b", move: "a" };
+    S.tools = {};
+    MECHS.forEach(m => {
+      S.tools[m] = Object.assign({ id: m, brand: brandOf[m] }, TOOLS.mechanisms[m], TOOLS.brands[brandOf[m]]);
+    });
+    S.other = S.focal === "blink" ? "move" : "blink";
+  }
+
+  /* Resolve the two magazines onto their roles. */
+  function applySources() {
+    const src = STIMULUS.sources;
+    const a = S.nameSwap ? src[1] : src[0];
+    const b = S.nameSwap ? src[0] : src[1];
+    S.confirmSrc = S.confirmFirst ? a : b;
+    S.disconfSrc = S.confirmFirst ? b : a;
+  }
+
+  /* =====================================================================
+     APP LISTINGS — the two tools as they appear at the choice (the first
+     time the article's competitor is shown; the article's tool's icon,
+     name and developer also appear in its product panel).
+     ===================================================================== */
+  /* Each brand's icon is a letter mark, white on its own tile (as many small
+     apps do): no picture, so nothing can hint at blinking or movement. The
+     tile colour belongs to the BRAND, not the mechanism. */
+  const iconHTML = (t, size) =>
+    `<span class="app-icon icon-${t.brand}${size ? " " + size : ""}" aria-hidden="true">${t.mark}</span>`;
+  const toolOrder = () => S.focalFirst ? [S.focal, S.other] : [S.other, S.focal];
+
+  function listingBody(t) {
+    return `
+      <span class="listing-head">
+        ${iconHTML(t)}
+        <span class="listing-id">
+          <span class="listing-name">${t.name}</span>
+          <span class="listing-dev">by ${t.developer}</span>
+        </span>
+      </span>
+      <span class="listing-tagline">${fill(t.tagline, t)}</span>
+      <span class="listing-desc">${fill(t.description, t)}</span>
+      <span class="listing-meta">${TOOLS.meta}</span>`;
+  }
+
+  function renderIntro() {
+    $("#intro-title").textContent = INTRO.title;
+    $("#intro-lede").textContent = INTRO.lede;
+    $("#intro-steps").innerHTML = INTRO.steps.map(s => `<li>${s}</li>`).join("");
+    $("#intro-footnote").textContent = INTRO.footnote;
+  }
+
+  /* =====================================================================
+     2. ARTICLE — about the focal tool (S.focal)
+     ===================================================================== */
+  function verdictCardHTML(source, kind) {
+    const v = STIMULUS.verdict[kind];
+    const t = S.tools[S.focal];
+    return `
+      <article class="verdict-card verdict-${kind}">
+        <div class="verdict-source">
+          <span class="tag">${STIMULUS.sourceTag}</span>
+          <span class="name">${source.name}</span>
+        </div>
+        <div class="verdict-tested">${STIMULUS.testedLabel}: ${iconHTML(t)}<strong>${t.name}</strong></div>
+        <div class="verdict-eyebrow">${v.eyebrow}</div>
+        <h3 class="verdict-headline">${v.headline}</h3>
+        <p class="verdict-body">${fill(v.body, t)}</p>
+      </article>`;
+  }
+
+  /* The focal tool, highlighted so it is clear which tool the article and
+     the tests are about. Same icon, name and developer as its listing at
+     the choice. No tagline: the mechanism sentence after the claim is the
+     only text that changes with the focal tool. */
+  function productPanelHTML() {
+    const t = S.tools[S.focal];
+    return `
+      <aside class="product-panel">
+        <div class="product-label">${STIMULUS.productLabel}</div>
+        <div class="product-row">
+          ${iconHTML(t)}
+          <div class="product-id">
+            <div class="product-name">${t.name}</div>
+            <div class="product-dev">by ${t.developer}</div>
+          </div>
+        </div>
+      </aside>`;
+  }
+
+  function articleHTML() {
+    const t = S.tools[S.focal];
+    let verdicts = "";
+    if (S.condition === "mixed") {
+      const c = verdictCardHTML(S.confirmSrc, "confirming");
+      const d = verdictCardHTML(S.disconfSrc, "disconfirming");
+      verdicts = `
+        <section class="verdicts">
+          <div class="verdicts-label">${STIMULUS.sectionLabelMixed}</div>
+          <div class="verdict-grid">${S.confirmFirst ? c + d : d + c}</div>
+        </section>`;
+    }
+    return `
+      <div class="masthead">
+        <span class="brand">The Consumer Desk</span>
+        <span class="section">${STIMULUS.kicker}</span>
+      </div>
+      <h1 class="article-headline">${STIMULUS.headline}</h1>
+      <figure class="article-figure"><img src="${STIMULUS.image}" alt="${STIMULUS.imageAlt}" width="820" height="322" decoding="async"></figure>
+      <div class="article-body">
+        ${STIMULUS.body.map(p => `<p>${fill(p, t)}</p>`).join("")}
+        ${productPanelHTML()}
+        <div class="claim-block">
+          <div class="claim-label">${STIMULUS.claimLabel}</div>
+          <div class="claim-text">“${STIMULUS.claim}”</div>
+        </div>
+        <p>${fill(STIMULUS.mechanism[S.focal], t)}</p>
+      </div>
+      ${verdicts}`;
+  }
+
+  /* Rendered ONCE; the node is later moved into the left-hand pane. */
+  function renderArticle() {
+    $("#article-full").innerHTML = articleHTML();
+  }
+
+  function beginReadTimer() {
+    const btn = $("#article-btn");
+    let left = CONFIG.minReadSeconds;
+    btn.disabled = true;
+    const base = "Continue to the questions";
+    btn.textContent = `${base} (${left})`;
+    const t = setInterval(() => {
+      left -= 1;
+      if (left <= 0) {
+        clearInterval(t);
+        btn.disabled = false;
+        btn.textContent = base;
+      } else {
+        btn.textContent = `${base} (${left})`;
+      }
+    }, 1000);
+
+    btn.onclick = () => {
+      S.timings.article_ms = Date.now() - S.articleStart;
+      const pane = $("#stimulus-pane");
+      pane.insertBefore($("#article-full"), pane.firstChild);
+      S.idx = 0;
+      show("screen-measures");
+      renderMeasure();
+    };
+    S.articleStart = Date.now();
+  }
+
+  /* =====================================================================
+     3. MEASURES — choice, then belief in each tool, stacked and locked
+     ===================================================================== */
+  /* progress: the measures + demographics (the screens that show the bar) */
+  function totalSteps() { return S.queue.length + 1; }
+
+  function setProgress(pane, step) {
+    $(".progress-count", pane).textContent = `${step} of ${totalSteps()}`;
+    requestAnimationFrame(() => {
+      $(".progress-fill", pane).style.width = (step / totalSteps() * 100) + "%";
+    });
+  }
+
+  /* the tool a belief item is about */
+  const toolFor = m => S.tools[m.tool === "focal" ? S.focal : S.other];
+
+  function renderMeasure() {
+    const m = S.queue[S.idx];
+    const pane = $("#measure-pane");
+
+    let stack = $(".measure-stack", pane);
+    if (!stack) {
+      const col = el("div", "measure");
+      col.innerHTML = `
+        <div class="progress">
+          <div class="progress-track"><div class="progress-fill"></div></div>
+          <div class="progress-count"></div>
+        </div>`;
+      stack = el("div", "measure-stack");
+      col.appendChild(stack);
+      pane.innerHTML = "";
+      pane.appendChild(col);
+      pane.scrollTop = 0;
+    }
+
+    const wrap = el("section", "measure-block");
+    /* eyebrow per block, shown only when it changes */
+    const prev = S.queue[S.idx - 1];
+    if (m.eyebrow && (!prev || prev.eyebrow !== m.eyebrow)) {
+      wrap.appendChild(el("div", "eyebrow", m.eyebrow));
+    }
+    const isChoice = m.type === "toolchoice";
+    const t = isChoice ? null : toolFor(m);
+    if (t) {
+      wrap.appendChild(el("div", "measure-tool",
+        `${iconHTML(t, "xs")}<span class="measure-tool-name">${t.name}</span><span class="measure-tool-dev">by ${t.developer}</span>`));
+    }
+    const prompt = isChoice ? TOOLS.choiceIntro : fill(m.prompt, t);
+    wrap.appendChild(el("h2", "measure-prompt", prompt));
+    if (isChoice) wrap.appendChild(el("p", "measure-help tool-intro-help", TOOLS.choiceIntroHelp));
+    else if (m.help) wrap.appendChild(el("p", "measure-help", m.help));
+
+    const body = el("div", "measure-body");
+    wrap.appendChild(body);
+
+    const btnRow = el("div", "btn-row");
+    const next   = el("button", "btn",
+      isChoice ? "Confirm my choice" : (S.idx === S.queue.length - 1 ? "Continue" : "Next"));
+    next.disabled = true;
+    btnRow.appendChild(next);
+    wrap.appendChild(btnRow);
+    if (isChoice) btnRow.hidden = true;          // shown once both options have been seen
+
+    const state = { value: undefined };
+    const ready = () => state.value !== undefined;
+    const refresh = () => { next.disabled = !ready(); };
+
+    if (m.type === "slider100")       buildSlider100(body, m, state, refresh, prompt);
+    else if (isChoice)                buildToolChoice(body, m, state, refresh, btnRow);
+
+    stack.appendChild(wrap);
+    setProgress(pane, S.idx + 1);
+    if (S.idx > 0) {
+      requestAnimationFrame(() => wrap.scrollIntoView({ block: "nearest", behavior: motionOK() ? "smooth" : "auto" }));
+    }
+
+    S.screenEnteredAt = Date.now();
+
+    const lockAndAdvance = () => {
+      wrap.classList.add("is-done");
+      btnRow.remove();
+      wrap.querySelectorAll("input, textarea, select").forEach(n => { n.disabled = true; });
+      wrap.querySelectorAll("[tabindex]").forEach(n => {
+        n.removeAttribute("tabindex");
+        n.setAttribute("aria-disabled", "true");
+      });
+      S.idx += 1;
+      if (S.idx < S.queue.length) renderMeasure();
+      else { renderDemographics(); show("screen-demographics"); }
+    };
+
+    next.addEventListener("click", () => {
+      if (!ready()) return;
+      const ms = Date.now() - S.screenEnteredAt;
+      S.timings["t_" + m.id] = ms;
+      S.answers[m.field] = state.value;
+
+      if (isChoice) {
+        /* THE primary DV: logged the moment it is confirmed, before anything
+           else happens, so it survives any later drop-out. Write-once: a
+           reload in the same tab restores this choice instead of asking again. */
+        S.choiceMeta = Object.assign({}, state.meta, {
+          cards_layout: state.layout(),
+          t_choice_ms: ms,
+          viewport_w: window.innerWidth,
+          viewport_h: window.innerHeight
+        });
+        store.set("choice", state.value);
+        logEvent(state.meta.restored ? "choice_restored" : "choice",
+          Object.assign({
+            choice: state.value,
+            choice_name: S.tools[state.value].name,
+            chose_focal: state.value === S.focal,
+            focal: S.focal, pair: S.pair, focal_first: S.focalFirst,
+            condition: S.condition, label_order: S.labelOrder
+          }, S.choiceMeta));
+        wrap.querySelector(`.tool-card[data-tool="${state.value}"]`).classList.add("is-chosen");
+      } else {
+        logEvent("page", { measure: m.id, index: S.idx, ms });
+      }
+      lockAndAdvance();
+    });
+
+    /* reload after a confirmed choice: show it, locked, and move on */
+    if (isChoice && S.choiceRestored) {
+      next.disabled = false;
+      next.click();
+    }
+  }
+
+  /* ---------- the tool choice ------------------------------------------
+     Option 1 appears alone (option 2's slot is marked but empty); the
+     participant clicks "Show the second option"; option 2 appears; only then
+     can either be selected, and the question and Confirm button appear.
+     Option 1 sits on the left; whether that is the article's tool
+     alternates within each cell (S.focalFirst, from label_order). */
+  function buildToolChoice(host, m, state, refresh, btnRow) {
+    const order = toolOrder();
+    const grid = el("div", "tool-cards listing-grid is-staged");
+    const cards = order.map((id, k) => {
+      const card = el("label", "listing tool-card");
+      card.dataset.tool = id;
+      card.innerHTML = `
+        <input type="radio" name="${m.field}" value="${id}" disabled>
+        <span class="card-top">
+          <span class="option-label">${TOOLS.optionLabel} ${k + 1}</span>
+          <span class="pick"><span class="radio"></span><span class="pick-label">Choose</span></span>
+        </span>
+        ${listingBody(S.tools[id])}
+        <span class="tool-badge">Your choice</span>`;
+      return card;
+    });
+    const slot = el("div", "listing option-slot", `<span>${TOOLS.optionLabel} 2</span>`);
+    grid.appendChild(cards[0]);
+    grid.appendChild(slot);
+    host.appendChild(grid);
+
+    const revealRow = el("div", "btn-row reveal-row");
+    const revealBtn = el("button", "btn", TOOLS.revealLabel);
+    revealBtn.type = "button";
+    revealRow.appendChild(revealBtn);
+    host.appendChild(revealRow);
+
+    const question = el("h3", "tool-question", TOOLS.prompt);
+    const footer = el("p", "tool-footer", TOOLS.footer);
+    question.hidden = true; footer.hidden = true;
+    host.appendChild(question);
+    host.appendChild(footer);
+
+    state.meta = { first_shown: order[0], t_option1_ms: null,
+                   first_pick: null, n_switches: 0, cards_layout: null };
+    const shownAt = Date.now();
+
+    const revealSecond = instant => {
+      if (!instant) state.meta.t_option1_ms = Date.now() - shownAt;
+      slot.replaceWith(cards[1]);
+      if (!instant) cards[1].classList.add("is-entering");
+      revealRow.remove();
+      grid.classList.remove("is-staged");
+      grid.querySelectorAll("input").forEach(i => { i.disabled = false; });
+      question.hidden = false; footer.hidden = false; btnRow.hidden = false;
+      requestAnimationFrame(() => {
+        if (!instant) btnRow.scrollIntoView({ block: "nearest", behavior: motionOK() ? "smooth" : "auto" });
+      });
+    };
+    revealBtn.addEventListener("click", () => revealSecond(false));
+
+    /* row vs stacked, measured when the choice is confirmed (horizontal
+       positions, since option 2's entrance animation shifts it vertically) */
+    state.layout = () => {
+      const c = grid.querySelectorAll(".tool-card");
+      return Math.abs(c[1].getBoundingClientRect().left - c[0].getBoundingClientRect().left) > 20
+        ? "row" : "stacked";
+    };
+
+    grid.addEventListener("change", e => {
+      if (state.meta.first_pick === null) state.meta.first_pick = e.target.value;
+      else if (state.value !== e.target.value) state.meta.n_switches += 1;
+      state.value = e.target.value;
+      refresh();
+    });
+
+    /* reload after a confirmed choice: both options at once, choice restored */
+    const restored = store.get("choice");
+    if (restored && S.tools[restored]) {
+      S.choiceRestored = true;
+      revealSecond(true);
+      grid.querySelector(`input[value="${restored}"]`).checked = true;
+      state.value = restored;
+      state.meta.restored = true;
+    }
+  }
+
+  /* ---------- 0-100 slider, no default position ---------- */
+  function buildSlider100(host, m, state, refresh, prompt) {
+    const wrap = el("div", "slider-wrap");
+    wrap.innerHTML = `
+      <div class="slider-value"><span class="placeholder">Not yet answered</span></div>
+      <div class="track-outer" tabindex="0" role="slider"
+           aria-valuemin="0" aria-valuemax="100" aria-label="${prompt.replace(/"/g, "&quot;")}">
+        <div class="track">
+          <div class="track-fill"></div>
+          <div class="track-ticks">
+            ${[0,25,50,75,100].map(p => `<span style="left:${p}%"></span>`).join("")}
+          </div>
+          <div class="thumb"></div>
+        </div>
+      </div>
+      <div class="track-labels">
+        <span>${m.leftLabel}</span><span>${m.rightLabel}</span>
+      </div>`;
+    host.appendChild(wrap);
+
+    const outer = $(".track-outer", wrap);
+    const fill_ = $(".track-fill", wrap);
+    const thumb = $(".thumb", wrap);
+    const read  = $(".slider-value", wrap);
+
+    const set = v => {
+      v = Math.round(Math.min(100, Math.max(0, v)));
+      state.value = v;
+      outer.classList.add("is-engaged");
+      fill_.style.width = v + "%";
+      thumb.style.left = v + "%";
+      read.innerHTML = `<span class="num">${v}</span><span class="pct">%</span>`;
+      outer.setAttribute("aria-valuenow", v);
+      outer.setAttribute("aria-valuetext", v + "%");
+      refresh();
+    };
+
+    attachTrack(outer, x => set(x * 100));
+
+    outer.addEventListener("keydown", e => {
+      const cur = state.value === undefined ? 50 : state.value;
+      const step = e.shiftKey ? 10 : 1;
+      if (e.key === "ArrowRight" || e.key === "ArrowUp")        { set(cur + step); e.preventDefault(); }
+      else if (e.key === "ArrowLeft" || e.key === "ArrowDown")  { set(cur - step); e.preventDefault(); }
+      else if (e.key === "Home")                                { set(0);   e.preventDefault(); }
+      else if (e.key === "End")                                 { set(100); e.preventDefault(); }
+    });
+  }
+
+  function attachTrack(outer, onFraction) {
+    const frac = clientX => {
+      const r = $(".track", outer).getBoundingClientRect();
+      return Math.min(1, Math.max(0, (clientX - r.left) / r.width));
+    };
+    let dragging = false;
+    const down = e => {
+      dragging = true;
+      outer.setPointerCapture && e.pointerId != null && outer.setPointerCapture(e.pointerId);
+      onFraction(frac(e.clientX));
+      e.preventDefault();
+    };
+    const move = e => { if (dragging) onFraction(frac(e.clientX)); };
+    const up   = () => { dragging = false; };
+    outer.addEventListener("pointerdown", down);
+    outer.addEventListener("pointermove", move);
+    outer.addEventListener("pointerup", up);
+    outer.addEventListener("pointercancel", up);
+  }
+
+  /* =====================================================================
+     4. DEMOGRAPHICS — then the response is saved, BEFORE the run
+     ===================================================================== */
+  function renderDemographics() {
+    const host = $("#demo-body");
+    host.innerHTML = "";
+    const vals = {};
+
+    DEMOGRAPHICS.forEach(d => {
+      const item = el("div", "demo-item");
+      item.appendChild(el("div", "demo-label", d.label));
+
+      if (d.type === "number") {
+        const row = el("div", "input-row");
+        const inp = el("input");
+        inp.type = "number"; inp.min = d.min; inp.max = d.max; inp.placeholder = "—";
+        inp.addEventListener("input", () => {
+          const v = parseInt(inp.value, 10);
+          vals[d.field] = (v >= d.min && v <= d.max) ? v : undefined;
+          check();
+        });
+        row.appendChild(inp);
+        if (d.suffix) row.appendChild(el("span", "suffix", d.suffix));
+        item.appendChild(row);
+
+      } else if (d.type === "radio") {
+        const box = el("div", "demo-radios");
+        d.options.forEach(o => {
+          const lab = el("label", "choice");
+          lab.innerHTML = `<input type="radio" name="${d.field}" value="${o}">
+                           <span class="radio"></span><span class="text">${o}</span>`;
+          box.appendChild(lab);
+        });
+        box.addEventListener("change", e => { vals[d.field] = e.target.value; check(); });
+        item.appendChild(box);
+
+      } else if (d.type === "scale7") {
+        const block = el("div", "likert-item");
+        block.style.borderTop = "none";
+        block.style.paddingTop = "0";
+        const opts = [1,2,3,4,5,6,7].map(v => `
+          <label class="likert-opt">
+            <input type="radio" name="${d.field}" value="${v}" aria-label="${v} of 7">
+            <span class="dot"></span>
+            <span class="lab">${v === 1 ? d.left : v === 7 ? d.right : ""}</span>
+          </label>`).join("");
+        block.innerHTML = `<div class="likert-scale">${opts}</div>`;
+        block.addEventListener("change", e => { vals[d.field] = parseInt(e.target.value, 10); check(); });
+        item.appendChild(block);
+      }
+
+      host.appendChild(item);
+    });
+
+    const btn = $("#demo-btn");
+    const required = DEMOGRAPHICS.map(d => d.field);
+    const check = () => { btn.disabled = !required.every(f => vals[f] !== undefined); };
+    check();
+
+    const step = S.queue.length + 1;
+    $("#demo-count").textContent = `${step} of ${totalSteps()}`;
+    requestAnimationFrame(() => { $("#demo-progress").style.width = (step / totalSteps() * 100) + "%"; });
+
+    const started = Date.now();
+    btn.onclick = async () => {
+      btn.disabled = true;
+      btn.textContent = "Saving…";
+      S.timings.t_demographics = Date.now() - started;
+      Object.assign(S.answers, vals);
+      try {
+        await submit("before_run");
+        startRunScreen();
+      } catch (e) {
+        console.error(e);
+        btn.disabled = false;
+        btn.textContent = "Continue";
+        const err = $("#demo-err");
+        err.textContent = "We could not save your responses. Please check your connection and try again.";
+        err.classList.add("show");
+      }
+    };
+  }
+
+  /* =====================================================================
+     5. THE RUN — the chosen tool's guided routine, full-screen, 15 s of
+     VISIBLE time, on one timeline for both tools (TOOLS.run):
+       fade in 0.5 s · lead-in 1.5 s · 3 steps of 4 s (3.3 s guided, 0.7 s
+       rest) · "Done" 0.5 s · fade out 0.5 s.
+       blink: an eye on screen closes over 1 s, stays closed 1.5 s, opens
+              over 0.8 s; the participant blinks along (one per step).
+       move:  a soft dot glides from the centre side to side, then up and
+              down, then in a figure eight, and rests at the centre.
+     Same frame, graphic size, cue position, status bar ("Step k of 3")
+     and pacing for both. The cue for each step appears 0.5 s before it.
+     Every frame is a pure function of visible time, so a dropped frame
+     cannot produce a jump. Stop / Esc / leaving full-screen ends the
+     routine, not the 15-second slot. The timer pauses while the tab is
+     hidden. Starts full-window at once; upgraded to full-screen when the
+     browser grants it (some browsers never answer the request).
+     Reduced-motion settings are logged, not acted on: the motion IS the
+     routine, and changing one tool only would break the match.
+     ===================================================================== */
+  const RUN = TOOLS.run;
+  const smooth = p => p <= 0 ? 0 : p >= 1 ? 1 : p * p * (3 - 2 * p);
+  const easeSine = p => p <= 0 ? 0 : p >= 1 ? 1 : (1 - Math.cos(Math.PI * p)) / 2;
+  const mmss = s => { s = Math.max(0, Math.ceil(s)); return Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0"); };
+
+  /* where visible time t falls: phase "in" | "lead" | "step" | "done" | "out",
+     the step index k (for "step"), u = seconds into the phase or step */
+  function phaseAt(t) {
+    const R = RUN, s0 = R.fadeIn + R.lead, s1 = s0 + R.steps * R.step;
+    if (t < R.fadeIn) return { ph: "in", u: t };
+    if (t < s0) return { ph: "lead", u: t - R.fadeIn };
+    if (t < s1) { const k = Math.floor((t - s0) / R.step); return { ph: "step", k, u: t - s0 - k * R.step }; }
+    if (t < s1 + R.done) return { ph: "done", u: t - s1 };
+    return { ph: "out", u: Math.min(R.fadeOut, t - s1 - R.done) };
+  }
+  /* graphics opacity: fade in and out with the run */
+  function alphaAt(t) {
+    const f = phaseAt(t);
+    return f.ph === "in" ? smooth(f.u / RUN.fadeIn) : f.ph === "out" ? 1 - smooth(f.u / RUN.fadeOut) : 1;
+  }
+
+  /* blink: how open the coached eye is (1 open, 0 closed) */
+  function eyeOpen(t) {
+    const f = phaseAt(t), B = RUN.blink;
+    if (f.ph !== "step") return 1;
+    const u = f.u;
+    if (u < B.close) return 1 - easeSine(u / B.close);
+    if (u < B.close + B.hold) return 0;
+    if (u < B.close + B.hold + B.open) return easeSine((u - B.close - B.hold) / B.open);
+    return 1;
+  }
+
+  /* move: the three paths, as offsets from the centre at angle th */
+  function pathPoint(k, th, W, H) {
+    const ax = Math.min(W * 0.24, 340), ay = Math.min(H * 0.22, 210);
+    if (k === 0) return [ax * Math.sin(th), 0];
+    if (k === 1) return [0, ay * Math.sin(th)];
+    return [0.85 * ax * Math.sin(th), 0.55 * ay * Math.sin(2 * th)];
+  }
+  /* the dot leaves the centre from rest, slows to a stop at every turn and
+     comes back to rest at the centre (a = 0..1 through the guided part) */
+  function dotPath(k, a, W, H) {
+    const env = a < 0.12 ? smooth(a / 0.12) : a > 0.88 ? smooth((1 - a) / 0.12) : 1;
+    const [x, y] = pathPoint(k, 2 * Math.PI * a, W, H);
+    return [W / 2 + env * x, H / 2 + env * y];
+  }
+  function dotAt(t, W, H) {
+    const f = phaseAt(t);
+    if (f.ph !== "step" || f.u >= RUN.move.action) return [W / 2, H / 2];
+    return dotPath(f.k, f.u / RUN.move.action, W, H);
+  }
+
+  /* the step the status bar and cue refer to: each step's cue starts
+     RUN.precue seconds before the step itself */
+  function cueStepAt(t) {
+    const s0 = RUN.fadeIn + RUN.lead;
+    return Math.max(0, Math.min(RUN.steps - 1, Math.floor((t - s0 + RUN.precue) / RUN.step)));
+  }
+  const finishing = t => t >= RUN.fadeIn + RUN.lead + RUN.steps * RUN.step - RUN.precue;
+
+  /* the on-screen cue at visible time t */
+  function cueAt(tool, t) {
+    const f = phaseAt(t), s0 = RUN.fadeIn + RUN.lead;
+    if (finishing(t)) return RUN.cueEnd;
+    if (t < s0 - RUN.precue) return tool.cueStart;
+    if (tool.id === "move") return tool.cues[cueStepAt(t)];
+    /* blink: "close" from the pre-cue until fully closed, then "hold", then "open" */
+    if (f.ph !== "step") return tool.cues[0];
+    const B = RUN.blink;
+    if (f.u >= RUN.step - RUN.precue) return tool.cues[0];
+    if (f.u < B.close) return tool.cues[0];
+    if (f.u < B.close + B.hold) return tool.cues[1];
+    return tool.cues[2];
+  }
+
+  function drawEye(ctx, cx, cy, w, open, a) {
+    const hw = w / 2, h = w * 0.21;
+    const upC = cy + h * 0.35 - h * 2.35 * open;  // control point, upper lid
+    const loC = cy + h * 0.35 + h * 1.25 * open;  // control point, lower lid
+    const C = RUN.colors;
+    const lid = c => { ctx.moveTo(cx - hw, cy); ctx.quadraticCurveTo(cx, c, cx + hw, cy); };
+    ctx.save();
+    ctx.globalAlpha = a;
+    if (open > 0.02) {
+      ctx.beginPath();
+      lid(upC); ctx.quadraticCurveTo(cx, loC, cx - hw, cy); ctx.closePath();
+      ctx.fillStyle = C.white; ctx.fill();
+      ctx.save(); ctx.clip();
+      const r = h * 1.02, iy = cy + h * 0.06;
+      const g = ctx.createRadialGradient(cx, iy, r * 0.3, cx, iy, r);
+      g.addColorStop(0, C.irisIn); g.addColorStop(1, C.irisOut);
+      ctx.fillStyle = g;        ctx.beginPath(); ctx.arc(cx, iy, r, 0, 2 * Math.PI); ctx.fill();
+      ctx.strokeStyle = C.irisRing; ctx.lineWidth = Math.max(1.5, r * 0.05);
+      ctx.beginPath(); ctx.arc(cx, iy, r * 0.97, 0, 2 * Math.PI); ctx.stroke();
+      ctx.fillStyle = C.pupil;  ctx.beginPath(); ctx.arc(cx, iy, r * 0.44, 0, 2 * Math.PI); ctx.fill();
+      ctx.fillStyle = C.glint;  ctx.beginPath(); ctx.arc(cx + r * 0.3, iy - r * 0.3, r * 0.12, 0, 2 * Math.PI); ctx.fill();
+      ctx.restore();
+    }
+    ctx.lineCap = "round"; ctx.lineJoin = "round";
+    ctx.strokeStyle = C.line;
+    ctx.lineWidth = Math.max(2, w * 0.011);
+    ctx.beginPath(); lid(upC); ctx.stroke();
+    ctx.globalAlpha = a * (0.4 + 0.6 * (1 - open));
+    ctx.lineWidth = Math.max(1.5, w * 0.008);
+    ctx.beginPath(); lid(loC); ctx.stroke();
+    /* lashes appear as the eye closes */
+    const k = 1 - open;
+    if (k > 0.05) {
+      ctx.globalAlpha = a * k;
+      [0.22, 0.36, 0.5, 0.64, 0.78].forEach(u => {
+        const x = (1 - u) * (1 - u) * (cx - hw) + 2 * u * (1 - u) * cx + u * u * (cx + hw);
+        const y = (1 - u) * (1 - u) * cy + 2 * u * (1 - u) * upC + u * u * cy;
+        const sp = (u - 0.5) * 0.9;
+        ctx.beginPath(); ctx.moveTo(x, y + w * 0.012);
+        ctx.lineTo(x + sp * w * 0.05, y + w * 0.012 + w * 0.045 * k); ctx.stroke();
+      });
+    }
+    ctx.restore();
+  }
+
+  function drawDot(ctx, x, y, r, a) {
+    ctx.save();
+    ctx.globalAlpha = a;
+    const g = ctx.createRadialGradient(x, y, 0, x, y, r * 3.2);
+    g.addColorStop(0, RUN.colors.glow); g.addColorStop(1, "rgba(0,0,0,0)");
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, r * 3.2, 0, 2 * Math.PI); ctx.fill();
+    ctx.fillStyle = RUN.colors.dot; ctx.beginPath(); ctx.arc(x, y, r, 0, 2 * Math.PI); ctx.fill();
+    ctx.restore();
+  }
+
+  /* Paint one frame. Exported (preview only) so the checks can sample it. */
+  function paintTool(ctx, W, H, toolId, t) {
+    ctx.fillStyle = RUN.frame; ctx.fillRect(0, 0, W, H);
+    const a = alphaAt(t);
+    if (toolId === "blink") {
+      drawEye(ctx, W / 2, H / 2, Math.min(W * 0.3, H * 0.46, 440), eyeOpen(t), a);
+      return;
+    }
+    /* faint guide: the path of the step the cue is on */
+    const k = cueStepAt(t);
+    ctx.save();
+    ctx.globalAlpha = 0.11 * a;
+    ctx.strokeStyle = RUN.colors.dot; ctx.lineWidth = 1.5; ctx.setLineDash([2, 7]); ctx.lineCap = "round";
+    ctx.beginPath();
+    for (let n = 0; n <= 120; n++) {
+      const [x, y] = pathPoint(k, 2 * Math.PI * n / 120, W, H);
+      if (n === 0) ctx.moveTo(W / 2 + x, H / 2 + y); else ctx.lineTo(W / 2 + x, H / 2 + y);
+    }
+    ctx.stroke();
+    ctx.restore();
+    const [x, y] = dotAt(t, W, H);
+    drawDot(ctx, x, y, Math.max(9, Math.min(14, Math.min(W, H) * 0.014)), a);
+  }
+
+  function startRunScreen(toolOverride) {
+    const toolId = toolOverride || S.answers.dv_choice;
+    const tool = S.tools[toolId];
+    const total = RUN.seconds * 1000;
+    const reduced = !motionOK();          // logged only
+    S.run = {
+      tool: toolId, tool_name: tool.name, mode: null, fullscreen_ok: false, reduced_motion: reduced,
+      started: false, stopped: false, ended: false,
+      stop_cause: null, stop_at_ms: null,
+      visible_ms: 0, wall_ms: 0, hidden_n: 0, hidden_ms: 0,
+      launch_wait_ms: null
+    };
+
+    [["#run-icon", "lg"], ["#hud-icon", "sm"], ["#end-icon", "lg"]].forEach(([sel, sz]) => {
+      $(sel).outerHTML = iconHTML(tool, sz).replace("<span ", `<span id="${sel.slice(1)}" `);
+    });
+    $("#run-title").textContent = tool.name;
+    $("#end-title").textContent = tool.name;
+    $("#run-dev").textContent = "by " + tool.developer;
+    $("#run-how").textContent = tool.how;
+    $("#run-facts").innerHTML = RUN.facts.map(f => `<li>${fill(f, tool)}</li>`).join("");
+    $("#run-start").textContent = "Start " + tool.name;
+    $("#hud-name").textContent = tool.name;
+    show("screen-run");
+    const shownAt = Date.now();
+
+    const stage = $("#run-stage");
+    const canvas = $("#run-canvas");
+    const cue = $("#run-cue");
+    const ctx = canvas.getContext("2d");
+    let W = 0, H = 0, last = 0, hiddenAt = 0, wallStart = 0, raf = 0, clock = 0, pausedTimer = 0, cueText = "";
+
+    /* crisp on high-density screens; drawing is in CSS pixels */
+    const size = () => {
+      const dpr = Math.min(2, window.devicePixelRatio || 1);
+      W = Math.max(1, stage.clientWidth || window.innerWidth);
+      H = Math.max(1, stage.clientHeight || window.innerHeight);
+      canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    };
+
+    const setCue = txt => {
+      if (txt === cueText) return;
+      cueText = txt;
+      cue.textContent = txt;
+      cue.classList.remove("cue-in"); void cue.offsetWidth; cue.classList.add("cue-in");
+    };
+
+    const hud = () => {
+      const t = S.run.visible_ms / 1000;
+      $("#hud-action").textContent = finishing(t)
+        ? "· Finishing"
+        : `· ${RUN.unit} ${cueStepAt(t) + 1} of ${RUN.steps}`;
+      $("#hud-fill").style.width = (100 * S.run.visible_ms / total) + "%";
+      const left = mmss((total - S.run.visible_ms) / 1000);
+      $("#hud-time").textContent = left;
+      if (S.run.stopped) $("#run-stopped-text").textContent =
+        `The routine has stopped. The study continues in ${left}.`;
+      else setCue(cueAt(tool, t));
+    };
+
+    /* The clock is a 250-ms timer, not animation frames: browsers stop
+       rendering frames for windows that are covered or not on screen, and the
+       slot must still end. Animation frames only paint. */
+    const tick = () => {
+      if (S.run.ended) return;
+      const now = performance.now();
+      if (document.visibilityState === "visible") {
+        S.run.visible_ms = Math.min(total, S.run.visible_ms + (now - last));
+      }
+      last = now;
+      hud();
+      if (S.run.visible_ms >= total) finish();
+    };
+    const frame = () => {
+      if (S.run.ended) return;
+      tick();
+      if (!S.run.ended && !S.run.stopped) paintTool(ctx, W, H, toolId, S.run.visible_ms / 1000);
+      raf = requestAnimationFrame(frame);
+    };
+
+    const leaveFullscreen = () => {
+      const d = document;
+      if (d.fullscreenElement || d.webkitFullscreenElement) {
+        const fn = d.exitFullscreen || d.webkitExitFullscreen;
+        try { const p = fn.call(d); if (p && p.catch) p.catch(() => {}); } catch (e) { /* already out */ }
+      }
+    };
+
+    const stop = cause => {
+      if (!S.run.started || S.run.stopped || S.run.ended) return;
+      S.run.stopped = true;
+      S.run.stop_cause = cause;
+      S.run.stop_at_ms = Math.round(S.run.visible_ms);
+      ctx.fillStyle = RUN.frame; ctx.fillRect(0, 0, W, H);
+      leaveFullscreen();
+      stage.hidden = true;
+      $("#run-stopped").hidden = false;
+      hud();
+    };
+
+    const finish = () => {
+      if (S.run.ended) return;
+      S.run.ended = true;
+      cancelAnimationFrame(raf);
+      clearInterval(clock);
+      S.run.wall_ms = Date.now() - wallStart;
+      S.run.visible_ms = Math.round(S.run.visible_ms);
+      leaveFullscreen();
+      stage.hidden = true;
+      $("#run-stopped").hidden = true;
+      $("#end-text").textContent = S.run.stopped
+        ? (s => `You stopped ${tool.name} after ${s} second${s === 1 ? "" : "s"}.`)(Math.max(1, Math.floor(S.run.stop_at_ms / 1000)))
+        : `${tool.name} has finished its routine.`;
+      $("#run-end").hidden = false;
+      document.removeEventListener("keydown", onKey);
+      window.removeEventListener("resize", size);
+      logEvent("run", Object.assign({}, S.run, { completed: !S.run.stopped }));
+    };
+
+    const onKey = e => { if (e.key === "Escape" || e.key === "Esc") stop("esc_key"); };
+    const onFs = () => {
+      const fs = document.fullscreenElement || document.webkitFullscreenElement;
+      if (fs) {
+        if (!S.run.ended && !S.run.stopped) { S.run.mode = "fullscreen"; S.run.fullscreen_ok = true; }
+        size();
+      } else if (S.run.mode === "fullscreen") {
+        stop("left_fullscreen");                     // Esc in full-screen arrives here
+      }
+    };
+    const onVis = () => {
+      if (!S.run.started || S.run.ended) return;
+      if (document.visibilityState === "hidden") {
+        S.run.hidden_n += 1; hiddenAt = Date.now();
+      } else if (hiddenAt) {
+        S.run.hidden_ms += Date.now() - hiddenAt; hiddenAt = 0;
+        last = performance.now();
+        if (!S.run.stopped) {
+          const note = $("#run-paused");
+          note.hidden = false;
+          clearTimeout(pausedTimer);
+          pausedTimer = setTimeout(() => { note.hidden = true; }, 3500);
+        }
+      }
+    };
+
+    $("#run-start").onclick = () => {
+      if (S.run.started) return;
+      S.run.started = true;
+      S.run.launch_wait_ms = Date.now() - shownAt;
+      $("#run-launch").hidden = true;
+      stage.hidden = false;
+      size();
+      ctx.fillStyle = RUN.frame; ctx.fillRect(0, 0, W, H);
+
+      document.addEventListener("keydown", onKey);
+      document.addEventListener("fullscreenchange", onFs);
+      document.addEventListener("webkitfullscreenchange", onFs);
+      document.addEventListener("visibilitychange", onVis);
+      window.addEventListener("resize", size);
+
+      S.run.mode = "window";
+      wallStart = Date.now();
+      last = performance.now();
+      logEvent("run_start", { tool: toolId, tool_name: tool.name });
+      clock = setInterval(tick, 250);
+      raf = requestAnimationFrame(frame);
+
+      /* requestFullscreen must be called inside this click handler */
+      const req = stage.requestFullscreen || stage.webkitRequestFullscreen;
+      if (req) {
+        try {
+          const p = req.call(stage);
+          if (p && p.catch) p.catch(() => { /* stays full-window */ });
+        } catch (e) { /* stays full-window */ }
+      }
+    };
+
+    $("#run-stop").onclick = () => stop("stop_button");
+
+    $("#run-continue").onclick = () => {
+      document.removeEventListener("fullscreenchange", onFs);
+      document.removeEventListener("webkitfullscreenchange", onFs);
+      document.removeEventListener("visibilitychange", onVis);
+      renderRealism();
+      show("screen-realism");
+      $("#screen-realism").classList.add("from-dark");
+    };
+  }
+
+  /* =====================================================================
+     6. REALISM ITEM — then the full response is saved again
+     ===================================================================== */
+  function renderRealism() {
+    const host = $("#realism-body");
+    host.innerHTML = "";
+    host.appendChild(el("div", "demo-label realism-label", REALISM.label));
+    const box = el("div", "demo-radios");
+    REALISM.options.forEach(o => {
+      const lab = el("label", "choice");
+      lab.innerHTML = `<input type="radio" name="${REALISM.field}" value="${o}">
+                       <span class="radio"></span><span class="text">${o}</span>`;
+      box.appendChild(lab);
+    });
+    host.appendChild(box);
+
+    const btn = $("#realism-btn");
+    box.addEventListener("change", e => { S.answers[REALISM.field] = e.target.value; btn.disabled = false; });
+
+    const started = Date.now();
+    btn.onclick = async () => {
+      btn.disabled = true;
+      btn.textContent = "Submitting…";
+      S.timings.t_realism = Date.now() - started;
+      try {
+        await submit("final");
+        renderDebrief();
+        show("screen-done");
+        beginReturn();
+      } catch (e) {
+        console.error(e);
+        btn.disabled = false;
+        btn.textContent = "Submit and finish";
+        const err = $("#realism-err");
+        err.textContent = "We could not save your response. Please check your connection and try again.";
+        err.classList.add("show");
+      }
+    };
+  }
+
+  /* =====================================================================
+     7. SUBMIT — called twice: before the run (so the choice, beliefs and
+     demographics are safe if someone leaves during it) and after the
+     realism item (adds the run and realism). Each call replaces the row.
+     ===================================================================== */
+  function buildPayload(stage) {
+    const p = Object.assign({}, S.answers);
+    const f = S.tools[S.focal], o = S.tools[S.other];
+    p.condition_seen     = S.condition;
+    p.label_order        = S.labelOrder;
+    p.focal              = S.focal;
+    p.pair               = S.pair;
+    p.focal_first        = S.focalFirst;
+    p.focal_brand        = f.brand;
+    p.focal_name         = f.name;
+    p.other_name         = o.name;
+    p.chose_focal        = S.answers.dv_choice ? S.answers.dv_choice === S.focal : null;
+    p.confirm_first      = S.condition === "mixed" ? S.confirmFirst : null;
+    p.name_swap          = S.condition === "mixed" ? S.nameSwap : null;
+    p.source_confirm     = S.condition === "mixed" ? S.confirmSrc.name : null;
+    p.source_disconfirm  = S.condition === "mixed" ? S.disconfSrc.name : null;
+    p.theme_confirm      = S.condition === "mixed" ? STIMULUS.verdict.confirming.theme : null;
+    p.theme_disconfirm   = S.condition === "mixed" ? STIMULUS.verdict.disconfirming.theme : null;
+    p.stage              = stage;
+    return p;
+  }
+
+  async function submit(stage) {
+    const paradata = {
+      pid_source:        S.pidSource,
+      is_test:           S.isTest,
+      prolific_study_id: new URLSearchParams(location.search).get("STUDY_ID") || null,
+      duration_ms:       Date.now() - S.startedAt,
+      read_ms:           S.timings.article_ms || null,
+      blur_count:        S.blurCount,
+      hidden_count:      S.hiddenCount,
+      is_mobile:         window.matchMedia("(max-width: 900px)").matches,
+      user_agent:        navigator.userAgent,
+      page_ms:           S.timings,
+      choice:            S.choiceMeta,
+      run:               S.run
+    };
+    await rpc("submit", {
+      p_study: CONFIG.studyId,
+      p_pid: S.pid,
+      p_data: buildPayload(stage),
+      p_paradata: paradata
+    });
+  }
+
+  /* ---------------------------------------------------------------------
+     Debrief, withdrawal, hand-off. Withdrawal is logged and honoured
+     before analysis; the participant is still paid (same completion code).
+     --------------------------------------------------------------------- */
+  function renderDebrief() {
+    const names = `${TOOLS.brands.a.name}, ${TOOLS.brands.b.name}`;
+    $("#debrief-text").innerHTML = DEBRIEF.replace("{NAMES}", names);
+  }
+
+  function initWithdraw() {
+    const btn = $("#withdraw-btn");
+    btn.addEventListener("click", () => {
+      btn.disabled = true;
+      logEvent("withdraw", { at: "debrief" });
+      const note = $("#withdraw-note");
+      note.textContent = "Your responses will be removed before analysis. You will still be paid.";
+      note.hidden = false;
+    });
+  }
+
+  function beginReturn() {
+    const url = CONFIG.completionUrl;
+    if (!url) return;
+
+    $("#code-label").textContent = "If you are not returned automatically, use this code";
+    $("#return-block").hidden = false;
+
+    let left = Math.max(0, CONFIG.completionDelaySeconds || 0);
+    const note = $("#return-note");
+    const go = () => { clearInterval(timer); if (!PREVIEW) location.href = url; };
+
+    const tick = () => {
+      note.textContent = left > 0
+        ? `Returning you to Prolific automatically in ${left} second${left === 1 ? "" : "s"}…`
+        : "Returning you to Prolific…";
+      if (left <= 0) go();
+      left -= 1;
+    };
+    const timer = setInterval(tick, 1000);
+    tick();
+
+    $("#return-btn").addEventListener("click", go);
+  }
+
+  /* =====================================================================
+     boot — desktop and laptop only (as s1a)
+     ===================================================================== */
+  function isPhoneOrTablet() {
+    const ua = navigator.userAgent || "";
+    const touch = (navigator.maxTouchPoints || 0) > 0;
+    const coarse = window.matchMedia("(pointer: coarse)").matches;
+    return (navigator.userAgentData && navigator.userAgentData.mobile === true)
+        || /Mobi|Android|iPhone|iPad|iPod/i.test(ua)
+        || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1)
+        || (coarse && touch);
+  }
+
+  function blockDevice() {
+    show("screen-device");
+    const q = new URLSearchParams(location.search);
+    rpc("log_event", {
+      p_study: CONFIG.studyId,
+      p_pid: q.get("PROLIFIC_PID") || q.get("participant_id") || null,
+      p_kind: "blocked_device",
+      p_detail: {
+        ua: navigator.userAgent.slice(0, 200),
+        touch_points: navigator.maxTouchPoints || 0,
+        pointer_coarse: window.matchMedia("(pointer: coarse)").matches,
+        uadata_mobile: navigator.userAgentData ? navigator.userAgentData.mobile : null
+      }
+    }).catch(e => console.warn("log_event", e));
+  }
+
+  window.addEventListener("blur", () => { S.blurCount += 1; });
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "hidden") S.hiddenCount += 1;
+  });
+
+  /* localhost-only jumps for checking and screenshots */
+  async function previewJump() {
+    const q = new URLSearchParams(location.search);
+    const jump = q.get("jump");
+    if (!jump) return;
+    await startSession();
+    renderArticle();
+    if (jump === "intro") {
+      renderIntro();
+      show("screen-intro");
+    } else if (jump === "measures") {
+      $("#stimulus-pane").insertBefore($("#article-full"), $("#stimulus-pane").firstChild);
+      show("screen-measures");
+      renderMeasure();
+    } else if (jump === "run") {
+      S.answers.dv_choice = q.get("tool") === "move" ? "move" : "blink";
+      startRunScreen(S.answers.dv_choice);
+    } else if (jump === "done") {
+      renderDebrief();
+      show("screen-done");
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    if (isPhoneOrTablet()) { blockDevice(); return; }
+    $("#done-code").textContent = CONFIG.completionCode;
+    initConsent();
+    initIntro();
+    initWithdraw();
+    if (PREVIEW) {
+      window.__ST2 = { S, buildPayload, paintTool, phaseAt, alphaAt, eyeOpen, dotAt, cueAt, cueStepAt };
+      previewJump();
+    }
+  });
+})();
+
+</script>
+</body>
+</html>
