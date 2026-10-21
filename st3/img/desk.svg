@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 322" width="820" height="322" role="img" aria-label="A laptop on a desk at dusk, with a pair of glasses and a mug beside it.">
+  <defs>
+    <linearGradient id="dusk" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#e9c9b0"/>
+      <stop offset=".55" stop-color="#d9d0d6"/>
+      <stop offset="1" stop-color="#bfcbdc"/>
+    </linearGradient>
+    <radialGradient id="glow" cx=".5" cy=".5" r=".5">
+      <stop offset="0" stop-color="#f4f6fa" stop-opacity=".9"/>
+      <stop offset="1" stop-color="#f4f6fa" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="820" height="322" fill="#f7f6f3"/>
+
+  <!-- window at dusk: the end of a long day -->
+  <rect x="64" y="34" width="168" height="178" rx="6" fill="url(#dusk)"/>
+  <rect x="64" y="34" width="168" height="178" rx="6" fill="none" stroke="#d6d2cb" stroke-width="6"/>
+  <line x1="148" y1="34" x2="148" y2="212" stroke="#d6d2cb" stroke-width="5"/>
+  <line x1="64" y1="122" x2="232" y2="122" stroke="#d6d2cb" stroke-width="5"/>
+  <path d="M67 196 Q104 176 146 188 T229 180 V209 H67 Z" fill="#a8b3c4" opacity=".55"/>
+
+  <!-- desk -->
+  <rect x="0" y="286" width="820" height="36" fill="#e7e2da"/>
+  <rect x="0" y="286" width="820" height="2" fill="#d8d2c8"/>
+
+  <!-- soft light from the screen -->
+  <ellipse cx="434" cy="150" rx="250" ry="150" fill="url(#glow)"/>
+
+  <!-- laptop -->
+  <ellipse cx="434" cy="288" rx="226" ry="6" fill="#14161a" opacity=".07"/>
+  <rect x="284" y="48" width="300" height="208" rx="13" fill="#2b2f36"/>
+  <rect x="297" y="61" width="274" height="182" rx="4" fill="#f1f3f6"/>
+  <!-- a long document on screen -->
+  <g fill="#c9ced6">
+    <rect x="321" y="84" width="150" height="9" rx="3" fill="#aeb5bf"/>
+    <rect x="321" y="108" width="226" height="6" rx="3"/>
+    <rect x="321" y="122" width="214" height="6" rx="3"/>
+    <rect x="321" y="136" width="222" height="6" rx="3"/>
+    <rect x="321" y="150" width="168" height="6" rx="3"/>
+    <rect x="321" y="172" width="226" height="6" rx="3"/>
+    <rect x="321" y="186" width="208" height="6" rx="3"/>
+    <rect x="321" y="200" width="219" height="6" rx="3"/>
+    <rect x="321" y="214" width="140" height="6" rx="3"/>
+  </g>
+  <circle cx="434" cy="54.5" r="2.2" fill="#4a4f58"/>
+  <path d="M254 258 H614 L640 278 Q642 284 634 284 H234 Q226 284 228 278 Z" fill="#c9cdd3"/>
+  <rect x="404" y="258" width="60" height="5" rx="2.5" fill="#b4b9c0"/>
+
+  <!-- mug -->
+  <path d="M186 240 H228 V276 Q228 284 220 284 H194 Q186 284 186 276 Z" fill="#d7dde4"/>
+  <path d="M228 248 Q244 248 244 260 Q244 272 228 272" fill="none" stroke="#d7dde4" stroke-width="6"/>
+  <ellipse cx="207" cy="240" rx="21" ry="3.5" fill="#c3cad3"/>
+
+  <!-- glasses, set down beside the laptop -->
+  <g fill="none" stroke="#3d434e" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="660" y="258" width="44" height="24" rx="11"/>
+    <rect x="716" y="258" width="44" height="24" rx="11"/>
+    <path d="M704 266 Q710 261 716 266"/>
+    <path d="M662 262 L640 252"/>
+    <path d="M758 262 L776 250"/>
+  </g>
+</svg>

@@ -1,0 +1,2200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Consumer Opinion Study</title>
+<style>
+/* =====================================================================
+   Consumer Opinion Studies — st2 (Study 1b): eye-strain tools
+   Shared look from s1a/fr1; st1/st2 additions are at the end of the file.
+   ===================================================================== */
+
+:root{
+  --ink:            #14161a;
+  --ink-2:          #3d434e;
+  --ink-3:          #6b7280;
+  --ink-4:          #9aa1ad;
+  --rule:           #e3e5ea;
+  --rule-soft:      #eef0f3;
+  --paper:          #ffffff;
+  --canvas:         #f6f6f4;
+  --panel:          #fbfbfa;
+  --accent:         #1f3d5c;
+  --accent-soft:    #eaeff4;
+  --accent-line:    #b9c7d6;
+  --focus:          #2f6feb;
+
+  --serif: "Iowan Old Style", "Charter", Georgia, "Times New Roman", serif;
+  --sans:  -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto,
+           "Helvetica Neue", Arial, sans-serif;
+
+  --measure-max: 620px;
+  --ease: cubic-bezier(.22,.61,.36,1);
+}
+
+*,*::before,*::after{ box-sizing:border-box; }
+
+html,body{ height:100%; }
+body{
+  margin:0;
+  font-family:var(--sans);
+  color:var(--ink);
+  background:var(--canvas);
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+}
+
+/* =====================  App shell  ================================== */
+/* Fixed-viewport shell: the app never scrolls as a whole. Each screen
+   scrolls inside itself, so the stimulus pane and the measure pane keep
+   their own independent scroll positions in the split view. */
+#app{
+  height:100vh; height:100dvh; overflow:hidden;
+  display:flex; flex-direction:column;
+}
+
+.screen{ display:none; flex:1; min-height:0; }
+.screen.is-active{ display:flex; flex-direction:column; }
+
+/* Centred single-column screens (consent, article, demographics, done) */
+.centered{
+  flex:1; display:flex; align-items:flex-start; justify-content:center;
+  padding:clamp(28px,6vh,72px) 24px 96px;
+  overflow-y:auto;
+}
+.centered > .sheet{
+  width:100%; max-width:var(--measure-max);
+  background:var(--paper);
+  border:1px solid var(--rule);
+  border-radius:14px;
+  padding:clamp(28px,4vw,44px);
+  box-shadow:0 1px 2px rgba(20,22,26,.04), 0 12px 32px -18px rgba(20,22,26,.18);
+  animation:rise .45s var(--ease) both;
+}
+.centered > .sheet.wide{ max-width:760px; }
+
+@keyframes rise{ from{ opacity:0; transform:translateY(10px);} to{ opacity:1; transform:none; } }
+
+/* =====================  Typography  ================================= */
+h1,h2,h3{ margin:0; font-weight:600; letter-spacing:-.012em; }
+h1{ font-size:clamp(22px,2.4vw,27px); line-height:1.25; }
+h2{ font-size:19px; line-height:1.35; }
+p{ margin:0 0 1em; line-height:1.65; color:var(--ink-2); }
+p:last-child{ margin-bottom:0; }
+strong{ font-weight:650; color:var(--ink); }
+
+.eyebrow{
+  font-size:11px; font-weight:650; letter-spacing:.11em; text-transform:uppercase;
+  color:var(--ink-4); margin:0 0 10px;
+}
+
+.lede{ font-size:15.5px; color:var(--ink-2); }
+.fineprint{ font-size:13px; line-height:1.6; color:var(--ink-3); }
+
+/* =====================  Buttons  ==================================== */
+.btn{
+  appearance:none; border:1px solid transparent; cursor:pointer;
+  font-family:inherit; font-size:15px; font-weight:550; letter-spacing:-.005em;
+  padding:13px 26px; border-radius:9px;
+  background:var(--accent); color:#fff;
+  transition:background .16s var(--ease), transform .12s var(--ease), opacity .16s;
+}
+.btn:hover:not(:disabled){ background:#152c43; }
+.btn:active:not(:disabled){ transform:translateY(1px); }
+.btn:disabled{ background:#d7dae0; color:#9aa1ad; cursor:not-allowed; }
+.btn.ghost{
+  background:transparent; color:var(--ink-3); border-color:var(--rule);
+}
+.btn.ghost:hover:not(:disabled){ background:var(--rule-soft); color:var(--ink-2); }
+.btn:focus-visible{ outline:2px solid var(--focus); outline-offset:2px; }
+
+.btn-row{ display:flex; align-items:center; gap:12px; margin-top:28px; }
+.btn-row.end{ justify-content:flex-end; }
+.btn-row[hidden]{ display:none; }
+
+/* =====================  SPLIT LAYOUT  ==============================
+   Stimulus pinned to the left half, measures on the right half.       */
+.split{
+  flex:1; min-height:0;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+}
+
+.pane-stimulus{
+  min-height:0; overflow-y:auto;
+  background:var(--panel);
+  border-right:1px solid var(--rule);
+  padding:clamp(28px,4vh,56px) clamp(24px,3.4vw,52px) 72px;
+  display:flex; justify-content:flex-end;
+}
+.pane-stimulus > .article{ width:100%; max-width:520px; }
+
+.pane-measure{
+  min-height:0; overflow-y:auto;
+  background:var(--canvas);
+  padding:clamp(28px,4vh,56px) clamp(24px,3.4vw,52px) 72px;
+  display:flex; justify-content:flex-start;
+}
+/* A fixed column, so every question's slider is the same width however long
+   its prompt is. 560px keeps the belief question on one line. */
+.pane-measure > .measure{ width:100%; max-width:560px; }
+
+/* =====================  THE ARTICLE  ================================ */
+.article{ animation:rise .5s var(--ease) both; }
+
+.masthead{
+  display:flex; align-items:baseline; gap:10px;
+  padding-bottom:12px; margin-bottom:26px;
+  border-bottom:1.5px solid var(--ink);
+}
+.masthead .brand{
+  font-family:var(--serif); font-size:19px; font-weight:600;
+  letter-spacing:.01em; color:var(--ink);
+}
+.masthead .section{
+  font-size:10.5px; font-weight:650; letter-spacing:.13em; text-transform:uppercase;
+  color:var(--ink-4);
+}
+
+.article-headline{
+  font-family:var(--serif); font-weight:600;
+  font-size:clamp(25px,2.7vw,31px); line-height:1.2; letter-spacing:-.015em;
+  margin:0 0 14px; color:var(--ink);
+}
+/* Product illustration. Sits between headline and body, identical in
+   every condition. */
+.article-figure{
+  margin:4px 0 20px; padding:0;
+  background:var(--paper);
+  border:1px solid var(--rule);
+  border-radius:12px;
+  overflow:hidden;
+  display:flex; justify-content:center;
+}
+.article-figure img{ display:block; width:100%; height:auto; }
+.article-body p{
+  font-family:var(--serif); font-size:16px; line-height:1.72; color:var(--ink-2);
+  margin:0 0 1.05em;
+}
+
+/* The manufacturer's claim — set as a pull quote */
+.claim-block{
+  margin:26px 0; padding:20px 24px;
+  background:var(--paper);
+  border:1px solid var(--rule);
+  border-left:3px solid var(--ink);
+  border-radius:0 8px 8px 0;
+}
+.claim-block .claim-label{
+  font-size:10.5px; font-weight:650; letter-spacing:.13em; text-transform:uppercase;
+  color:var(--ink-4); margin-bottom:8px;
+}
+.claim-block .claim-text{
+  font-family:var(--serif); font-size:20px; line-height:1.35; font-weight:600;
+  color:var(--ink); letter-spacing:-.01em;
+}
+
+/* =====================  VERDICT CARDS  =============================
+   Both verdicts share an IDENTICAL visual treatment. Only the wording
+   differs, so no colour cue is confounded with the manipulation.      */
+.verdicts{ margin-top:32px; }
+
+.verdicts-label{
+  font-size:10.5px; font-weight:650; letter-spacing:.13em; text-transform:uppercase;
+  color:var(--ink-4);
+  display:flex; align-items:center; gap:12px; margin-bottom:16px;
+}
+.verdicts-label::after{
+  content:""; flex:1; height:1px; background:var(--rule);
+}
+
+.verdict-card{
+  --card:      #33527e;
+  --card-tint: #eef1f7;
+  --card-line: #c3cfe2;
+
+  position:relative;
+  background:var(--card-tint);
+  border:1px solid var(--card-line);
+  border-left:3px solid var(--card);
+  border-radius:11px;
+  padding:20px 24px 22px;
+  margin-bottom:14px;
+  box-shadow:0 1px 2px rgba(20,22,26,.04), 0 10px 26px -20px rgba(20,22,26,.3);
+  animation:rise .55s var(--ease) both;
+}
+.verdict-card:last-child{ margin-bottom:0; }
+
+/* st1: the two verdicts sit side by side. Confirming = green, disconfirming
+   = red, matched in CIELAB lightness and chroma (accent L*42 C*38, tint
+   L*96.5 C*4.5, line L*82 C*16), so they differ only in hue. */
+.verdict-grid{ display:grid; grid-template-columns:1fr 1fr; gap:12px; align-items:stretch; }
+.verdict-grid .verdict-card{ margin-bottom:0; padding:16px 16px 18px; }
+.verdict-grid .verdict-card + .verdict-card{ animation-delay:.09s; }
+.verdict-grid .verdict-source .name{ font-size:16px; }
+.verdict-grid .verdict-source .tag{ font-size:9px; letter-spacing:.07em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.verdict-grid .verdict-headline{ font-size:17px; margin-bottom:9px; }
+.verdict-grid .verdict-body{ font-size:13.5px; line-height:1.6; }
+@media (max-width:520px){ .verdict-grid{ grid-template-columns:1fr; } }
+
+.verdict-card.verdict-confirming{
+  --card:      #2b7042;
+  --card-tint: #eff7f0;
+  --card-line: #b6d3bc;
+}
+.verdict-card.verdict-disconfirming{
+  --card:      #9c4a4a;
+  --card-tint: #fff2f1;
+  --card-line: #ecc2c0;
+}
+
+/* Source block: descriptor above, masthead below. Stacking keeps every
+   card identical in height regardless of how long the title is. */
+.verdict-source{
+  padding-bottom:12px; margin-bottom:14px;
+  border-bottom:1px solid var(--card-line);
+}
+.verdict-source .tag{
+  display:block;
+  font-size:9.5px; font-weight:650; letter-spacing:.12em; text-transform:uppercase;
+  color:var(--ink-4); margin-bottom:5px;
+}
+.verdict-source .name{
+  display:block;
+  font-family:var(--serif); font-size:17px; font-weight:600;
+  color:var(--card); letter-spacing:.005em; line-height:1.25;
+}
+
+.verdict-eyebrow{
+  font-size:10.5px; font-weight:650; letter-spacing:.13em; text-transform:uppercase;
+  color:var(--card); opacity:.85; margin-bottom:7px;
+}
+.verdict-headline{
+  font-family:var(--serif); font-size:19.5px; line-height:1.3; font-weight:600;
+  letter-spacing:-.012em; color:var(--ink); margin:0 0 11px;
+}
+.verdict-body{
+  font-size:14.5px; line-height:1.65; color:var(--ink-2); margin:0;
+}
+
+/* =====================  MEASURES  =================================== */
+/* All measures share one screen: each question is a block added beneath the
+   last, and answered blocks stay in place, locked and greyed. */
+.measure-block{ animation:rise .38s var(--ease) both; }
+.measure-block + .measure-block{ margin-top:30px; padding-top:28px; border-top:1px solid var(--rule); }
+/* animation:none releases the entrance animation's held opacity so the fade applies */
+.measure-block.is-done{ animation:none; opacity:.5; filter:grayscale(1); pointer-events:none; user-select:none; }
+.measure-block.is-done .measure-help{ display:none; }
+
+.progress{
+  display:flex; align-items:center; gap:12px; margin-bottom:26px;
+}
+.progress-track{
+  flex:1; height:3px; background:var(--rule); border-radius:3px; overflow:hidden;
+}
+.progress-fill{
+  height:100%; background:var(--accent); border-radius:3px; width:0;
+  transition:width .45s var(--ease);
+}
+.progress-count{
+  font-size:11.5px; font-weight:550; color:var(--ink-4); letter-spacing:.03em;
+  font-variant-numeric:tabular-nums; white-space:nowrap;
+}
+
+.measure-prompt{
+  font-size:19px; line-height:1.4; font-weight:550; letter-spacing:-.012em;
+  color:var(--ink); margin:0 0 8px;
+}
+.measure-help{ font-size:13px; line-height:1.55; color:var(--ink-4); margin:0 0 26px; }
+
+/* ---------- 0-100 slider ---------- */
+.slider-wrap{ padding:6px 0 4px; }
+.slider-value{
+  text-align:center; margin-bottom:18px; height:42px;
+  display:flex; align-items:center; justify-content:center;
+}
+.slider-value .num{
+  font-size:33px; font-weight:600; letter-spacing:-.02em; color:var(--accent);
+  font-variant-numeric:tabular-nums;
+}
+.slider-value .pct{ font-size:18px; font-weight:550; color:var(--accent-line); margin-left:2px; }
+.slider-value .placeholder{ font-size:13.5px; color:var(--ink-4); }
+
+.track-outer{ position:relative; padding:14px 0; cursor:pointer; }
+.track{
+  position:relative; height:5px; background:var(--rule); border-radius:5px;
+}
+.track-fill{
+  position:absolute; inset:0 auto 0 0; width:0;
+  background:var(--accent); border-radius:5px; opacity:0;
+  transition:opacity .2s;
+}
+.track-ticks{ position:absolute; inset:0; pointer-events:none; }
+.track-ticks span{
+  position:absolute; top:50%; width:1px; height:9px; margin-top:-4.5px;
+  background:var(--rule); transform:translateX(-50%);
+}
+.thumb{
+  position:absolute; top:50%; left:0; width:22px; height:22px; margin:-11px 0 0 -11px;
+  background:#fff; border:2px solid var(--accent); border-radius:50%;
+  box-shadow:0 2px 8px rgba(31,61,92,.22);
+  opacity:0; transform:scale(.6); pointer-events:none;
+  transition:opacity .18s var(--ease), transform .18s var(--ease);
+}
+.is-engaged .thumb{ opacity:1; transform:scale(1); }
+.is-engaged .track-fill{ opacity:1; }
+.track-outer:focus-visible{ outline:2px solid var(--focus); outline-offset:6px; border-radius:6px; }
+
+.track-labels{
+  display:flex; justify-content:space-between; gap:16px; margin-top:14px;
+}
+.track-labels span{ font-size:12.5px; color:var(--ink-3); line-height:1.4; max-width:44%; }
+.track-labels span:last-child{ text-align:right; }
+
+/* ---------- bipolar slider (mixed cell) ---------- */
+.bipolar .track-ticks span.center{ height:15px; margin-top:-7.5px; background:var(--ink-4); }
+.bipolar .track-fill{
+  background:var(--accent); border-radius:5px;
+}
+.bipolar-labels{
+  display:grid; grid-template-columns:1fr auto 1fr; gap:14px; margin-top:16px;
+  align-items:start;
+}
+.bipolar-labels .side{
+  font-size:12.5px; line-height:1.45; color:var(--ink-2);
+}
+.bipolar-labels .side .who{ display:block; font-weight:600; color:var(--ink); margin-bottom:2px; }
+.bipolar-labels .side.right{ text-align:right; }
+.bipolar-labels .mid{
+  font-size:11.5px; line-height:1.35; color:var(--ink-4); text-align:center;
+  padding-top:1px;
+}
+.bipolar-readout{
+  text-align:center; height:42px; display:flex; align-items:center; justify-content:center;
+  font-size:13.5px; color:var(--ink-3); margin-bottom:16px; line-height:1.45;
+}
+.bipolar-readout strong{ color:var(--accent); font-weight:600; }
+
+/* ---------- semantic differential ---------- */
+.semdiff-scale{
+  display:grid; grid-template-columns:minmax(76px,1fr) auto minmax(76px,1fr);
+  gap:10px; align-items:center;
+  padding:0 0 12px; margin-bottom:4px;
+}
+.semdiff-row{
+  display:grid; grid-template-columns:minmax(76px,1fr) auto minmax(76px,1fr);
+  gap:10px; align-items:center;
+  padding:11px 0; border-top:1px solid var(--rule-soft);
+}
+.semdiff-row:first-of-type{ border-top:1px solid var(--rule); }
+.semdiff-row .anchor{ font-size:13px; line-height:1.35; color:var(--ink-2); }
+.semdiff-row .anchor.right{ text-align:right; }
+
+.opt-row{ display:flex; gap:6px; }
+.opt{
+  position:relative; width:31px; height:31px; flex:0 0 auto;
+  display:flex; align-items:center; justify-content:center;
+}
+.opt input{
+  position:absolute; inset:0; opacity:0; margin:0; cursor:pointer; z-index:2;
+}
+.opt .dot{
+  width:100%; height:100%; border-radius:50%;
+  border:1.5px solid var(--rule); background:var(--paper);
+  transition:border-color .15s, background .15s, transform .15s var(--ease);
+}
+.opt:hover .dot{ border-color:var(--accent-line); }
+.opt input:checked + .dot{
+  border-color:var(--accent); background:var(--accent);
+  box-shadow:inset 0 0 0 3.5px var(--paper);
+  transform:scale(1.06);
+}
+.opt input:focus-visible + .dot{ outline:2px solid var(--focus); outline-offset:2px; }
+
+.scale-numbers{ display:flex; gap:6px; }
+.scale-numbers span{
+  width:31px; text-align:center; font-size:11px; color:var(--ink-4);
+  font-variant-numeric:tabular-nums;
+}
+
+/* ---------- likert rows (stacked statement + scale) ---------- */
+.likert-item{ padding:18px 0; border-top:1px solid var(--rule-soft); }
+.likert-item:first-of-type{ border-top:1px solid var(--rule); }
+.likert-item .statement{
+  font-size:14.5px; line-height:1.5; color:var(--ink); margin-bottom:14px;
+}
+.likert-scale{ display:flex; gap:6px; align-items:flex-start; }
+.likert-opt{
+  flex:1; min-width:0; display:flex; flex-direction:column;
+  align-items:center; gap:6px; cursor:pointer;
+}
+.likert-opt .dot{
+  width:29px; height:29px; border-radius:50%;
+  border:1.5px solid var(--rule); background:var(--paper);
+  transition:border-color .15s, background .15s, transform .15s var(--ease);
+}
+.likert-opt:hover .dot{ border-color:var(--accent-line); }
+.likert-opt input{ position:absolute; opacity:0; pointer-events:none; }
+.likert-opt input:checked + .dot{
+  border-color:var(--accent); background:var(--accent);
+  box-shadow:inset 0 0 0 3.5px var(--paper); transform:scale(1.06);
+}
+.likert-opt input:focus-visible + .dot{ outline:2px solid var(--focus); outline-offset:2px; }
+.likert-opt .lab{
+  font-size:10.5px; line-height:1.25; color:var(--ink-4); text-align:center;
+  min-height:1.25em;
+}
+
+/* ---------- single choice ---------- */
+.choice-list{ display:flex; flex-direction:column; gap:10px; }
+.choice{
+  display:flex; align-items:flex-start; gap:13px; cursor:pointer;
+  padding:15px 17px; border:1px solid var(--rule); border-radius:10px;
+  background:var(--paper); transition:border-color .15s, background .15s, box-shadow .15s;
+}
+.choice:hover{ border-color:var(--accent-line); }
+.choice input{ position:absolute; opacity:0; pointer-events:none; }
+.choice .radio{
+  flex:0 0 auto; width:19px; height:19px; margin-top:1px; border-radius:50%;
+  border:1.5px solid var(--rule); background:var(--paper);
+  transition:border-color .15s, background .15s;
+}
+.choice input:checked ~ .radio{
+  border-color:var(--accent); background:var(--accent);
+  box-shadow:inset 0 0 0 3.5px var(--paper);
+}
+.choice:has(input:checked){
+  border-color:var(--accent); background:var(--accent-soft);
+}
+.choice input:focus-visible ~ .radio{ outline:2px solid var(--focus); outline-offset:2px; }
+.choice .text{ font-size:14.5px; line-height:1.5; color:var(--ink); }
+
+/* ---------- textarea / inputs ---------- */
+textarea, input[type="number"], input[type="text"], select{
+  width:100%; font-family:inherit; font-size:15px; color:var(--ink);
+  padding:12px 14px; border:1px solid var(--rule); border-radius:9px;
+  background:var(--paper); transition:border-color .15s, box-shadow .15s;
+}
+textarea{ min-height:110px; resize:vertical; line-height:1.6; }
+textarea:focus, input:focus, select:focus{
+  outline:none; border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-soft);
+}
+input[type="number"]{ max-width:150px; }
+select{ appearance:none; background-image:
+  url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b7280' stroke-width='1.6' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat; background-position:right 14px center; padding-right:38px; }
+
+/* =====================  Consent  ==================================== */
+.consent-list{ margin:0 0 4px; padding:0; list-style:none; }
+.consent-list li{
+  position:relative; padding:0 0 12px 22px;
+  font-size:14.5px; line-height:1.6; color:var(--ink-2);
+}
+.consent-list li::before{
+  content:""; position:absolute; left:3px; top:9px;
+  width:5px; height:5px; border-radius:50%; background:var(--accent-line);
+}
+.divider{ height:1px; background:var(--rule); margin:26px 0; }
+
+.agree{
+  display:flex; align-items:flex-start; gap:13px; cursor:pointer;
+  padding:16px 18px; border:1px solid var(--rule); border-radius:10px;
+  background:var(--paper); transition:border-color .15s, background .15s;
+}
+.agree:hover{ border-color:var(--accent-line); }
+.agree:has(input:checked){ border-color:var(--accent); background:var(--accent-soft); }
+.agree input{ position:absolute; opacity:0; pointer-events:none; }
+.agree .box{
+  flex:0 0 auto; width:20px; height:20px; margin-top:1px; border-radius:5px;
+  border:1.5px solid var(--rule); background:var(--paper);
+  display:flex; align-items:center; justify-content:center;
+  transition:border-color .15s, background .15s;
+}
+.agree .box svg{ opacity:0; transition:opacity .15s; }
+.agree input:checked ~ .box{ border-color:var(--accent); background:var(--accent); }
+.agree input:checked ~ .box svg{ opacity:1; }
+.agree input:focus-visible ~ .box{ outline:2px solid var(--focus); outline-offset:2px; }
+.agree .text{ font-size:14.5px; line-height:1.5; color:var(--ink); font-weight:500; }
+
+/* =====================  Demographics  =============================== */
+.demo-item{ padding:22px 0; border-top:1px solid var(--rule-soft); }
+.demo-item:first-of-type{ border-top:none; padding-top:6px; }
+.demo-label{ font-size:15px; line-height:1.5; color:var(--ink); font-weight:500; margin-bottom:14px; }
+.demo-radios{ display:flex; flex-direction:column; gap:8px; }
+.demo-radios .choice{ padding:12px 15px; }
+.demo-radios .choice .text{ font-size:14px; }
+.input-row{ display:flex; align-items:center; gap:10px; }
+.input-row .suffix{ font-size:14px; color:var(--ink-3); }
+
+/* =====================  Completion  ================================= */
+.done-mark{
+  width:46px; height:46px; border-radius:50%; background:var(--accent-soft);
+  display:flex; align-items:center; justify-content:center; margin-bottom:22px;
+}
+.code-box{
+  margin-top:20px; padding:18px 20px; border:1px dashed var(--accent-line);
+  border-radius:10px; background:var(--accent-soft); text-align:center;
+}
+.code-box .label{
+  font-size:11px; font-weight:650; letter-spacing:.11em; text-transform:uppercase;
+  color:var(--ink-3); margin-bottom:7px;
+}
+.code-box .code{
+  font-size:21px; font-weight:600; letter-spacing:.05em; color:var(--accent);
+  font-family:ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+/* =====================  Misc  ======================================= */
+.err{
+  font-size:13.5px; color:#a3312a; margin-top:14px; line-height:1.5;
+  display:none;
+}
+.err.show{ display:block; }
+.saving{ font-size:12.5px; color:var(--ink-4); margin-top:14px; }
+
+/* =====================  Responsive  =================================
+   Below 900px the split stacks: the article sits on top in a scrollable
+   band, the measure sits beneath it. The requested left/right split is
+   preserved wherever the viewport can carry it.                        */
+@media (max-width:900px){
+  .split{ grid-template-columns:1fr; grid-template-rows:minmax(180px,38vh) 1fr; }
+  .pane-stimulus{
+    border-right:none; border-bottom:1px solid var(--rule);
+    padding:24px 20px 28px; justify-content:center;
+  }
+  .pane-measure{ padding:26px 20px 80px; justify-content:center; }
+  .pane-stimulus > .article{ max-width:560px; }
+  .article-headline{ font-size:22px; }
+  .measure-prompt{ font-size:17.5px; }
+  .semdiff-row, .semdiff-scale{ grid-template-columns:minmax(60px,1fr) auto minmax(60px,1fr); gap:8px; }
+  .opt{ width:28px; height:28px; }
+  .scale-numbers span{ width:28px; }
+  .bipolar-labels{ gap:10px; }
+}
+
+@media (max-width:560px){
+  .semdiff-row{
+    grid-template-columns:1fr; gap:8px; justify-items:center; text-align:center;
+  }
+  .semdiff-row .anchor.right{ text-align:center; }
+  .semdiff-scale{ display:none; }
+  .opt{ width:34px; height:34px; }
+}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{ animation-duration:.01ms !important; transition-duration:.01ms !important; }
+}
+
+/* =====================  st1: INTRODUCTION  ============================= */
+.steps{ margin:18px 0 6px; padding:0; list-style:none; counter-reset:step; }
+.steps li{
+  position:relative; padding:0 0 12px 36px; counter-increment:step;
+  font-size:14.5px; line-height:1.55; color:var(--ink-2);
+}
+.steps li::before{
+  content:counter(step); position:absolute; left:0; top:-1px;
+  width:24px; height:24px; border-radius:50%;
+  background:var(--accent-soft); color:var(--accent);
+  font-size:12.5px; font-weight:650; display:flex; align-items:center; justify-content:center;
+}
+
+/* =====================  st1: FOCAL TOOL IN THE ARTICLE  ==============
+   Highlights which tool the article and the tests are about.            */
+.product-panel{
+  margin:24px 0 0; padding:16px 18px;
+  background:var(--accent-soft); border:1px solid var(--accent-line); border-radius:12px;
+  font-family:var(--sans);
+}
+.product-label{
+  font-size:10.5px; font-weight:650; letter-spacing:.13em; text-transform:uppercase;
+  color:var(--accent); margin-bottom:10px;
+}
+.product-row{ display:flex; align-items:center; gap:12px; }
+.product-name{ font-size:17px; font-weight:650; color:var(--ink); letter-spacing:-.01em; line-height:1.25; }
+.product-dev{ font-size:12.5px; color:var(--ink-3); }
+/* the claim box follows the panel directly */
+.product-panel + .claim-block{ margin-top:14px; }
+
+.verdict-tested{
+  display:flex; align-items:center; gap:7px; margin:-2px 0 12px;
+  font-size:12px; color:var(--ink-3);
+}
+.verdict-tested .app-icon{ width:20px; height:20px; border-radius:5px; }
+.verdict-tested .app-icon svg{ width:12px; height:12px; }
+.verdict-tested strong{ color:var(--ink); font-weight:600; }
+
+/* =====================  st1: APP LISTINGS  ============================
+   One look for both tools, wherever they appear. Only the content differs. */
+.listing-grid{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.listing{
+  position:relative; display:flex; flex-direction:column; gap:8px;
+  padding:16px 16px 14px; border:1px solid var(--rule); border-radius:12px;
+  background:var(--paper);
+}
+.listing-head{ display:flex; align-items:center; gap:11px; }
+.listing-id{ display:flex; flex-direction:column; min-width:0; }
+.listing-name{ font-size:16px; font-weight:650; letter-spacing:-.01em; color:var(--ink); line-height:1.25; }
+.listing-dev{ font-size:12.5px; color:var(--ink-3); line-height:1.3; }
+.listing-tagline{ font-size:13.5px; font-weight:550; line-height:1.4; color:var(--ink); }
+.listing-desc{ font-size:13px; line-height:1.5; color:var(--ink-2); }
+.listing-meta{
+  font-size:11.5px; color:var(--ink-4); margin-top:auto; padding-top:9px;
+  border-top:1px solid var(--rule-soft);
+}
+
+.app-icon{
+  flex:0 0 auto; width:40px; height:40px; border-radius:10px;
+  display:inline-flex; align-items:center; justify-content:center;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.08), 0 1px 2px rgba(20,22,26,.18);
+}
+.app-icon svg{ width:22px; height:22px; }
+/* one colour per BRAND (travels with the name, so it is counterbalanced
+   against the mechanism and against being the article's tool) */
+.app-icon.icon-a,
+.app-icon.icon-b{
+  background-image:linear-gradient(150deg, rgba(255,255,255,.10), rgba(0,0,0,.10));
+  color:#fff; font-family:var(--sans); font-weight:650; letter-spacing:-.01em; line-height:1;
+  font-size:19px;
+}
+/* muted and matched: equal CIELAB lightness and chroma (L*46, C*14); hues
+   87° and 267°, each equally far from the green and the red verdict tints */
+.app-icon.icon-a{ background-color:#5E6E84; }
+.app-icon.icon-b{ background-color:#776C56; }
+.app-icon.lg{ font-size:25px; }
+.app-icon.sm{ font-size:14px; }
+.app-icon.xs{ font-size:11.5px; }
+.verdict-tested .app-icon{ font-size:11px; }
+.app-icon.lg{ width:52px; height:52px; border-radius:13px; }
+.app-icon.lg svg{ width:28px; height:28px; }
+.app-icon.sm{ width:28px; height:28px; border-radius:7px; }
+.app-icon.sm svg{ width:16px; height:16px; }
+.app-icon.xs{ width:22px; height:22px; border-radius:6px; }
+.app-icon.xs svg{ width:13px; height:13px; }
+
+/* belief items: a chip naming the tool the question is about */
+.measure-tool{ display:flex; align-items:center; gap:8px; margin:0 0 10px; font-size:12.5px; color:var(--ink-3); }
+.measure-tool-name{ font-size:13.5px; font-weight:650; color:var(--ink); }
+
+/* =====================  st1: TOOL CHOICE  ============================= */
+.tool-card{ cursor:pointer; padding-top:14px; transition:border-color .15s, background .15s, box-shadow .15s; }
+.tool-card:hover{ border-color:var(--accent-line); }
+.tool-card input{ position:absolute; opacity:0; pointer-events:none; }
+.tool-card .card-top{ display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:2px; min-height:18px; }
+.tool-card .option-label{ font-size:10.5px; font-weight:650; letter-spacing:.11em; text-transform:uppercase; color:var(--ink-4); }
+.tool-card .pick{ display:flex; align-items:center; gap:8px; }
+/* option 1 is the article's tool: a small reminder, in the article panel's colours */
+.listing-flag{
+  align-self:flex-start; margin:-2px 0 2px; padding:3px 8px; border-radius:5px;
+  background:var(--accent-soft); border:1px solid var(--accent-line); color:var(--accent);
+  font-size:10.5px; font-weight:650; letter-spacing:.08em; text-transform:uppercase; line-height:1.3;
+}
+.measure-block.is-done .listing-flag{ background:transparent; }
+/* before both options have been seen: nothing is selectable */
+.tool-cards.is-staged .tool-card{ cursor:default; }
+.tool-cards.is-staged .tool-card:hover{ border-color:var(--rule); }
+.tool-cards.is-staged .pick{ display:none; }
+.option-slot{
+  display:flex; align-items:center; justify-content:center;
+  background:transparent; border:1.5px dashed var(--rule); min-height:220px;
+}
+.option-slot span{ font-size:11px; font-weight:650; letter-spacing:.11em; text-transform:uppercase; color:var(--ink-4); }
+.tool-card.is-entering{ animation:rise .45s var(--ease) both; }
+.reveal-row{ margin-top:16px; }
+.tool-question{ font-size:16.5px; line-height:1.4; font-weight:550; color:var(--ink); margin:20px 0 0; letter-spacing:-.01em; }
+.tool-intro-help{ margin-bottom:18px; color:var(--ink-3); font-size:13.5px; }
+.tool-card .radio{
+  flex:0 0 auto; width:18px; height:18px; border-radius:50%;
+  border:1.5px solid var(--rule); background:var(--paper);
+  transition:border-color .15s, background .15s;
+}
+.tool-card .pick-label{ font-size:11px; font-weight:650; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-4); }
+.tool-card input:checked ~ .pick .radio{
+  border-color:var(--accent); background:var(--accent);
+  box-shadow:inset 0 0 0 3.5px var(--paper);
+}
+.tool-card input:checked ~ .pick .pick-label{ color:var(--accent); }
+.tool-card:has(input:checked){ border-color:var(--accent); background:var(--accent-soft); box-shadow:0 0 0 1px var(--accent) inset; }
+.tool-card:has(input:checked) .listing-meta{ border-top-color:var(--accent-line); }
+.tool-card input:focus-visible ~ .pick .radio{ outline:2px solid var(--focus); outline-offset:2px; }
+.tool-card .tool-badge{ display:none; }
+.tool-footer{ font-size:13px; color:var(--ink-3); margin:14px 0 0; }
+
+/* after confirming: greyed and locked like any answered block, but the
+   chosen card stays plainly marked */
+.measure-block.is-done .tool-card.is-chosen{ border-color:var(--ink-3); background:var(--rule-soft); box-shadow:none; }
+.measure-block.is-done .tool-card .pick{ display:none; }
+.measure-block.is-done .tool-card.is-chosen .tool-badge{
+  display:inline-block; align-self:flex-start; margin-top:2px;
+  font-size:10.5px; font-weight:650; letter-spacing:.11em; text-transform:uppercase;
+  color:var(--ink-2); border:1px solid var(--ink-4); border-radius:5px; padding:2px 7px;
+}
+.measure-block.is-done .tool-footer{ display:none; }
+.measure-block.is-done .tool-question{ display:none; }
+.measure-block > .eyebrow{ margin-bottom:12px; }
+
+@media (max-width:560px){ .listing-grid{ grid-template-columns:1fr; } }
+
+/* =====================  st2: THE ROUTINE  ============================
+   The chosen routine's poster, as large as the window allows, with the
+   downloads beside it.                                                    */
+.deliver{
+  flex:1; min-height:0; overflow-y:auto;
+  display:flex; align-items:center; justify-content:center; gap:clamp(28px,4vw,64px);
+  padding:clamp(20px,4vh,48px) 24px;
+}
+.deliver-poster{
+  margin:0; flex:0 0 auto;
+  height:min(calc(100dvh - 2 * clamp(20px,4vh,48px)), 1100px); aspect-ratio:850 / 1100;
+  border-radius:6px; overflow:hidden; background:var(--paper);
+  box-shadow:0 1px 2px rgba(20,22,26,.06), 0 24px 60px -28px rgba(20,22,26,.35);
+  animation:poster-in .7s var(--ease) both;
+}
+.deliver-poster img{ display:block; width:100%; height:100%; }
+@keyframes poster-in{ from{ opacity:0; transform:translateY(14px) scale(.985); } to{ opacity:1; transform:none; } }
+.deliver-side{ width:min(360px, 100%); animation:rise .5s var(--ease) .25s both; }
+.deliver-head{ display:flex; align-items:center; gap:12px; margin:4px 0 14px; }
+.deliver-id{ display:flex; flex-direction:column; }
+.deliver-name{ font-size:16px; font-weight:650; color:var(--ink); letter-spacing:-.01em; }
+.deliver-dev{ font-size:12.5px; color:var(--ink-3); }
+.deliver-title{ font-size:24px; line-height:1.25; margin-bottom:10px; }
+.deliver-text{ font-size:14.5px; }
+.deliver-actions{ display:flex; flex-wrap:wrap; gap:10px; margin:22px 0 12px; }
+.deliver-actions .btn{ text-decoration:none; display:inline-flex; align-items:center; }
+@media (max-width:900px){
+  .deliver{ flex-direction:column; align-items:center; }
+  .deliver-poster{ height:auto; width:min(560px, 100%); }
+}
+
+/* =====================  st1: REALISM ITEM  =========================== */
+.realism-label{ font-size:17px; line-height:1.45; margin-bottom:16px; }
+
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- ================= 0. DEVICE CHECK (phones and tablets) ================= -->
+  <section id="screen-device" class="screen">
+    <div class="centered">
+      <div class="sheet">
+        <div class="eyebrow">Research study</div>
+        <h1>Please use a desktop or laptop computer</h1>
+        <p class="lede" style="margin-top:14px">
+          This study can only be completed on a desktop or laptop computer, and it looks like
+          you are using a phone or tablet.
+        </p>
+        <div class="divider"></div>
+        <p class="fineprint">
+          If you would like to take part, please open the study link again on a desktop or
+          laptop. Otherwise, please return your submission on Prolific; you will not be
+          penalised.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 1. CONSENT ================= -->
+  <section id="screen-consent" class="screen is-active">
+    <div class="centered">
+      <div class="sheet">
+        <div class="eyebrow">Research study</div>
+        <h1>Before you begin</h1>
+        <p class="lede" style="margin-top:14px">
+          You are invited to take part in a short research study about how people
+          evaluate everyday consumer products. Please read this page before deciding
+          whether to take part.
+        </p>
+
+        <div class="divider"></div>
+
+        <ul class="consent-list">
+          <li><strong>What you will do.</strong> You will read a short article about a
+              free eye-care routine, choose between two such routines and answer a few
+              questions. At the end you will see the routine you chose and can download it if
+              you like. The study takes about 3 minutes.</li>
+          <li><strong>Voluntary participation.</strong> Taking part is entirely voluntary.
+              You may stop at any time by closing this window, without giving a reason and
+              without penalty. Answers you give before leaving the study are kept unless you
+              ask us to remove them.</li>
+          <li><strong>Anonymity.</strong> Your responses are anonymous. We do not collect
+              your name, email address, or any other directly identifying information.</li>
+          <li><strong>Use of the data.</strong> Responses are stored securely and analysed
+              only in aggregate for academic research purposes.</li>
+          <li><strong>Risks and benefits.</strong> There are no anticipated risks beyond
+              those of ordinary daily life. There is no direct benefit to you other than
+              any compensation stated in the recruitment advertisement.</li>
+          <li><strong>Questions.</strong> If you have questions about this study, you may
+              contact the research team using the details provided where you found this
+              study.</li>
+        </ul>
+
+        <div class="divider"></div>
+
+        <label class="agree">
+          <input type="checkbox" id="consent-agree">
+          <span class="box">
+            <svg width="12" height="9" viewBox="0 0 12 9" fill="none">
+              <path d="M1 4.2L4.3 7.5L11 1" stroke="#fff" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+          <span class="text">
+            I am 18 or older, I have read the information above, and I agree to take part.
+          </span>
+        </label>
+
+        <div class="btn-row">
+          <button class="btn" id="consent-btn" disabled>I agree — begin the study</button>
+        </div>
+        <div class="err" id="consent-err"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 2. HOW THIS STUDY WORKS (pre-reveal) ================= -->
+  <section id="screen-intro" class="screen">
+    <div class="centered">
+      <div class="sheet">
+        <div class="eyebrow">About this study</div>
+        <h1 id="intro-title"></h1>
+        <p class="lede" id="intro-lede" style="margin-top:12px"></p>
+        <ol class="steps" id="intro-steps"></ol>
+
+        <p class="fineprint" id="intro-footnote" style="margin-top:4px"></p>
+
+        <div class="divider"></div>
+        <p class="fineprint">
+          There are no right or wrong answers. We are interested in your own judgment.
+          The article stays on screen while you choose and answer.
+        </p>
+
+        <div class="btn-row">
+          <button class="btn" id="intro-btn">Continue to the article</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 3. ARTICLE ================= -->
+  <section id="screen-article" class="screen">
+    <div class="centered">
+      <div class="sheet wide">
+        <div class="eyebrow">Please read the following</div>
+        <div id="article-full" class="article" style="margin-top:18px"></div>
+        <div class="btn-row">
+          <button class="btn" id="article-btn" disabled>Continue to the questions</button>
+        </div>
+        <p class="fineprint" style="margin-top:14px">
+          The article stays on screen while you answer, so you can refer back to it.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 4. MEASURES (split view) ================= -->
+  <section id="screen-measures" class="screen">
+    <div class="split">
+      <!-- the article node is moved in here from the reading screen -->
+      <div class="pane-stimulus" id="stimulus-pane"></div>
+      <div class="pane-measure" id="measure-pane"></div>
+    </div>
+  </section>
+
+  <!-- ================= 5. DEMOGRAPHICS ================= -->
+  <section id="screen-demographics" class="screen">
+    <div class="centered">
+      <div class="sheet">
+        <div class="progress">
+          <div class="progress-track"><div class="progress-fill" id="demo-progress"></div></div>
+          <div class="progress-count" id="demo-count"></div>
+        </div>
+        <div class="eyebrow">Almost done</div>
+        <h1>A few questions about you</h1>
+        <p class="measure-help" style="margin-top:10px">
+          These help us describe the sample. They are not linked to your identity.
+        </p>
+        <div id="demo-body"></div>
+        <div class="btn-row">
+          <button class="btn" id="demo-btn" disabled>Continue</button>
+        </div>
+        <div class="err" id="demo-err"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 6. THE ROUTINE (poster + downloads) ================= -->
+  <section id="screen-deliver" class="screen">
+    <div class="deliver">
+      <figure class="deliver-poster"><img id="deliver-img" alt="" width="850" height="1100" decoding="async"></figure>
+      <div class="deliver-side">
+        <div class="eyebrow">Your routine</div>
+        <div class="deliver-head" id="deliver-head"></div>
+        <h1 class="deliver-title" id="deliver-title"></h1>
+        <p class="deliver-text" id="deliver-text"></p>
+        <div class="deliver-actions">
+          <a class="btn" id="deliver-pdf" href="#"></a>
+          <a class="btn ghost" id="deliver-png" href="#"></a>
+        </div>
+        <p class="fineprint" id="deliver-note"></p>
+        <div class="divider"></div>
+        <div class="btn-row" style="margin-top:0">
+          <button class="btn ghost" id="deliver-continue" type="button">Continue</button>
+        </div>
+        <div class="err" id="deliver-err"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 8. DONE / DEBRIEF ================= -->
+  <section id="screen-done" class="screen">
+    <div class="centered">
+      <div class="sheet">
+        <div class="done-mark">
+          <svg width="21" height="16" viewBox="0 0 21 16" fill="none">
+            <path d="M2 8.2L7.4 13.6L19 2" stroke="#1f3d5c" stroke-width="2.4"
+                  stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <h1>Thank you — your responses have been recorded.</h1>
+        <p class="lede" style="margin-top:14px">
+          That is the end of the study. We appreciate the time you gave it.
+        </p>
+
+        <div class="divider"></div>
+
+        <p class="fineprint" id="debrief-text"></p>
+        <p class="fineprint" style="margin-top:12px">
+          If you would like your responses removed now that you know this, you can remove
+          them below. You will still be paid.
+        </p>
+        <div class="btn-row" style="margin-top:14px">
+          <button class="btn ghost" id="withdraw-btn" type="button">Remove my responses</button>
+        </div>
+        <p class="fineprint" id="withdraw-note" style="margin-top:10px" hidden></p>
+
+        <div class="code-box">
+          <div class="label" id="code-label">Your completion code</div>
+          <div class="code" id="done-code"></div>
+        </div>
+
+        <div id="return-block" hidden>
+          <div class="btn-row">
+            <button class="btn" id="return-btn">Return to Prolific now</button>
+          </div>
+          <p class="fineprint" id="return-note" style="margin-top:12px"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<script>
+/* =====================================================================
+   Consumer Opinion Studies — st3 (Study 1b, main run): eye-care routines, 2 cells
+   (st2 was the pilot, 20 Oct 2026; its data stay under st2.)
+   Configuration: endpoints, stimulus copy, the two routines, completion.
+   Everything a researcher would want to edit lives in this file.
+   ===================================================================== */
+
+const CONFIG = {
+  studyId: "st3",
+  supabaseUrl: "https://uwrgeizwyybwtzwztrln.supabase.co",
+  supabaseKey: "sb_publishable_L7a-Ve4_pt-A3MkqNpaMqg_bU5wMoxd",
+
+  /* Seconds the article must be on screen before "Continue" unlocks. */
+  minReadSeconds: 7,
+
+  /* Completion. Same Prolific completion code as fr1 and s1a: enter it as the
+     study's completion code on Prolific. */
+  completionUrl: "https://app.prolific.com/submissions/complete?cc=CEKK0PFF",
+  completionCode: "CEKK0PFF",
+
+  /* The debrief carries a "Remove my responses" button, so it stays up
+     long enough to read before the automatic return. */
+  completionDelaySeconds: 25
+};
+
+/* ---------------------------------------------------------------------
+   STIMULUS — the article, about ONE of the two routines (the "focal"
+   routine, counterbalanced). {NAME} is its name. Identical in both
+   conditions; the mixed condition adds the two verdict cards beneath it.
+   --------------------------------------------------------------------- */
+const STIMULUS = {
+  kicker: "Health",
+
+  /* The setting of the problem (a laptop at the end of the day), not
+     either routine, so it favours neither. Drawn for the study. */
+  image: "img/desk.svg",
+  imageAlt: "A laptop on a desk at dusk, with a pair of glasses and a mug beside it.",
+
+  headline: "Can a one-minute routine ease eye strain?",
+
+  body: [
+    "Long hours at a screen leave many people with tired, uncomfortable eyes, a problem known as digital eye strain. Some free one-page routines aim to help, including {NAME}."
+  ],
+
+  productLabel: "The routine in this article",
+  testedLabel: "Routine tested",
+
+  claimLabel: "The creator’s claim",
+  claim: "Reduces eye strain.",
+
+  /* The ONLY sentence that differs with the focal routine (besides its
+     name): what its creator says it does. Parallel, matched in length,
+     effort and tone. */
+  mechanism: {
+    blink: "Its creator says that a few slow, complete blinks spread fresh tears over eyes that dry out during screen use.",
+    move:  "Its creator says that a few slow, steady eye movements loosen eye muscles that tighten during screen use."
+  },
+
+  /* The two magazines. Fictional, described identically; which magazine
+     delivers which verdict is randomised (name_swap). */
+  sources: [
+    { name: "Health Courier"    },
+    { name: "Wellness Bulletin" }
+  ],
+  sourceTag: "Established health magazine",
+
+  /* Mirror images; claim and verdict share "eye strain". The routine is
+     named once per card, in the "Routine tested" chip. Shown side by
+     side; the confirming card is tinted green and the disconfirming card
+     red (as st1). The tints are matched in CIELAB lightness and chroma. */
+  verdict: {
+    confirming: {
+      theme: "green",
+      eyebrow: "Our verdict",
+      headline: "The claim holds up.",
+      body:
+        "We had a panel of office workers follow the routine every day for two weeks. Based on what we measured, it <strong>did</strong> produce a meaningful reduction in eye strain. The creator’s claim <strong>is supported</strong>."
+    },
+    disconfirming: {
+      theme: "red",
+      eyebrow: "Our verdict",
+      headline: "The claim does not hold up.",
+      body:
+        "We had a panel of office workers follow the routine every day for two weeks. Based on what we measured, it <strong>did not</strong> produce a meaningful reduction in eye strain. The creator’s claim <strong>is not supported</strong>."
+    }
+  },
+
+  sectionLabelMixed: "Independent tests"
+};
+
+/* ---------------------------------------------------------------------
+   THE INTRODUCTION ("How this study works"), identical in both cells.
+   Says what the study is and that a routine is theirs to keep at the
+   end — but names NO routine.
+   --------------------------------------------------------------------- */
+const INTRO = {
+  title: "How this study works",
+  lede: "This study is about free eye-care routines: one-page guides to a few simple eye exercises, meant to ease eye strain from screens.",
+  steps: [
+    "<strong>Read</strong> a short article about one of these routines.",
+    "<strong>Answer</strong> a few questions, including which routine you would like to get.",
+    "<strong>Get it.</strong> At the end, you will see the routine you picked and can download it as a one-page PDF to keep."
+  ],
+  footnote: "The routines are free, and downloading is optional."
+};
+
+/* ---------------------------------------------------------------------
+   THE TWO ROUTINES. Each = a MECHANISM (listing copy, poster) + a BRAND
+   (name, creator, letter mark). Which brand goes with which mechanism is
+   counterbalanced (label_order a_blink / a_move), so names must suit
+   either routine and the listings must work under either name. Neither
+   listing carries ratings, reviews or tests. (The object keeps its
+   original name, TOOLS.)
+   --------------------------------------------------------------------- */
+const TOOLS = {
+  /* Plain names in the style of real eye-care products; checked 19 Oct
+     2026: no app, US trademark or web presence. Each name, creator and
+     mark travel together as one identity. */
+  brands: {
+    a: { name: "EyeNest", developer: "Whitfield Studio", mark: "N" },
+    b: { name: "EyeDen",  developer: "Corbett Studio",   mark: "D" }
+  },
+
+  /* Listings: different in voice, as real ones are; matched in length,
+     effort and appeal; the last line, the claim, is identical. */
+  mechanisms: {
+    blink: {
+      title: "The one-minute blink routine",
+      fileTitle: "one-minute-blink-routine",
+      tagline: "A one-minute routine of slow, complete blinks.",
+      description: "We blink less often, and less fully, at a screen. {NAME} takes you through a few slow, complete blinks that spread fresh tears across your eyes. Once or twice a day. Reduces eye strain."
+    },
+    move: {
+      title: "The one-minute eye-movement routine",
+      fileTitle: "one-minute-eye-movement-routine",
+      tagline: "A one-minute routine of slow eye movements.",
+      description: "Screens keep your eyes fixed at one distance for hours. {NAME} takes you through a few slow, steady eye movements that loosen your focusing muscles. Once or twice a day. Reduces eye strain."
+    }
+  },
+
+  meta: "Free · One-page PDF · About 1 minute a day",
+
+  /* Choice screen: an introduction, then the two options one at a time
+     (option 1, then "Show the second option"), then the question. Option 1,
+     on the left, is always the article's routine. */
+  choiceIntro: "In this study, you can choose one of two eye-care routines to download.",
+  choiceIntroHelp: "The two routines come from different creators. You will see the one you choose at the end of the study and can download it as a one-page PDF. Here they are, one at a time.",
+  /* option 1 is always the article's routine; this label reminds them */
+  focalFlag: "The routine in this article",
+  revealLabel: "Show the second option",
+  optionLabel: "Option",
+  prompt: "Which eye-care routine would you like to download at the end of the study?",
+  footer: "Once you confirm, your choice is final."
+};
+
+/* ---------------------------------------------------------------------
+   THE ROUTINE SCREEN, after the demographics: the chosen routine's poster
+   with two downloads.
+   --------------------------------------------------------------------- */
+const DELIVERY = {
+  text: "Here is the routine you chose. Download it to print, or to keep on your computer.",
+  pdf: "Download PDF",
+  png: "Download image",
+  note: "Downloading is optional."
+};
+
+/* ---------------------------------------------------------------------
+   DEBRIEF ({NAMES} = both routine names). Condition-neutral.
+   --------------------------------------------------------------------- */
+const DEBRIEF =
+  "<strong>A note on what you saw.</strong> This study looks at how people respond to product tests " +
+  "that agree or disagree; some participants saw such tests and others did not. {NAMES}, their " +
+  "creators, and any magazines or tests you saw were invented for this study, and no test was run. " +
+  "The routine you saw was made by the research team. Research on blinking and eye-movement routines " +
+  "is mixed, and none has been shown to reliably reduce eye strain. Eye-care professionals often " +
+  "suggest the 20-20-20 habit: every 20 minutes, look at something about 20 feet away for 20 seconds. " +
+  "If your eyes are often sore, dry or blurry, consider seeing an eye doctor.";
+
+</script>
+
+<script>
+/* =====================================================================
+   MEASURES
+   One screen beside the article, questions stacked and locked once
+   answered (as in s1a): the choice first, so no question precedes it,
+   then belief in the article's routine's claim. Age, gender and prior
+   familiarity follow; then the chosen routine is shown. {NAME} is the
+   article's routine. (st3: the pilot's belief in the other routine, eye
+   strain, 1-7 familiarity and realism items were dropped, 21 Oct 2026.)
+   ===================================================================== */
+
+const ALL = ["control", "mixed"];
+
+const MEASURES = [
+
+  /* ---------- DV (primary): which routine they get ----------------- */
+  {
+    id: "choice",
+    when: ALL,
+    type: "toolchoice",
+    eyebrow: "Your choice",
+    field: "dv_choice"          // "blink" | "move"; dv_focal = chose the article's routine
+  },
+
+  /* ---------- belief in each routine's claim (0-100, no default) ----- */
+  {
+    id: "belief_focal",
+    when: ALL,
+    type: "slider100",
+    tool: "focal",
+    eyebrow: "Your judgment",
+    prompt: "How likely is it that {NAME} actually reduces eye strain?",
+    help: "Drag the slider, or click anywhere on the line, to answer.",
+    leftLabel: "Very unlikely",
+    rightLabel: "Very likely",
+    field: "dv_belief_focal"
+  }
+];
+
+/* ---------- Demographics, then prior familiarity (shown without the stimulus) */
+const DEMOGRAPHICS = [
+  { field: "age", type: "number", label: "What is your age?", min: 18, max: 110, suffix: "years" },
+  {
+    field: "gender", type: "radio", label: "What is your gender?",
+    options: ["Woman", "Man", "Prefer not to say"]
+  },
+  {
+    field: "familiarity", type: "radio",
+    label: "Before today, how familiar were you with eye-care routines, such as blinking or eye-movement exercises?",
+    options: [
+      "I had never heard of them",
+      "I had heard of them but never tried one",
+      "I had tried one once or twice",
+      "I do them regularly"
+    ]
+  }
+];
+
+</script>
+
+<script>
+/* =====================================================================
+   Consumer Opinion Studies — st3 (Study 1b, main run): eye-care routines
+   Flow: consent -> orientation -> article -> [choice, belief in the
+         article's routine] beside the article -> age, gender, familiarity
+         (response saved) -> the chosen routine is shown as a one-page
+         poster, with downloads (PDF / PNG) -> response saved -> debrief
+   Two routines: blinking ("blink") and eye movements ("move"). Which
+   brand (name, creator, letter mark) each carries and which one the
+   article is about are counterbalanced within each cell (label_order,
+   from assign()). The article's routine is always option 1.
+   ===================================================================== */
+
+(function () {
+  "use strict";
+
+  /* ---------------- session state ---------------- */
+  const S = {
+    pid: null,
+    pidSource: null,
+    isTest: false,
+    blurCount: 0,
+    hiddenCount: 0,
+    startedAt: 0,
+    condition: null,
+    labelOrder: null,
+    confirmFirst: null,
+    nameSwap: false,
+    pair: null,          // "a_blink": brand A is the blink coach; "a_move": brand A is the eye-movement routine
+    focal: null,         // the tool the article is about: "blink" | "move"
+    other: null,
+    tools: null,         // { blink: {...}, move: {...} }, each with its brand resolved
+    answers: {},
+    timings: {},
+    choiceMeta: null,
+    choiceRestored: false,
+    delivery: null,
+    queue: [],
+    idx: 0,
+    screenEnteredAt: 0
+  };
+
+  const MECHS = ["blink", "move"];
+
+  const $  = (s, r) => (r || document).querySelector(s);
+  const el = (tag, cls, html) => {
+    const n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (html != null) n.innerHTML = html;
+    return n;
+  };
+  /* copy templates: {NAME} and {DEV} become a tool's brand */
+  const fill = (str, t) => String(str).replace(/\{NAME\}/g, t.name).replace(/\{DEV\}/g, t.developer);
+  const motionOK = () => !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  /* ---------------- Supabase RPC ---------------- */
+  async function rpc(fn, body) {
+    if (PREVIEW) { console.log("[preview] skipped", fn, body); return { preview: true }; }
+    const res = await fetch(`${CONFIG.supabaseUrl}/rest/v1/rpc/${fn}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        apikey: CONFIG.supabaseKey,
+        Authorization: `Bearer ${CONFIG.supabaseKey}`
+      },
+      body: JSON.stringify(body)
+    });
+    if (!res.ok) throw new Error(`${fn} failed: ${res.status} ${await res.text()}`);
+    const txt = await res.text();
+    return txt ? JSON.parse(txt) : null;
+  }
+
+  /* fire-and-forget event log (breadcrumbs, the choice, the downloads) */
+  function logEvent(kind, detail) {
+    return rpc("log_event", {
+      p_study: CONFIG.studyId,
+      p_pid: S.pid,
+      p_kind: kind,
+      p_detail: detail
+    }).catch(e => console.warn("log_event", kind, e));
+  }
+
+  function makeUid() {
+    if (crypto.randomUUID) return crypto.randomUUID();
+    return "s-" + Date.now() + "-" + Math.random().toString(36).slice(2, 12);
+  }
+
+  const store = {
+    get(k) { try { return sessionStorage.getItem(CONFIG.studyId + "_" + k); } catch (e) { return null; } },
+    set(k, v) { try { sessionStorage.setItem(CONFIG.studyId + "_" + k, v); } catch (e) { /* private mode */ } }
+  };
+
+  /* ---------------- screen switching ---------------- */
+  function show(id) {
+    document.querySelectorAll(".screen").forEach(s => s.classList.remove("is-active"));
+    $("#" + id).classList.add("is-active");
+    window.scrollTo(0, 0);
+    const pane = $("#" + id + " .pane-measure");
+    if (pane) pane.scrollTop = 0;
+  }
+
+  /* Preview mode: forces a condition and disables all database writes.
+     Only ever active on localhost / file:// — inert once deployed.
+     ?preview=control|mixed  &swap=1 (disconfirming first)
+     &pair=a_move (brand A is the eye-movement routine)  &focal=move
+     &jump=intro|measures|deliver|done  &tool=blink|move */
+  const PREVIEW = (function () {
+    const host = location.hostname;
+    const local = host === "localhost" || host === "127.0.0.1" || location.protocol === "file:";
+    if (!local) return null;
+    const c = new URLSearchParams(location.search).get("preview");
+    return ["control", "mixed"].indexOf(c) !== -1 ? c : null;
+  })();
+
+  /* =====================================================================
+     1. CONSENT
+     ===================================================================== */
+  function initConsent() {
+    const box  = $("#consent-agree");
+    const btn  = $("#consent-btn");
+    const err  = $("#consent-err");
+    box.addEventListener("change", () => { btn.disabled = !box.checked; });
+
+    btn.addEventListener("click", async () => {
+      btn.disabled = true;
+      btn.textContent = "Starting…";
+      err.classList.remove("show");
+      try {
+        await startSession();
+        renderArticle();
+        renderIntro();
+        show("screen-intro");
+      } catch (e) {
+        console.error(e);
+        btn.disabled = false;
+        btn.textContent = "I agree — begin the study";
+        err.textContent = "We could not start the study. Please check your connection and try again.";
+        err.classList.add("show");
+      }
+    });
+  }
+
+  function initIntro() {
+    $("#intro-btn").addEventListener("click", () => {
+      show("screen-article");
+      beginReadTimer();
+    });
+  }
+
+  async function startSession() {
+    const q = new URLSearchParams(location.search);
+
+    /* participant id: Prolific PID when present, else a stable random id */
+    const prolific = q.get("PROLIFIC_PID") || q.get("participant_id") || "";
+    if (prolific) { S.pid = prolific; S.pidSource = "prolific"; }
+    else {
+      let anon = store.get("pid");
+      if (!anon) { anon = "anon-" + makeUid(); store.set("pid", anon); }
+      S.pid = anon; S.pidSource = "anonymous";
+    }
+    S.isTest = q.get("test") === "1";
+    S.startedAt = Date.now();
+
+    if (PREVIEW) {
+      S.condition = PREVIEW;
+      S.confirmFirst = q.get("swap") !== "1";
+      S.pair = q.get("pair") === "a_move" ? "a_move" : "a_blink";
+      S.focal = q.get("focal") === "move" ? "move" : "blink";
+      S.nameSwap = false;
+      S.labelOrder = "preview";
+    } else {
+      const a = await rpc("assign", {
+        p_study: CONFIG.studyId,
+        p_pid: S.pid,
+        p_session: store.get("sid") || (function () {
+          const v = makeUid(); store.set("sid", v); return v;
+        })(),
+        p_meta: {
+          prolific_study_id: q.get("STUDY_ID") || "",
+          prolific_session:  q.get("SESSION_ID") || "",
+          pid_source:        S.pidSource,
+          is_test:           S.isTest,
+          user_agent:        navigator.userAgent,
+          screen_w:          window.screen.width,
+          screen_h:          window.screen.height,
+          is_mobile:         window.matchMedia("(max-width: 900px)").matches
+        }
+      });
+
+      S.condition = a.factors.condition;
+
+      /* `label_order` is the strictly cycling counterbalance handed back by
+         assign(), WITHIN the cell: focal_blink|focal_move (which tool the
+         article is about), a_blink|a_move (which brand each tool carries)
+         and, in the mixed cell, confirm_first|disconfirm_first. The article's
+         tool is always option 1 (the user's choice, 19 Oct 2026). */
+      S.labelOrder = a.factors.label_order || "";
+      const parts = S.labelOrder.split("|");
+      S.focal      = parts.indexOf("focal_move") !== -1 ? "move" : "blink";
+      S.pair       = parts.indexOf("a_move") !== -1 ? "a_move" : "a_blink";
+      if (S.condition === "mixed") {
+        S.confirmFirst = parts.indexOf("disconfirm_first") === -1;
+        S.nameSwap     = Math.random() < 0.5;   // nuisance factor, randomised
+      } else {
+        S.confirmFirst = true;
+        S.nameSwap     = false;
+      }
+    }
+    resolveTools();
+    applySources();
+    S.queue = MEASURES.filter(m => m.when.indexOf(S.condition) !== -1);
+  }
+
+  /* Each tool = its mechanism (listing copy, routine) + a brand (name,
+     developer, icon). S.pair says which brand goes with which mechanism. */
+  function resolveTools() {
+    const brandOf = S.pair === "a_blink" ? { blink: "a", move: "b" } : { blink: "b", move: "a" };
+    S.tools = {};
+    MECHS.forEach(m => {
+      S.tools[m] = Object.assign({ id: m, brand: brandOf[m] }, TOOLS.mechanisms[m], TOOLS.brands[brandOf[m]]);
+    });
+    S.other = S.focal === "blink" ? "move" : "blink";
+  }
+
+  /* Resolve the two magazines onto their roles. */
+  function applySources() {
+    const src = STIMULUS.sources;
+    const a = S.nameSwap ? src[1] : src[0];
+    const b = S.nameSwap ? src[0] : src[1];
+    S.confirmSrc = S.confirmFirst ? a : b;
+    S.disconfSrc = S.confirmFirst ? b : a;
+  }
+
+  /* =====================================================================
+     APP LISTINGS — the two tools as they appear at the choice (the first
+     time the article's competitor is shown; the article's tool's icon,
+     name and developer also appear in its product panel).
+     ===================================================================== */
+  /* Each brand's icon is a letter mark, white on its own tile (as many small
+     apps do): no picture, so nothing can hint at blinking or movement. The
+     tile colour belongs to the BRAND, not the mechanism. */
+  const iconHTML = (t, size) =>
+    `<span class="app-icon icon-${t.brand}${size ? " " + size : ""}" aria-hidden="true">${t.mark}</span>`;
+  /* the article's tool is always option 1, shown first and on the left */
+  const toolOrder = () => [S.focal, S.other];
+
+  function listingBody(t) {
+    return `
+      <span class="listing-head">
+        ${iconHTML(t)}
+        <span class="listing-id">
+          <span class="listing-name">${t.name}</span>
+          <span class="listing-dev">by ${t.developer}</span>
+        </span>
+      </span>
+      <span class="listing-tagline">${fill(t.tagline, t)}</span>
+      <span class="listing-desc">${fill(t.description, t)}</span>
+      <span class="listing-meta">${TOOLS.meta}</span>`;
+  }
+
+  function renderIntro() {
+    $("#intro-title").textContent = INTRO.title;
+    $("#intro-lede").textContent = INTRO.lede;
+    $("#intro-steps").innerHTML = INTRO.steps.map(s => `<li>${s}</li>`).join("");
+    $("#intro-footnote").textContent = INTRO.footnote;
+  }
+
+  /* =====================================================================
+     2. ARTICLE — about the focal tool (S.focal)
+     ===================================================================== */
+  function verdictCardHTML(source, kind) {
+    const v = STIMULUS.verdict[kind];
+    const t = S.tools[S.focal];
+    return `
+      <article class="verdict-card verdict-${kind}">
+        <div class="verdict-source">
+          <span class="tag">${STIMULUS.sourceTag}</span>
+          <span class="name">${source.name}</span>
+        </div>
+        <div class="verdict-tested">${STIMULUS.testedLabel}: ${iconHTML(t)}<strong>${t.name}</strong></div>
+        <div class="verdict-eyebrow">${v.eyebrow}</div>
+        <h3 class="verdict-headline">${v.headline}</h3>
+        <p class="verdict-body">${fill(v.body, t)}</p>
+      </article>`;
+  }
+
+  /* The focal tool, highlighted so it is clear which tool the article and
+     the tests are about. Same icon, name and developer as its listing at
+     the choice. No tagline: the mechanism sentence after the claim is the
+     only text that changes with the focal tool. */
+  function productPanelHTML() {
+    const t = S.tools[S.focal];
+    return `
+      <aside class="product-panel">
+        <div class="product-label">${STIMULUS.productLabel}</div>
+        <div class="product-row">
+          ${iconHTML(t)}
+          <div class="product-id">
+            <div class="product-name">${t.name}</div>
+            <div class="product-dev">by ${t.developer}</div>
+          </div>
+        </div>
+      </aside>`;
+  }
+
+  function articleHTML() {
+    const t = S.tools[S.focal];
+    let verdicts = "";
+    if (S.condition === "mixed") {
+      const c = verdictCardHTML(S.confirmSrc, "confirming");
+      const d = verdictCardHTML(S.disconfSrc, "disconfirming");
+      verdicts = `
+        <section class="verdicts">
+          <div class="verdicts-label">${STIMULUS.sectionLabelMixed}</div>
+          <div class="verdict-grid">${S.confirmFirst ? c + d : d + c}</div>
+        </section>`;
+    }
+    return `
+      <div class="masthead">
+        <span class="brand">The Consumer Desk</span>
+        <span class="section">${STIMULUS.kicker}</span>
+      </div>
+      <h1 class="article-headline">${STIMULUS.headline}</h1>
+      <figure class="article-figure"><img src="${STIMULUS.image}" alt="${STIMULUS.imageAlt}" width="820" height="322" decoding="async"></figure>
+      <div class="article-body">
+        ${STIMULUS.body.map(p => `<p>${fill(p, t)}</p>`).join("")}
+        ${productPanelHTML()}
+        <div class="claim-block">
+          <div class="claim-label">${STIMULUS.claimLabel}</div>
+          <div class="claim-text">“${STIMULUS.claim}”</div>
+        </div>
+        <p>${fill(STIMULUS.mechanism[S.focal], t)}</p>
+      </div>
+      ${verdicts}`;
+  }
+
+  /* Rendered ONCE; the node is later moved into the left-hand pane. */
+  function renderArticle() {
+    $("#article-full").innerHTML = articleHTML();
+  }
+
+  function beginReadTimer() {
+    const btn = $("#article-btn");
+    let left = CONFIG.minReadSeconds;
+    btn.disabled = true;
+    const base = "Continue to the questions";
+    btn.textContent = `${base} (${left})`;
+    const t = setInterval(() => {
+      left -= 1;
+      if (left <= 0) {
+        clearInterval(t);
+        btn.disabled = false;
+        btn.textContent = base;
+      } else {
+        btn.textContent = `${base} (${left})`;
+      }
+    }, 1000);
+
+    btn.onclick = () => {
+      S.timings.article_ms = Date.now() - S.articleStart;
+      const pane = $("#stimulus-pane");
+      pane.insertBefore($("#article-full"), pane.firstChild);
+      S.idx = 0;
+      show("screen-measures");
+      renderMeasure();
+    };
+    S.articleStart = Date.now();
+  }
+
+  /* =====================================================================
+     3. MEASURES — choice, then belief in each tool, stacked and locked
+     ===================================================================== */
+  /* progress: the measures + demographics (the screens that show the bar) */
+  function totalSteps() { return S.queue.length + 1; }
+
+  function setProgress(pane, step) {
+    $(".progress-count", pane).textContent = `${step} of ${totalSteps()}`;
+    requestAnimationFrame(() => {
+      $(".progress-fill", pane).style.width = (step / totalSteps() * 100) + "%";
+    });
+  }
+
+  /* the tool a belief item is about */
+  const toolFor = m => S.tools[m.tool === "focal" ? S.focal : S.other];
+
+  function renderMeasure() {
+    const m = S.queue[S.idx];
+    const pane = $("#measure-pane");
+
+    let stack = $(".measure-stack", pane);
+    if (!stack) {
+      const col = el("div", "measure");
+      col.innerHTML = `
+        <div class="progress">
+          <div class="progress-track"><div class="progress-fill"></div></div>
+          <div class="progress-count"></div>
+        </div>`;
+      stack = el("div", "measure-stack");
+      col.appendChild(stack);
+      pane.innerHTML = "";
+      pane.appendChild(col);
+      pane.scrollTop = 0;
+    }
+
+    const wrap = el("section", "measure-block");
+    /* eyebrow per block, shown only when it changes */
+    const prev = S.queue[S.idx - 1];
+    if (m.eyebrow && (!prev || prev.eyebrow !== m.eyebrow)) {
+      wrap.appendChild(el("div", "eyebrow", m.eyebrow));
+    }
+    const isChoice = m.type === "toolchoice";
+    const t = isChoice ? null : toolFor(m);
+    if (t) {
+      wrap.appendChild(el("div", "measure-tool",
+        `${iconHTML(t, "xs")}<span class="measure-tool-name">${t.name}</span><span class="measure-tool-dev">by ${t.developer}</span>`));
+    }
+    const prompt = isChoice ? TOOLS.choiceIntro : fill(m.prompt, t);
+    wrap.appendChild(el("h2", "measure-prompt", prompt));
+    if (isChoice) wrap.appendChild(el("p", "measure-help tool-intro-help", TOOLS.choiceIntroHelp));
+    else if (m.help) wrap.appendChild(el("p", "measure-help", m.help));
+
+    const body = el("div", "measure-body");
+    wrap.appendChild(body);
+
+    const btnRow = el("div", "btn-row");
+    const next   = el("button", "btn",
+      isChoice ? "Confirm my choice" : (S.idx === S.queue.length - 1 ? "Continue" : "Next"));
+    next.disabled = true;
+    btnRow.appendChild(next);
+    wrap.appendChild(btnRow);
+    if (isChoice) btnRow.hidden = true;          // shown once both options have been seen
+
+    const state = { value: undefined };
+    const ready = () => state.value !== undefined;
+    const refresh = () => { next.disabled = !ready(); };
+
+    if (m.type === "slider100")       buildSlider100(body, m, state, refresh, prompt);
+    else if (isChoice)                buildToolChoice(body, m, state, refresh, btnRow);
+
+    stack.appendChild(wrap);
+    setProgress(pane, S.idx + 1);
+    if (S.idx > 0) {
+      requestAnimationFrame(() => wrap.scrollIntoView({ block: "nearest", behavior: motionOK() ? "smooth" : "auto" }));
+    }
+
+    S.screenEnteredAt = Date.now();
+
+    const lockAndAdvance = () => {
+      wrap.classList.add("is-done");
+      btnRow.remove();
+      wrap.querySelectorAll("input, textarea, select").forEach(n => { n.disabled = true; });
+      wrap.querySelectorAll("[tabindex]").forEach(n => {
+        n.removeAttribute("tabindex");
+        n.setAttribute("aria-disabled", "true");
+      });
+      S.idx += 1;
+      if (S.idx < S.queue.length) renderMeasure();
+      else { renderDemographics(); show("screen-demographics"); }
+    };
+
+    next.addEventListener("click", () => {
+      if (!ready()) return;
+      const ms = Date.now() - S.screenEnteredAt;
+      S.timings["t_" + m.id] = ms;
+      S.answers[m.field] = state.value;
+
+      if (isChoice) {
+        /* THE primary DV: logged the moment it is confirmed, before anything
+           else happens, so it survives any later drop-out. Write-once: a
+           reload in the same tab restores this choice instead of asking again. */
+        S.choiceMeta = Object.assign({}, state.meta, {
+          cards_layout: state.layout(),
+          t_choice_ms: ms,
+          viewport_w: window.innerWidth,
+          viewport_h: window.innerHeight
+        });
+        store.set("choice", state.value);
+        logEvent(state.meta.restored ? "choice_restored" : "choice",
+          Object.assign({
+            choice: state.value,
+            choice_name: S.tools[state.value].name,
+            chose_focal: state.value === S.focal,
+            focal: S.focal, pair: S.pair,
+            condition: S.condition, label_order: S.labelOrder
+          }, S.choiceMeta));
+        wrap.querySelector(`.tool-card[data-tool="${state.value}"]`).classList.add("is-chosen");
+      } else {
+        logEvent("page", { measure: m.id, index: S.idx, ms });
+      }
+      lockAndAdvance();
+    });
+
+    /* reload after a confirmed choice: show it, locked, and move on */
+    if (isChoice && S.choiceRestored) {
+      next.disabled = false;
+      next.click();
+    }
+  }
+
+  /* ---------- the tool choice ------------------------------------------
+     Option 1 appears alone (option 2's slot is marked but empty); the
+     participant clicks "Show the second option"; option 2 appears; only then
+     can either be selected, and the question and Confirm button appear.
+     Option 1, on the left, is always the article's tool, with a small
+     reminder label; option 2 is the other tool. */
+  function buildToolChoice(host, m, state, refresh, btnRow) {
+    const order = toolOrder();
+    const grid = el("div", "tool-cards listing-grid is-staged");
+    const cards = order.map((id, k) => {
+      const card = el("label", "listing tool-card");
+      card.dataset.tool = id;
+      card.innerHTML = `
+        <input type="radio" name="${m.field}" value="${id}" disabled>
+        <span class="card-top">
+          <span class="option-label">${TOOLS.optionLabel} ${k + 1}</span>
+          <span class="pick"><span class="radio"></span><span class="pick-label">Choose</span></span>
+        </span>
+        ${id === S.focal ? `<span class="listing-flag">${TOOLS.focalFlag}</span>` : ""}
+        ${listingBody(S.tools[id])}
+        <span class="tool-badge">Your choice</span>`;
+      return card;
+    });
+    const slot = el("div", "listing option-slot", `<span>${TOOLS.optionLabel} 2</span>`);
+    grid.appendChild(cards[0]);
+    grid.appendChild(slot);
+    host.appendChild(grid);
+
+    const revealRow = el("div", "btn-row reveal-row");
+    const revealBtn = el("button", "btn", TOOLS.revealLabel);
+    revealBtn.type = "button";
+    revealRow.appendChild(revealBtn);
+    host.appendChild(revealRow);
+
+    const question = el("h3", "tool-question", TOOLS.prompt);
+    const footer = el("p", "tool-footer", TOOLS.footer);
+    question.hidden = true; footer.hidden = true;
+    host.appendChild(question);
+    host.appendChild(footer);
+
+    state.meta = { first_shown: order[0], t_option1_ms: null,
+                   first_pick: null, n_switches: 0, cards_layout: null };
+    const shownAt = Date.now();
+
+    const revealSecond = instant => {
+      if (!instant) state.meta.t_option1_ms = Date.now() - shownAt;
+      slot.replaceWith(cards[1]);
+      if (!instant) cards[1].classList.add("is-entering");
+      revealRow.remove();
+      grid.classList.remove("is-staged");
+      grid.querySelectorAll("input").forEach(i => { i.disabled = false; });
+      question.hidden = false; footer.hidden = false; btnRow.hidden = false;
+      requestAnimationFrame(() => {
+        if (!instant) btnRow.scrollIntoView({ block: "nearest", behavior: motionOK() ? "smooth" : "auto" });
+      });
+    };
+    revealBtn.addEventListener("click", () => revealSecond(false));
+
+    /* row vs stacked, measured when the choice is confirmed (horizontal
+       positions, since option 2's entrance animation shifts it vertically) */
+    state.layout = () => {
+      const c = grid.querySelectorAll(".tool-card");
+      return Math.abs(c[1].getBoundingClientRect().left - c[0].getBoundingClientRect().left) > 20
+        ? "row" : "stacked";
+    };
+
+    grid.addEventListener("change", e => {
+      if (state.meta.first_pick === null) state.meta.first_pick = e.target.value;
+      else if (state.value !== e.target.value) state.meta.n_switches += 1;
+      state.value = e.target.value;
+      refresh();
+    });
+
+    /* reload after a confirmed choice: both options at once, choice restored */
+    const restored = store.get("choice");
+    if (restored && S.tools[restored]) {
+      S.choiceRestored = true;
+      revealSecond(true);
+      grid.querySelector(`input[value="${restored}"]`).checked = true;
+      state.value = restored;
+      state.meta.restored = true;
+    }
+  }
+
+  /* ---------- 0-100 slider, no default position ---------- */
+  function buildSlider100(host, m, state, refresh, prompt) {
+    const wrap = el("div", "slider-wrap");
+    wrap.innerHTML = `
+      <div class="slider-value"><span class="placeholder">Not yet answered</span></div>
+      <div class="track-outer" tabindex="0" role="slider"
+           aria-valuemin="0" aria-valuemax="100" aria-label="${prompt.replace(/"/g, "&quot;")}">
+        <div class="track">
+          <div class="track-fill"></div>
+          <div class="track-ticks">
+            ${[0,25,50,75,100].map(p => `<span style="left:${p}%"></span>`).join("")}
+          </div>
+          <div class="thumb"></div>
+        </div>
+      </div>
+      <div class="track-labels">
+        <span>${m.leftLabel}</span><span>${m.rightLabel}</span>
+      </div>`;
+    host.appendChild(wrap);
+
+    const outer = $(".track-outer", wrap);
+    const fill_ = $(".track-fill", wrap);
+    const thumb = $(".thumb", wrap);
+    const read  = $(".slider-value", wrap);
+
+    const set = v => {
+      v = Math.round(Math.min(100, Math.max(0, v)));
+      state.value = v;
+      outer.classList.add("is-engaged");
+      fill_.style.width = v + "%";
+      thumb.style.left = v + "%";
+      read.innerHTML = `<span class="num">${v}</span><span class="pct">%</span>`;
+      outer.setAttribute("aria-valuenow", v);
+      outer.setAttribute("aria-valuetext", v + "%");
+      refresh();
+    };
+
+    attachTrack(outer, x => set(x * 100));
+
+    outer.addEventListener("keydown", e => {
+      const cur = state.value === undefined ? 50 : state.value;
+      const step = e.shiftKey ? 10 : 1;
+      if (e.key === "ArrowRight" || e.key === "ArrowUp")        { set(cur + step); e.preventDefault(); }
+      else if (e.key === "ArrowLeft" || e.key === "ArrowDown")  { set(cur - step); e.preventDefault(); }
+      else if (e.key === "Home")                                { set(0);   e.preventDefault(); }
+      else if (e.key === "End")                                 { set(100); e.preventDefault(); }
+    });
+  }
+
+  function attachTrack(outer, onFraction) {
+    const frac = clientX => {
+      const r = $(".track", outer).getBoundingClientRect();
+      return Math.min(1, Math.max(0, (clientX - r.left) / r.width));
+    };
+    let dragging = false;
+    const down = e => {
+      dragging = true;
+      outer.setPointerCapture && e.pointerId != null && outer.setPointerCapture(e.pointerId);
+      onFraction(frac(e.clientX));
+      e.preventDefault();
+    };
+    const move = e => { if (dragging) onFraction(frac(e.clientX)); };
+    const up   = () => { dragging = false; };
+    outer.addEventListener("pointerdown", down);
+    outer.addEventListener("pointermove", move);
+    outer.addEventListener("pointerup", up);
+    outer.addEventListener("pointercancel", up);
+  }
+
+  /* =====================================================================
+     4. DEMOGRAPHICS — then the response is saved, BEFORE the routine is shown
+     ===================================================================== */
+  function renderDemographics() {
+    const host = $("#demo-body");
+    host.innerHTML = "";
+    const vals = {};
+
+    DEMOGRAPHICS.forEach(d => {
+      const item = el("div", "demo-item");
+      item.appendChild(el("div", "demo-label", d.label));
+
+      if (d.type === "number") {
+        const row = el("div", "input-row");
+        const inp = el("input");
+        inp.type = "number"; inp.min = d.min; inp.max = d.max; inp.placeholder = "—";
+        inp.addEventListener("input", () => {
+          const v = parseInt(inp.value, 10);
+          vals[d.field] = (v >= d.min && v <= d.max) ? v : undefined;
+          check();
+        });
+        row.appendChild(inp);
+        if (d.suffix) row.appendChild(el("span", "suffix", d.suffix));
+        item.appendChild(row);
+
+      } else if (d.type === "radio") {
+        const box = el("div", "demo-radios");
+        d.options.forEach(o => {
+          const lab = el("label", "choice");
+          lab.innerHTML = `<input type="radio" name="${d.field}" value="${o}">
+                           <span class="radio"></span><span class="text">${o}</span>`;
+          box.appendChild(lab);
+        });
+        box.addEventListener("change", e => { vals[d.field] = e.target.value; check(); });
+        item.appendChild(box);
+
+      } else if (d.type === "scale7") {
+        const block = el("div", "likert-item");
+        block.style.borderTop = "none";
+        block.style.paddingTop = "0";
+        const opts = [1,2,3,4,5,6,7].map(v => `
+          <label class="likert-opt">
+            <input type="radio" name="${d.field}" value="${v}" aria-label="${v} of 7">
+            <span class="dot"></span>
+            <span class="lab">${v === 1 ? d.left : v === 7 ? d.right : ""}</span>
+          </label>`).join("");
+        block.innerHTML = `<div class="likert-scale">${opts}</div>`;
+        block.addEventListener("change", e => { vals[d.field] = parseInt(e.target.value, 10); check(); });
+        item.appendChild(block);
+      }
+
+      host.appendChild(item);
+    });
+
+    const btn = $("#demo-btn");
+    const required = DEMOGRAPHICS.map(d => d.field);
+    const check = () => { btn.disabled = !required.every(f => vals[f] !== undefined); };
+    check();
+
+    const step = S.queue.length + 1;
+    $("#demo-count").textContent = `${step} of ${totalSteps()}`;
+    requestAnimationFrame(() => { $("#demo-progress").style.width = (step / totalSteps() * 100) + "%"; });
+
+    const started = Date.now();
+    btn.onclick = async () => {
+      btn.disabled = true;
+      btn.textContent = "Saving…";
+      S.timings.t_demographics = Date.now() - started;
+      Object.assign(S.answers, vals);
+      try {
+        await submit("before_delivery");
+        startDelivery();
+      } catch (e) {
+        console.error(e);
+        btn.disabled = false;
+        btn.textContent = "Continue";
+        const err = $("#demo-err");
+        err.textContent = "We could not save your responses. Please check your connection and try again.";
+        err.classList.add("show");
+      }
+    };
+  }
+
+  /* =====================================================================
+     5. THE ROUTINE — the chosen routine as a one-page poster (the same for
+     every participant who chose it with that brand), with two downloads.
+     The poster files are pre-rendered per routine x brand:
+     img/routine-<blink|move>-<a|b>.png and .pdf. Downloads are logged.
+     ===================================================================== */
+  const posterPath = (t, ext) => `img/routine-${t.id}-${t.brand}.${ext}`;
+  const posterFile = (t, ext) => `${t.name}-${t.fileTitle}.${ext}`;
+
+  function startDelivery(toolOverride) {
+    const id = toolOverride || S.answers.dv_choice;
+    const t = S.tools[id];
+    const shownAt = Date.now();
+    S.delivery = { routine: id, routine_name: t.name, shown: true,
+                   pdf: false, png: false, first_download_ms: null, ms_on_page: null };
+
+    const img = $("#deliver-img");
+    img.src = posterPath(t, "png");
+    img.alt = `${t.name}: ${t.title}. A one-page routine.`;
+    $("#deliver-head").innerHTML = `${iconHTML(t)}<span class="deliver-id"><span class="deliver-name">${t.name}</span><span class="deliver-dev">by ${t.developer}</span></span>`;
+    $("#deliver-title").textContent = t.title;
+    $("#deliver-text").textContent = DELIVERY.text;
+    $("#deliver-note").textContent = DELIVERY.note;
+
+    const link = (sel, ext, label) => {
+      const a = $(sel);
+      a.href = posterPath(t, ext);
+      a.setAttribute("download", posterFile(t, ext));
+      a.textContent = label;
+      a.onclick = () => {
+        const ms = Date.now() - shownAt;
+        S.delivery[ext] = true;
+        if (S.delivery.first_download_ms === null) S.delivery.first_download_ms = ms;
+        logEvent("download", { format: ext, routine: id, routine_name: t.name, ms });
+      };
+    };
+    link("#deliver-pdf", "pdf", DELIVERY.pdf);
+    link("#deliver-png", "png", DELIVERY.png);
+
+    show("screen-deliver");
+    logEvent("delivery", { routine: id, routine_name: t.name });
+
+    /* Continue saves the full response (with the downloads) and ends */
+    const btn = $("#deliver-continue");
+    btn.onclick = async () => {
+      btn.disabled = true;
+      btn.textContent = "Saving…";
+      S.delivery.ms_on_page = Date.now() - shownAt;
+      S.timings.t_delivery = S.delivery.ms_on_page;
+      try {
+        await submit("final");
+        renderDebrief();
+        show("screen-done");
+        beginReturn();
+      } catch (e) {
+        console.error(e);
+        btn.disabled = false;
+        btn.textContent = "Continue";
+        const err = $("#deliver-err");
+        err.textContent = "We could not save your response. Please check your connection and try again.";
+        err.classList.add("show");
+      }
+    };
+  }
+
+  /* =====================================================================
+     7. SUBMIT — called twice: before the routine is shown (so the choice,
+     belief and demographics are safe if someone leaves then) and when they
+     leave the routine screen (adds the downloads). Each call replaces the row.
+     ===================================================================== */
+  function buildPayload(stage) {
+    const p = Object.assign({}, S.answers);
+    const f = S.tools[S.focal], o = S.tools[S.other];
+    p.condition_seen     = S.condition;
+    p.label_order        = S.labelOrder;
+    p.focal              = S.focal;
+    p.pair               = S.pair;
+    p.focal_brand        = f.brand;
+    p.focal_name         = f.name;
+    p.other_name         = o.name;
+    p.chose_focal        = S.answers.dv_choice ? S.answers.dv_choice === S.focal : null;
+    p.confirm_first      = S.condition === "mixed" ? S.confirmFirst : null;
+    p.name_swap          = S.condition === "mixed" ? S.nameSwap : null;
+    p.source_confirm     = S.condition === "mixed" ? S.confirmSrc.name : null;
+    p.source_disconfirm  = S.condition === "mixed" ? S.disconfSrc.name : null;
+    p.theme_confirm      = S.condition === "mixed" ? STIMULUS.verdict.confirming.theme : null;
+    p.theme_disconfirm   = S.condition === "mixed" ? STIMULUS.verdict.disconfirming.theme : null;
+    p.stage              = stage;
+    return p;
+  }
+
+  async function submit(stage) {
+    const paradata = {
+      pid_source:        S.pidSource,
+      is_test:           S.isTest,
+      prolific_study_id: new URLSearchParams(location.search).get("STUDY_ID") || null,
+      duration_ms:       Date.now() - S.startedAt,
+      read_ms:           S.timings.article_ms || null,
+      blur_count:        S.blurCount,
+      hidden_count:      S.hiddenCount,
+      is_mobile:         window.matchMedia("(max-width: 900px)").matches,
+      user_agent:        navigator.userAgent,
+      page_ms:           S.timings,
+      choice:            S.choiceMeta,
+      delivery:          S.delivery
+    };
+    await rpc("submit", {
+      p_study: CONFIG.studyId,
+      p_pid: S.pid,
+      p_data: buildPayload(stage),
+      p_paradata: paradata
+    });
+  }
+
+  /* ---------------------------------------------------------------------
+     Debrief, withdrawal, hand-off. Withdrawal is logged and honoured
+     before analysis; the participant is still paid (same completion code).
+     --------------------------------------------------------------------- */
+  function renderDebrief() {
+    const names = `${TOOLS.brands.a.name}, ${TOOLS.brands.b.name}`;
+    $("#debrief-text").innerHTML = DEBRIEF.replace("{NAMES}", names);
+  }
+
+  function initWithdraw() {
+    const btn = $("#withdraw-btn");
+    btn.addEventListener("click", () => {
+      btn.disabled = true;
+      logEvent("withdraw", { at: "debrief" });
+      const note = $("#withdraw-note");
+      note.textContent = "Your responses will be removed before analysis. You will still be paid.";
+      note.hidden = false;
+    });
+  }
+
+  function beginReturn() {
+    const url = CONFIG.completionUrl;
+    if (!url) return;
+
+    $("#code-label").textContent = "If you are not returned automatically, use this code";
+    $("#return-block").hidden = false;
+
+    let left = Math.max(0, CONFIG.completionDelaySeconds || 0);
+    const note = $("#return-note");
+    const go = () => { clearInterval(timer); if (!PREVIEW) location.href = url; };
+
+    const tick = () => {
+      note.textContent = left > 0
+        ? `Returning you to Prolific automatically in ${left} second${left === 1 ? "" : "s"}…`
+        : "Returning you to Prolific…";
+      if (left <= 0) go();
+      left -= 1;
+    };
+    const timer = setInterval(tick, 1000);
+    tick();
+
+    $("#return-btn").addEventListener("click", go);
+  }
+
+  /* =====================================================================
+     boot — desktop and laptop only (as s1a)
+     ===================================================================== */
+  function isPhoneOrTablet() {
+    const ua = navigator.userAgent || "";
+    const touch = (navigator.maxTouchPoints || 0) > 0;
+    const coarse = window.matchMedia("(pointer: coarse)").matches;
+    return (navigator.userAgentData && navigator.userAgentData.mobile === true)
+        || /Mobi|Android|iPhone|iPad|iPod/i.test(ua)
+        || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1)
+        || (coarse && touch);
+  }
+
+  function blockDevice() {
+    show("screen-device");
+    const q = new URLSearchParams(location.search);
+    rpc("log_event", {
+      p_study: CONFIG.studyId,
+      p_pid: q.get("PROLIFIC_PID") || q.get("participant_id") || null,
+      p_kind: "blocked_device",
+      p_detail: {
+        ua: navigator.userAgent.slice(0, 200),
+        touch_points: navigator.maxTouchPoints || 0,
+        pointer_coarse: window.matchMedia("(pointer: coarse)").matches,
+        uadata_mobile: navigator.userAgentData ? navigator.userAgentData.mobile : null
+      }
+    }).catch(e => console.warn("log_event", e));
+  }
+
+  window.addEventListener("blur", () => { S.blurCount += 1; });
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "hidden") S.hiddenCount += 1;
+  });
+
+  /* localhost-only jumps for checking and screenshots */
+  async function previewJump() {
+    const q = new URLSearchParams(location.search);
+    const jump = q.get("jump");
+    if (!jump) return;
+    await startSession();
+    renderArticle();
+    if (jump === "intro") {
+      renderIntro();
+      show("screen-intro");
+    } else if (jump === "measures") {
+      $("#stimulus-pane").insertBefore($("#article-full"), $("#stimulus-pane").firstChild);
+      show("screen-measures");
+      renderMeasure();
+    } else if (jump === "deliver") {
+      S.answers.dv_choice = q.get("tool") === "move" ? "move" : "blink";
+      startDelivery(S.answers.dv_choice);
+    } else if (jump === "done") {
+      renderDebrief();
+      show("screen-done");
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    if (isPhoneOrTablet()) { blockDevice(); return; }
+    $("#done-code").textContent = CONFIG.completionCode;
+    initConsent();
+    initIntro();
+    initWithdraw();
+    if (PREVIEW) {
+      window.__ST2 = { S, buildPayload };
+      previewJump();
+    }
+  });
+})();
+
+</script>
+</body>
+</html>
