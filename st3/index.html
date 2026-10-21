@@ -2128,17 +2128,23 @@ const DEMOGRAPHICS = [
   /* =====================================================================
      boot — desktop and laptop only (as s1a)
      ===================================================================== */
-  function isPhoneOrTablet() {
+  /* Why a device is turned away, or null for a computer. A touchscreen
+     alone is NOT a reason: Windows 2-in-1 laptops report touch points and a
+     coarse pointer, and were wrongly blocked on 21 Oct 2026. */
+  function phoneOrTabletReason() {
     const ua = navigator.userAgent || "";
     const touch = (navigator.maxTouchPoints || 0) > 0;
     const coarse = window.matchMedia("(pointer: coarse)").matches;
-    return (navigator.userAgentData && navigator.userAgentData.mobile === true)
-        || /Mobi|Android|iPhone|iPad|iPod/i.test(ua)
-        || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1)
-        || (coarse && touch);
+    if (navigator.userAgentData && navigator.userAgentData.mobile === true) return "uadata_mobile";
+    if (/Mobi|Android|iPhone|iPad|iPod/i.test(ua)) return "ua_mobile";
+    if (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1) return "ipad_desktop_mode";
+    /* Android phones asking for the desktop site send a Linux desktop UA,
+       with touch and a coarse pointer (Chromebooks say CrOS and are allowed) */
+    if (/X11; Linux/.test(ua) && !/CrOS/.test(ua) && touch && coarse) return "android_desktop_mode";
+    return null;
   }
 
-  function blockDevice() {
+  function blockDevice(reason) {
     show("screen-device");
     const q = new URLSearchParams(location.search);
     rpc("log_event", {
@@ -2149,7 +2155,8 @@ const DEMOGRAPHICS = [
         ua: navigator.userAgent.slice(0, 200),
         touch_points: navigator.maxTouchPoints || 0,
         pointer_coarse: window.matchMedia("(pointer: coarse)").matches,
-        uadata_mobile: navigator.userAgentData ? navigator.userAgentData.mobile : null
+        uadata_mobile: navigator.userAgentData ? navigator.userAgentData.mobile : null,
+        reason
       }
     }).catch(e => console.warn("log_event", e));
   }
@@ -2183,7 +2190,8 @@ const DEMOGRAPHICS = [
   }
 
   document.addEventListener("DOMContentLoaded", () => {
-    if (isPhoneOrTablet()) { blockDevice(); return; }
+    const blocked = phoneOrTabletReason();
+    if (blocked) { blockDevice(blocked); return; }
     $("#done-code").textContent = CONFIG.completionCode;
     initConsent();
     initIntro();
