@@ -617,6 +617,10 @@ select{ appearance:none; background-image:
 .method-list li svg{ width:16px; height:16px; margin-top:2px; stroke:var(--accent); fill:none; stroke-width:2.4; stroke-linecap:round; stroke-linejoin:round; }
 .method-list li.strong span{ font-weight:700; color:var(--ink); }
 
+/* the verdict appears only after "Show the magazine's verdict" is clicked */
+.verdicts .reveal-row{ margin-top:6px; }
+.verdict-headline strong{ font-weight:800; }
+
 </style>
 </head>
 <body>
@@ -732,8 +736,8 @@ select{ appearance:none; background-image:
         <div class="btn-row">
           <button class="btn" id="article-btn" disabled>Continue to the question</button>
         </div>
-        <p class="fineprint" style="margin-top:14px">
-          The article stays visible on the left while you answer the first question.
+        <p class="fineprint" id="article-note" style="margin-top:14px" hidden>
+          You can still see the article while you answer the first question.
         </p>
       </div>
     </div>
@@ -838,14 +842,14 @@ const CONFIG = {
   supabaseUrl: "https://uwrgeizwyybwtzwztrln.supabase.co",
   supabaseKey: "sb_publishable_L7a-Ve4_pt-A3MkqNpaMqg_bU5wMoxd",
 
-  /* Seconds the article must be on screen before "Continue" unlocks. */
+  /* Seconds after the verdict is revealed before "Continue" unlocks. */
   minReadSeconds: 7,
 
-  /* Completion: this study's own Prolific completion code (3 Nov 2026).
-     Enter it as the study's completion code on Prolific. `completionCode`
-     is the fallback shown on screen, so it must match the code in the URL. */
-  completionUrl: "https://app.prolific.com/submissions/complete?cc=CBSK3R7O",
-  completionCode: "CBSK3R7O",
+  /* Completion: the Prolific completion code the PI set for this study
+     (3 Nov 2026; the same code as st3 and ev1). `completionCode` is the
+     fallback shown on screen, so it must match the code in the URL. */
+  completionUrl: "https://app.prolific.com/submissions/complete?cc=C1Q00STZ",
+  completionCode: "C1Q00STZ",
 
   /* Seconds the debrief stays on screen before the automatic return (long
      enough to read it and, if wanted, remove one's responses). The button
@@ -855,10 +859,12 @@ const CONFIG = {
 
 /* ---------------------------------------------------------------------
    STIMULUS
-   One article in every cell. The cells differ only in its product-test
-   section: the verdict (confirm | disconfirm), and whether the box saying
-   how the test was done is shown above it (salient | not_salient).
-   Claim as in the manuscript's juice studies: "improves skin quality".
+   One article in every cell. The cells differ only in its test section:
+   the verdict (confirm | disconfirm), and whether the box saying how the
+   test was done is shown (salient | not_salient). The box is visible from
+   the start; the verdict appears when "Show the magazine's verdict" is
+   clicked. Claim as in the manuscript's juice studies: "improves skin
+   quality".
    --------------------------------------------------------------------- */
 const STIMULUS = {
   kicker: "Health",
@@ -870,7 +876,7 @@ const STIMULUS = {
   headline: "Does this detox juice really improve your skin?",
 
   body: [
-    "Juice cleanses, a few days of drinking only cold-pressed juices, are often sold with promises about the skin."
+    "Detox juice cleanses are popular, and many manufacturers say they improve your skin. This article looks at one of these cleanses, what its manufacturer claims, and what a health magazine found when it tested it."
   ],
 
   /* The juice's brand is never shown. */
@@ -883,10 +889,11 @@ const STIMULUS = {
   claimLabel: "The manufacturer’s claim",
   claim: "Improves skin quality.",
 
-  sectionLabel: "Product test",
-  sourceTag: "Product test by an established health magazine",
+  sectionLabel: "The magazine’s test",
+  sourceTag: "An established health magazine",
+  revealLabel: "Show the magazine’s verdict",
 
-  /* Salient cells only, above the verdict. */
+  /* Salient cells only, above the button. */
   method: {
     title: "How this test was done",
     lines: [
@@ -897,25 +904,26 @@ const STIMULUS = {
     ]
   },
 
+  /* The PI asked for the NOT to be bold and unmistakable (3 Nov 2026). */
   verdict: {
     confirm: {
       eyebrow: "Our verdict",
       headline: "The claim holds up.",
       body:
-        "We had a panel of testers do the full three-day cleanse as directed, and a dermatologist rated their skin before they started and again one week later. Their skin quality <strong>did</strong> improve. The manufacturer’s claim <strong>is supported</strong>."
+        "Our testers did the full three-day cleanse as directed. A dermatologist rated their skin before they started and again a week later. Their skin quality <strong>did</strong> improve, so the manufacturer’s claim <strong>is supported</strong>."
     },
     disconfirm: {
       eyebrow: "Our verdict",
-      headline: "The claim does not hold up.",
+      headline: "The claim does <strong>NOT</strong> hold up.",
       body:
-        "We had a panel of testers do the full three-day cleanse as directed, and a dermatologist rated their skin before they started and again one week later. Their skin quality <strong>did not</strong> improve. The manufacturer’s claim <strong>is not supported</strong>."
+        "Our testers did the full three-day cleanse as directed. A dermatologist rated their skin before they started and again a week later. Their skin quality <strong>did NOT</strong> improve, so the manufacturer’s claim <strong>is NOT supported</strong>."
     }
   }
 };
 
 /* Orientation page ("What you will be doing"), the same in every cell. */
 const INTRO =
-  "In a moment you will read a short article about a detox juice, what its manufacturer claims, and the result of a product test by a health magazine. Please read it carefully, then answer a few questions.";
+  "In a moment you will read a short article about a detox juice, what its manufacturer claims, and what a health magazine found when it tested it. Read it carefully, then click to see the magazine’s verdict and answer a few questions.";
 
 /* Debrief, shown with the completion code. */
 const DEBRIEF =
@@ -927,7 +935,7 @@ const DEBRIEF =
 /* =====================================================================
    MEASURES — the same in every cell, in this order (as ev1):
    1. belief in the claim, beside the article (BELIEF)
-   2. the product test: three objectivity pairs, three expertise pairs
+   2. the magazine's test: three objectivity pairs, three expertise pairs
    3. the magazine: three suspicion-of-motive items, one honesty item
    4. the independence check, on its own, so the recall options on the
       next page cannot be seen while it is answered
@@ -955,8 +963,8 @@ const PAGES = [
   {
     id: "test",
     type: "semdiff",
-    eyebrow: "About the product test",
-    prompt: "How would you describe the magazine’s product test of this juice?",
+    eyebrow: "About the magazine’s test",
+    prompt: "How would you describe the magazine’s test of this juice?",
     help: "Choose one point on each line.",
     items: [
       { field: "obj_unbiased",      left: "Biased",          right: "Unbiased" },
@@ -1255,7 +1263,10 @@ const LAST_QUESTIONS = [
       <section class="verdicts">
         <div class="verdicts-label">${STIMULUS.sectionLabel}</div>
         ${S.objectivity === "salient" ? methodBoxHTML() : ""}
-        ${verdictCardHTML()}
+        <div class="btn-row reveal-row" id="reveal-row">
+          <button class="btn" id="reveal-btn" type="button">${STIMULUS.revealLabel}</button>
+        </div>
+        <div id="verdict-slot" hidden>${verdictCardHTML()}</div>
       </section>`;
   }
 
@@ -1265,22 +1276,47 @@ const LAST_QUESTIONS = [
     $("#article-full").innerHTML = articleHTML();
   }
 
+  /* The verdict is shown only when "Show the magazine's verdict" is clicked
+     (the button then goes away). Used by the article screen and by the
+     localhost-only jumps. */
+  function revealVerdict() {
+    const row = $("#reveal-row");
+    if (row) row.remove();
+    $("#verdict-slot").hidden = false;
+  }
+
+  /* Continue stays hidden until the verdict is revealed, then unlocks after
+     minReadSeconds. */
   function beginReadTimer() {
     const btn = $("#article-btn");
     const base = "Continue to the question";
-    let left = CONFIG.minReadSeconds;
+    const row = btn.parentElement;
+    row.hidden = true;
     btn.disabled = true;
-    btn.textContent = `${base} (${left})`;
-    const t = setInterval(() => {
-      left -= 1;
-      if (left <= 0) {
-        clearInterval(t);
-        btn.disabled = false;
-        btn.textContent = base;
-      } else {
-        btn.textContent = `${base} (${left})`;
-      }
-    }, 1000);
+
+    $("#reveal-btn").onclick = () => {
+      S.timings.t_reveal = Date.now() - S.articleStart;
+      revealVerdict();
+      logEvent("reveal", { ms: S.timings.t_reveal });
+      const card = $("#verdict-slot");
+      const motion = !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      requestAnimationFrame(() => card.scrollIntoView({ block: "center", behavior: motion ? "smooth" : "auto" }));
+
+      let left = CONFIG.minReadSeconds;
+      row.hidden = false;
+      $("#article-note").hidden = false;
+      btn.textContent = `${base} (${left})`;
+      const t = setInterval(() => {
+        left -= 1;
+        if (left <= 0) {
+          clearInterval(t);
+          btn.disabled = false;
+          btn.textContent = base;
+        } else {
+          btn.textContent = `${base} (${left})`;
+        }
+      }, 1000);
+    };
 
     btn.onclick = () => {
       S.timings.article_ms = Date.now() - S.articleStart;
@@ -1699,6 +1735,7 @@ const LAST_QUESTIONS = [
     if (jump === "intro") show("screen-intro");
     else if (jump === "article") { show("screen-article"); beginReadTimer(); }
     else if (jump === "measures") {
+      revealVerdict();
       $("#stimulus-pane").insertBefore($("#article-full"), $("#stimulus-pane").firstChild);
       show("screen-measures");
       renderBelief();
