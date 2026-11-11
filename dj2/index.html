@@ -614,23 +614,30 @@ select{ appearance:none; background-image:
 .verdict-card.theme-plum{   --card:#6b4a86; --card-tint:#f3eef7; --card-line:#d5c6e2; }
 
 /* Before the verdicts are revealed a card is only its masthead (and, in
-   the low and high cells, the line about how the test was done). */
+   the blind cells after the first click, the box saying how it tested). */
 .verdict-slot[hidden], .method-slot[hidden], .reveal-row .btn[hidden]{ display:none; }
 .verdict-grid .verdict-source{ margin-bottom:0; padding-bottom:0; border-bottom:none; }
 .verdict-card .verdict-slot:not([hidden]){ margin-top:14px; padding-top:14px; border-top:1px solid var(--card-line); }
 
-/* How the test was done: the same box in both cards and in both the low
-   and high cells; only its words change. */
+/* How the test was done: the same box in both cards, blind or not; only
+   the bottle (plain label or brand label), the heading and the sentence
+   change. */
 .test-method{
-  margin:12px 0 0; padding:10px 12px 11px; border-radius:9px;
+  margin:12px 0 0; padding:11px 13px 13px; border-radius:9px;
   background:#fff; border:1px solid var(--card-line);
 }
 .test-method-label{
   font-size:9.5px; font-weight:650; letter-spacing:.12em; text-transform:uppercase;
-  color:var(--ink-4); margin-bottom:4px;
+  color:var(--ink-4); margin-bottom:8px;
 }
+.test-method-row{ display:flex; align-items:flex-start; gap:12px; }
+.test-method-icon{ flex:0 0 auto; display:block; line-height:0; margin-top:1px; }
+.test-method-icon svg{ display:block; width:34px; height:52px; }
+.test-method-title{ font-size:18px; font-weight:750; line-height:1.2; color:var(--ink); margin:0 0 4px; }
 .test-method p{ margin:0; font-size:13.5px; line-height:1.5; color:var(--ink-2); }
-.test-method strong{ color:var(--ink); font-weight:700; }
+
+/* Blind cells: one line above the cards, shown from the start. */
+.method-lead{ margin:-4px 0 14px; font-size:15px; font-weight:600; line-height:1.45; color:var(--ink); }
 .verdict-body strong{ color:var(--ink); }
 
 /* A little more room in the split view for two cards side by side. */
@@ -876,9 +883,10 @@ const CONFIG = {
   minReadSeconds: 7,
   minReadSecondsMixed: 10,
 
-  /* Low and high cells: seconds after "Show how the magazines tested" before
-     "Show the magazines' verdicts" can be clicked, so the line is read first. */
-  methodReadSeconds: 3,
+  /* Blind cells: seconds after "Show how each magazine tested" before
+     "Show the magazines' verdicts" can be clicked, so both methods are read
+     first. */
+  methodReadSeconds: 5,
 
   /* Completion: the PI's Prolific code (the same as dj1). `completionCode`
      is the fallback shown on screen, so it must match the code in the URL. */
@@ -894,13 +902,17 @@ const CONFIG = {
 /* ---------------------------------------------------------------------
    STIMULUS
    One article in every cell, identical down to the claim. The cells
-   differ only below it:
-     control     nothing
-     mixed       two magazines' tests, one confirming and one disconfirming
-     mixed_low   as mixed; each test card says the test was not blind
-     mixed_high  as mixed; each test card says the test was blind
-   The two cards are identical apart from the magazine and the verdict, and
-   within a cell both cards carry the same line about how the test was done.
+   differ only below it (revised design, approved by Keith Wilcox on
+   11 Nov 2026):
+     control           nothing
+     mixed             two magazines' tests, one confirming and one
+                       disconfirming
+     confirm_blind     as mixed; the confirming test was blind, the
+                       disconfirming test was not
+     disconfirm_blind  as mixed; the disconfirming test was blind, the
+                       confirming test was not
+   The two cards are identical apart from the magazine, the verdict and, in
+   the blind cells, how the test was done.
    --------------------------------------------------------------------- */
 const STIMULUS = {
   kicker: "Health",
@@ -940,16 +952,26 @@ const STIMULUS = {
   ],
 
   revealLabel: "Show the magazines’ verdicts",
-  methodRevealLabel: "Show how the magazines tested",
+  methodRevealLabel: "Show how each magazine tested",
 
-  /* The objectivity manipulation (mixed_low / mixed_high): one line, the
-     same in both cards. It is hidden at first: one click shows it in both
-     cards, a second click shows the verdicts. The juice maker does nothing
-     in either version. */
+  /* The objectivity manipulation (blind cells). One card says its test was
+     blind and the other that its test was not; which card is which follows
+     the verdict, never the side or the magazine. The line above the cards
+     is shown from the start; the two boxes appear on the first click and
+     the verdicts on the second. Both boxes have the same shape and
+     carry no quality words, so only the facts differ. The juice maker does
+     nothing in either version. */
+  methodLead: "The two magazines tested it in different ways.",
   method: {
     label: "How we tested",
-    low:  "<strong>Not blind:</strong> the bottles kept their labels, so our testers and our dermatologist knew the brand.",
-    high: "<strong>Blind test:</strong> the bottles had plain labels, so our testers and our dermatologist didn’t know the brand."
+    blind: {
+      title: "Blind test",
+      text: "The bottles had plain labels, so our testers and our dermatologist didn’t know the brand."
+    },
+    not_blind: {
+      title: "Not blind",
+      text: "The bottles kept their labels, so our testers and our dermatologist knew the brand."
+    }
   },
 
   /* Mirror images. Both verdicts carry the same emphasis (three words in bold
@@ -987,14 +1009,15 @@ const DEBRIEF =
    2. cells with tests: the two magazines' tests compared on the three
       objectivity words (COMPARE). It appears under belief, on the same
       screen beside the article, once belief is answered; belief is then
-      locked.
+      locked. In the blind cells it is the manipulation check: the blind
+      test should come out as the more objective one.
    3. last questions: the recall check (cells with tests), juice-cleanse
       use, age, gender (LAST_QUESTIONS), on a page of their own
    Every item is required. `when` lists the cells that see an item; an item
    without `when` is shown in every cell.
    ===================================================================== */
 
-const TEST_CELLS = ["mixed", "mixed_low", "mixed_high"];
+const TEST_CELLS = ["mixed", "confirm_blind", "disconfirm_blind"];
 
 /* ---------- DV: belief in the claim (0-100) --------------------------
    No default thumb position, so there is nothing to anchor on. */
@@ -1034,16 +1057,21 @@ const MEASURES = [BELIEF, COMPARE];
 
 /* ---------- Last page (shown without the article) ------------------- */
 const LAST_QUESTIONS = [
-  /* recall of the objectivity line. It asks about the magazines, not the article,
-     so the article's "Brand hidden for this study" can't be mistaken for an
-     answer. In mixed the right answer is "not_said". */
+  /* recall of which test was blind. It asks about the magazines, not the
+     article, so the article's "Brand hidden for this study" can't be mistaken
+     for an answer. `magazines: true` puts one option per magazine's test
+     first, in the article's card order, each with its verdict (built in
+     study.js). Saved in the verdict frame, like obj_*_rel: "confirming" |
+     "disconfirming" | "both" | "neither" | "not_said" | "dont_remember".
+     Right answer: confirm_blind "confirming", disconfirm_blind
+     "disconfirming", mixed "not_said". */
   {
-    field: "mc_blind", type: "radio", when: TEST_CELLS,
-    label: "Did the magazines say whether their testers knew the juice’s brand?",
+    field: "mc_blind", type: "radio", when: TEST_CELLS, magazines: true,
+    label: "Which magazine’s test was blind, so its testers didn’t know the brand?",
     options: [
-      { value: "knew", text: "Yes: their testers knew the brand" },
-      { value: "did_not_know", text: "Yes: their testers did not know the brand" },
-      { value: "not_said", text: "No: they did not say" },
+      { value: "both", text: "Both magazines’ tests" },
+      { value: "neither", text: "Neither magazine’s test" },
+      { value: "not_said", text: "The magazines didn’t say" },
       { value: "dont_remember", text: "I don’t remember" }
     ]
   },
@@ -1070,9 +1098,10 @@ const LAST_QUESTIONS = [
             same screen (belief is then locked)
          -> last questions (response saved) -> debrief
    Cells, from assign(): control (the claim only) | mixed (two magazines'
-   tests, one confirming and one disconfirming) | mixed_low (as mixed, both
-   tests say they were not blind) | mixed_high (as mixed, both tests say
-   they were blind).
+   tests, one confirming and one disconfirming) | confirm_blind (as mixed;
+   the confirming test was blind, the disconfirming test was not) |
+   disconfirm_blind (as mixed; the disconfirming test was blind, the
+   confirming test was not). Revised design, 11 Nov 2026.
    ===================================================================== */
 
 (function () {
@@ -1086,9 +1115,10 @@ const LAST_QUESTIONS = [
     blurCount: 0,
     hiddenCount: 0,
     startedAt: 0,
-    condition: null,    // "control" | "mixed" | "mixed_low" | "mixed_high"
+    condition: null,    // "control" | "mixed" | "confirm_blind" | "disconfirm_blind"
     tests: false,       // true in the three cells with the two tests
-    method: null,       // the line in both test cards: null | "low" | "high"
+    blind: null,        // the verdict whose test was blind: null | "confirm" | "disconfirm"
+                        // (the other card says its test was not blind)
     labelOrder: "",     // from assign(): "confirm_first" | "disconfirm_first"
     confirmFirst: true, // the confirming test is the left-hand card
     nameSwap: false,    // which magazine gives which verdict (randomised)
@@ -1096,8 +1126,23 @@ const LAST_QUESTIONS = [
     timings: {}
   };
 
-  const CONDITIONS = ["control", "mixed", "mixed_low", "mixed_high"];
-  const METHOD = { control: null, mixed: null, mixed_low: "low", mixed_high: "high" };
+  const CONDITIONS = ["control", "mixed", "confirm_blind", "disconfirm_blind"];
+  const BLIND = { control: null, mixed: null, confirm_blind: "confirm", disconfirm_blind: "disconfirm" };
+
+  /* Drawn bottles for the method boxes: the same bottle with a plain label
+     (blind) or with its brand's label (not blind). */
+  const BOTTLE = (() => {
+    const bottle = '<rect x="12" y="1" width="10" height="7" rx="1.5" fill="#5e6e84"/>' +
+      '<path d="M13 8h8v5c5.5 2.4 8 5.8 8 10.5V48a3 3 0 0 1-3 3H8a3 3 0 0 1-3-3V23.5C5 18.8 7.5 15.4 13 13z" fill="#7d9a5f"/>';
+    const svg = inner => `<svg viewBox="0 0 34 52" width="34" height="52" aria-hidden="true" focusable="false">${bottle}${inner}</svg>`;
+    return {
+      blind: svg('<rect x="7" y="24" width="20" height="18" rx="1.5" fill="#ffffff"/>'),
+      not_blind: svg('<rect x="7" y="24" width="20" height="18" rx="1.5" fill="#2b3440"/>' +
+        '<path d="M13.6 33.4c0-3.9 2.7-6.3 7-6.3 0 4.1-2.7 6.6-7 6.3z" fill="#ffffff"/>' +
+        '<rect x="10.5" y="35.6" width="13" height="2" rx="1" fill="#ffffff"/>' +
+        '<rect x="12.5" y="38.8" width="9" height="1.6" rx=".8" fill="#ffffff" opacity=".75"/>')
+    };
+  })();
 
   const $  = (s, r) => (r || document).querySelector(s);
   const el = (tag, cls, html) => {
@@ -1109,7 +1154,7 @@ const LAST_QUESTIONS = [
 
   /* Preview mode: forces a cell and disables all database writes.
      Only ever active on localhost / file:// — inert once deployed.
-     ?preview=control|mixed|mixed_low|mixed_high
+     ?preview=control|mixed|confirm_blind|disconfirm_blind
      &order=disconfirm_first   (default: the confirming test on the left)
      &swap=1                   (the other magazine gives the confirming verdict)
      &jump=intro|article|method|revealed|measures|last|done */
@@ -1248,7 +1293,7 @@ const LAST_QUESTIONS = [
 
     if (CONDITIONS.indexOf(S.condition) === -1) throw new Error("unknown cell: " + S.condition);
     S.tests  = S.condition !== "control";
-    S.method = METHOD[S.condition];
+    S.blind  = BLIND[S.condition];
     if (!S.tests) { S.labelOrder = ""; S.nameSwap = false; }
     S.confirmFirst = S.labelOrder !== "disconfirm_first";
     applySources();
@@ -1271,18 +1316,26 @@ const LAST_QUESTIONS = [
      2. ARTICLE — identical in every cell down to the claim
      ===================================================================== */
   /* One magazine's test. Before any click a card is only its masthead. In
-     the low and high cells the line about how the test was done (the same
-     in both cards) appears with the first click and the verdict with the
-     second; in the mixed cell one click shows the verdicts. */
+     the blind cells the box saying how this magazine tested (blind for one
+     verdict, not blind for the other) appears with the first click and the
+     verdict with the second; in the mixed cell one click shows the
+     verdicts. */
   function testCardHTML(t) {
     const v = STIMULUS.verdict[t.kind];
-    const method = S.method ? `
-        <div class="test-method method-slot" hidden>
+    const how = S.blind ? (t.kind === S.blind ? "blind" : "not_blind") : null;
+    const method = how ? `
+        <div class="test-method method-slot" data-method="${how}" hidden>
           <div class="test-method-label">${STIMULUS.method.label}</div>
-          <p>${STIMULUS.method[S.method]}</p>
+          <div class="test-method-row">
+            <span class="test-method-icon">${BOTTLE[how]}</span>
+            <div>
+              <div class="test-method-title">${STIMULUS.method[how].title}</div>
+              <p>${STIMULUS.method[how].text}</p>
+            </div>
+          </div>
         </div>` : "";
     return `
-      <article class="verdict-card theme-${t.src.theme}" data-verdict="${t.kind}">
+      <article class="verdict-card theme-${t.src.theme}" data-verdict="${t.kind}"${how ? ` data-method="${how}"` : ""}>
         <div class="verdict-source">
           <span class="tag">${STIMULUS.sourceTag}</span>
           <span class="name">${t.src.name}</span>
@@ -1301,10 +1354,11 @@ const LAST_QUESTIONS = [
     return `
       <section class="verdicts">
         <div class="verdicts-label">${STIMULUS.sectionLabel}</div>
+        ${S.blind ? `<p class="method-lead">${STIMULUS.methodLead}</p>` : ""}
         <div class="verdict-grid">${S.display.map(testCardHTML).join("")}</div>
         <div class="btn-row reveal-row" id="reveal-row">
-          ${S.method ? `<button class="btn" id="method-btn" type="button">${STIMULUS.methodRevealLabel}</button>` : ""}
-          <button class="btn" id="reveal-btn" type="button"${S.method ? " hidden" : ""}>${STIMULUS.revealLabel}</button>
+          ${S.blind ? `<button class="btn" id="method-btn" type="button">${STIMULUS.methodRevealLabel}</button>` : ""}
+          <button class="btn" id="reveal-btn" type="button"${S.blind ? " hidden" : ""}>${STIMULUS.revealLabel}</button>
         </div>
       </section>`;
   }
@@ -1344,7 +1398,7 @@ const LAST_QUESTIONS = [
     $("#article-full").innerHTML = articleHTML();
   }
 
-  /* Low and high cells: "Show how the magazines tested" shows the line in
+  /* Blind cells: "Show how each magazine tested" shows the method box in
      both cards and swaps itself for the verdict button. */
   function revealMethod() {
     const b = $("#method-btn");
@@ -1391,7 +1445,7 @@ const LAST_QUESTIONS = [
 
     if (S.tests) {
       row.hidden = true;
-      if (S.method) {
+      if (S.blind) {
         $("#method-btn").onclick = () => {
           S.timings.t_method = Date.now() - S.articleStart;
           revealMethod();
@@ -1399,7 +1453,7 @@ const LAST_QUESTIONS = [
           const grid = $("#article-full .verdict-grid");
           const motion = !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
           requestAnimationFrame(() => grid.scrollIntoView({ block: "center", behavior: motion ? "smooth" : "auto" }));
-          /* the verdict button waits a moment, so the line is read first */
+          /* the verdict button waits a moment, so both methods are read first */
           const vb = $("#reveal-btn");
           let left = CONFIG.methodReadSeconds;
           vb.disabled = true;
@@ -1665,9 +1719,15 @@ const LAST_QUESTIONS = [
         item.appendChild(row);
 
       } else if (d.type === "radio") {
-        /* options are plain strings (stored as shown) or { value, text } */
+        /* options are plain strings (stored as shown) or { value, text };
+           `magazines` puts one option per magazine's test first, in card
+           order, saved in the verdict frame */
         const box = el("div", "demo-radios");
-        d.options.forEach(o => {
+        const options = d.magazines ? S.display.map(t => ({
+          value: t.kind === "confirm" ? "confirming" : "disconfirming",
+          text: `${t.src.name}’s test, which said the claim ${t.kind === "confirm" ? "holds up" : "does not hold up"}`
+        })).concat(d.options) : d.options;
+        options.forEach(o => {
           const opt = typeof o === "string" ? { value: o, text: o } : o;
           const lab = el("label", "choice");
           lab.innerHTML = `<input type="radio" name="${d.field}" value="${opt.value}">
@@ -1724,7 +1784,9 @@ const LAST_QUESTIONS = [
       });
     }
     p.condition_seen    = S.condition;
-    p.method_line       = S.method || "none";
+    /* which test was described as blind (the other card said not blind) */
+    p.blind_test        = S.blind ? (S.blind === "confirm" ? "confirming" : "disconfirming") : "none";
+    p.blind_source      = S.blind ? (S.blind === "confirm" ? S.confirmSrc.name : S.disconfSrc.name) : null;
     p.label_order       = S.tests ? S.labelOrder : null;
     p.confirm_first     = S.tests ? S.confirmFirst : null;
     p.name_swap         = S.tests ? S.nameSwap : null;
@@ -1857,7 +1919,7 @@ const LAST_QUESTIONS = [
     else if (jump === "method") {
       show("screen-article");
       beginReadTimer();
-      if (S.method) $("#method-btn").click();
+      if (S.blind) $("#method-btn").click();
     }
     else if (jump === "revealed") {
       show("screen-article");
