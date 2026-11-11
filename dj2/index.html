@@ -615,7 +615,7 @@ select{ appearance:none; background-image:
 
 /* Before the verdicts are revealed a card is only its masthead (and, in
    the low and high cells, the line about how the test was done). */
-.verdict-slot[hidden]{ display:none; }
+.verdict-slot[hidden], .method-slot[hidden], .reveal-row .btn[hidden]{ display:none; }
 .verdict-grid .verdict-source{ margin-bottom:0; padding-bottom:0; border-bottom:none; }
 .verdict-card .verdict-slot:not([hidden]){ margin-top:14px; padding-top:14px; border-top:1px solid var(--card-line); }
 
@@ -640,18 +640,24 @@ select{ appearance:none; background-image:
 .measure-block.is-done .btn-row{ display:none; }
 
 /* The two tests compared: one line per word, each line running from one
-   magazine to the other (article order), "Equally" in the middle. */
-.cmp-scale{ padding:0 0 2px; }
+   magazine to the other (article order), "Equally" in the middle. The
+   scale labels sit in boxes centred over the 1st, 4th and 7th points. */
+.cmp-scale{ padding:2px 0 6px; }
 .cmp-scale-row span{
   width:31px; flex:0 0 auto; display:flex; justify-content:center;
-  white-space:nowrap; font-size:11px; color:var(--ink-4);
+  white-space:nowrap;
+}
+.cmp-scale-row b{
+  display:inline-block; padding:5px 10px; border-radius:7px;
+  background:var(--accent-soft); border:1px solid var(--accent-line);
+  font-size:12.5px; font-weight:600; line-height:1.2; color:var(--ink-2);
 }
 .cmp-word{
-  margin-top:8px; padding-top:12px; border-top:1px solid var(--rule-soft);
-  text-align:center; font-size:13.5px; font-weight:650; color:var(--ink);
+  margin-top:14px; padding-top:18px; border-top:1px solid var(--rule-soft);
+  text-align:center; font-size:14.5px; font-weight:650; color:var(--ink);
 }
 .cmp-scale + .cmp-word{ border-top-color:var(--rule); }
-.semdiff-row.cmp-row{ border-top:none; padding:8px 0 4px; }
+.semdiff-row.cmp-row{ border-top:none; padding:12px 0 8px; }
 .cmp-row .cmp-end{ font-family:var(--serif); font-size:14.5px; font-weight:600; line-height:1.25; color:var(--card); }
 .cmp-end.theme-indigo{ --card:#33527e; }
 .cmp-end.theme-plum{ --card:#6b4a86; }
@@ -870,6 +876,10 @@ const CONFIG = {
   minReadSeconds: 7,
   minReadSecondsMixed: 10,
 
+  /* Low and high cells: seconds after "Show how the magazines tested" before
+     "Show the magazines' verdicts" can be clicked, so the line is read first. */
+  methodReadSeconds: 3,
+
   /* Completion: the PI's Prolific code (the same as dj1). `completionCode`
      is the fallback shown on screen, so it must match the code in the URL. */
   completionUrl: "https://app.prolific.com/submissions/complete?cc=C1Q00STZ",
@@ -930,10 +940,12 @@ const STIMULUS = {
   ],
 
   revealLabel: "Show the magazines’ verdicts",
+  methodRevealLabel: "Show how the magazines tested",
 
   /* The objectivity manipulation (mixed_low / mixed_high): one line, the
-     same in both cards, shown before the verdicts. The juice maker does
-     nothing in either version. */
+     same in both cards. It is hidden at first: one click shows it in both
+     cards, a second click shows the verdicts. The juice maker does nothing
+     in either version. */
   method: {
     label: "How we tested",
     low:  "<strong>Not blind:</strong> the bottles kept their labels, so our testers and our dermatologist knew the brand.",
@@ -1101,7 +1113,7 @@ const LAST_QUESTIONS = [
      ?preview=control|mixed|mixed_low|mixed_high
      &order=disconfirm_first   (default: the confirming test on the left)
      &swap=1                   (the other magazine gives the confirming verdict)
-     &jump=intro|article|revealed|measures|last|done */
+     &jump=intro|article|method|revealed|measures|last|done */
   const PREVIEW = (function () {
     const host = location.hostname;
     const local = host === "localhost" || host === "127.0.0.1" || location.protocol === "file:";
@@ -1259,13 +1271,14 @@ const LAST_QUESTIONS = [
   /* =====================================================================
      2. ARTICLE — identical in every cell down to the claim
      ===================================================================== */
-  /* One magazine's test. The line about how the test was done (low and
-     high cells) is the same in both cards and visible before the verdict;
-     the verdict itself appears when the button is clicked. */
+  /* One magazine's test. Before any click a card is only its masthead. In
+     the low and high cells the line about how the test was done (the same
+     in both cards) appears with the first click and the verdict with the
+     second; in the mixed cell one click shows the verdicts. */
   function testCardHTML(t) {
     const v = STIMULUS.verdict[t.kind];
     const method = S.method ? `
-        <div class="test-method">
+        <div class="test-method method-slot" hidden>
           <div class="test-method-label">${STIMULUS.method.label}</div>
           <p>${STIMULUS.method[S.method]}</p>
         </div>` : "";
@@ -1291,7 +1304,8 @@ const LAST_QUESTIONS = [
         <div class="verdicts-label">${STIMULUS.sectionLabel}</div>
         <div class="verdict-grid">${S.display.map(testCardHTML).join("")}</div>
         <div class="btn-row reveal-row" id="reveal-row">
-          <button class="btn" id="reveal-btn" type="button">${STIMULUS.revealLabel}</button>
+          ${S.method ? `<button class="btn" id="method-btn" type="button">${STIMULUS.methodRevealLabel}</button>` : ""}
+          <button class="btn" id="reveal-btn" type="button"${S.method ? " hidden" : ""}>${STIMULUS.revealLabel}</button>
         </div>
       </section>`;
   }
@@ -1331,13 +1345,23 @@ const LAST_QUESTIONS = [
     $("#article-full").innerHTML = articleHTML();
   }
 
+  /* Low and high cells: "Show how the magazines tested" shows the line in
+     both cards and swaps itself for the verdict button. */
+  function revealMethod() {
+    const b = $("#method-btn");
+    if (b) b.remove();
+    document.querySelectorAll("#article-full .method-slot").forEach(s => { s.hidden = false; });
+    const v = $("#reveal-btn");
+    if (v) v.hidden = false;
+  }
+
   /* Both verdicts appear together when "Show the magazines' verdicts" is
-     clicked (the button then goes away). Used by the article screen and by
+     clicked (the buttons then go away). Used by the article screen and by
      the localhost-only jumps. */
   function revealVerdicts() {
     const row = $("#reveal-row");
     if (row) row.remove();
-    document.querySelectorAll("#article-full .verdict-slot").forEach(s => { s.hidden = false; });
+    document.querySelectorAll("#article-full .method-slot, #article-full .verdict-slot").forEach(s => { s.hidden = false; });
   }
 
   /* Control: Continue counts down from when the article appears. Cells with
@@ -1368,6 +1392,31 @@ const LAST_QUESTIONS = [
 
     if (S.tests) {
       row.hidden = true;
+      if (S.method) {
+        $("#method-btn").onclick = () => {
+          S.timings.t_method = Date.now() - S.articleStart;
+          revealMethod();
+          logEvent("method", { ms: S.timings.t_method });
+          const grid = $("#article-full .verdict-grid");
+          const motion = !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+          requestAnimationFrame(() => grid.scrollIntoView({ block: "center", behavior: motion ? "smooth" : "auto" }));
+          /* the verdict button waits a moment, so the line is read first */
+          const vb = $("#reveal-btn");
+          let left = CONFIG.methodReadSeconds;
+          vb.disabled = true;
+          vb.textContent = `${STIMULUS.revealLabel} (${left})`;
+          const t = setInterval(() => {
+            left -= 1;
+            if (left <= 0) {
+              clearInterval(t);
+              vb.disabled = false;
+              vb.textContent = STIMULUS.revealLabel;
+            } else {
+              vb.textContent = `${STIMULUS.revealLabel} (${left})`;
+            }
+          }, 1000);
+        };
+      }
       $("#reveal-btn").onclick = () => {
         S.timings.t_reveal = Date.now() - S.articleStart;
         revealVerdicts();
@@ -1564,7 +1613,7 @@ const LAST_QUESTIONS = [
     const scale = el("div", "semdiff-scale cmp-scale");
     scale.innerHTML = `<div></div>
       <div class="opt-row cmp-scale-row">${[1, 2, 3, 4, 5, 6, 7].map(v =>
-        `<span>${v === 1 || v === 7 ? m.endLabel : v === 4 ? m.middle : ""}</span>`).join("")}</div>
+        `<span>${v === 1 || v === 7 ? `<b>${m.endLabel}</b>` : v === 4 ? `<b>${m.middle}</b>` : ""}</span>`).join("")}</div>
       <div></div>`;
     host.appendChild(scale);
 
@@ -1805,9 +1854,15 @@ const LAST_QUESTIONS = [
     renderArticle();
     if (jump === "intro") show("screen-intro");
     else if (jump === "article") { show("screen-article"); beginReadTimer(); }
+    else if (jump === "method") {
+      show("screen-article");
+      beginReadTimer();
+      if (S.method) $("#method-btn").click();
+    }
     else if (jump === "revealed") {
       show("screen-article");
       beginReadTimer();
+      revealMethod();
       if (S.tests) $("#reveal-btn").click();
     }
     else if (jump === "measures") {
