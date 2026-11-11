@@ -902,7 +902,7 @@ const CONFIG = {
 /* ---------------------------------------------------------------------
    STIMULUS
    One article in every cell, identical down to the claim. The cells
-   differ only below it (revised design, approved by Keith Wilcox on
+   differ only below it (revised design, approved by the co-authors on
    11 Nov 2026):
      control           nothing
      mixed             two magazines' tests, one confirming and one
@@ -969,7 +969,7 @@ const STIMULUS = {
       text: "The bottles had plain labels, so our testers and our dermatologist didn’t know the brand."
     },
     not_blind: {
-      title: "Not blind",
+      title: "Non-blind test",
       text: "The bottles kept their labels, so our testers and our dermatologist knew the brand."
     }
   },
@@ -1009,8 +1009,7 @@ const DEBRIEF =
    2. cells with tests: the two magazines' tests compared on the three
       objectivity words (COMPARE). It appears under belief, on the same
       screen beside the article, once belief is answered; belief is then
-      locked. In the blind cells it is the manipulation check: the blind
-      test should come out as the more objective one.
+      locked.
    3. last questions: the recall check (cells with tests), juice-cleanse
       use, age, gender (LAST_QUESTIONS), on a page of their own
    Every item is required. `when` lists the cells that see an item; an item
@@ -1062,15 +1061,15 @@ const LAST_QUESTIONS = [
      for an answer. `magazines: true` puts one option per magazine's test
      first, in the article's card order, each with its verdict (built in
      study.js). Saved in the verdict frame, like obj_*_rel: "confirming" |
-     "disconfirming" | "both" | "neither" | "not_said" | "dont_remember".
-     Right answer: confirm_blind "confirming", disconfirm_blind
-     "disconfirming", mixed "not_said". */
+     "disconfirming" | "both" | "not_said" | "dont_remember". Right answer:
+     confirm_blind "confirming", disconfirm_blind "disconfirming", mixed
+     "not_said". No "neither" option: in mixed it would be a fair guess
+     that counts as wrong. */
   {
     field: "mc_blind", type: "radio", when: TEST_CELLS, magazines: true,
-    label: "Which magazine’s test was blind, so its testers didn’t know the brand?",
+    label: "Which magazine’s test was blind, so its testers and dermatologist didn’t know the brand?",
     options: [
       { value: "both", text: "Both magazines’ tests" },
-      { value: "neither", text: "Neither magazine’s test" },
       { value: "not_said", text: "The magazines didn’t say" },
       { value: "dont_remember", text: "I don’t remember" }
     ]
