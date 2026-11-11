@@ -640,8 +640,8 @@ select{ appearance:none; background-image:
 .measure-block.is-done .btn-row{ display:none; }
 
 /* The two tests compared: one line per word, each line running from one
-   magazine to the other (article order), "Equally" in the middle. The
-   scale labels sit in boxes centred over the 1st, 4th and 7th points. */
+   magazine to the other (article order). "Much more" sits in a box over
+   the 1st and 7th points. */
 .cmp-scale{ padding:2px 0 6px; }
 .cmp-scale-row span{
   width:31px; flex:0 0 auto; display:flex; justify-content:center;
@@ -1022,7 +1022,6 @@ const COMPARE = {
   prompt: "Which magazine’s test was more unbiased, objective and impartial?",
   help: "On each line, pick a point closer to the magazine the word fits better. The middle means both equally.",
   endLabel: "Much more",
-  middle: "Equally",
   items: [
     { field: "obj_unbiased",  word: "Unbiased" },
     { field: "obj_objective", word: "Objective" },
@@ -1605,15 +1604,16 @@ const LAST_QUESTIONS = [
   }
 
   /* ---------- the two tests compared, one line per word. The ends of each
-     line are the two magazines, in the article's left-to-right order; the
-     middle is "equally". ---------- */
+     line are the two magazines, in the article's left-to-right order. Only
+     the ends are labelled ("Much more"); the PI removed the "Equally" box
+     over the middle after the pilot (11 Nov 2026). ---------- */
   function buildBipolarPair(host, m, state, refresh) {
     const [L, R] = S.display;
     const end = (t, side) => `<div class="anchor cmp-end ${side} theme-${t.src.theme}">${t.src.name}</div>`;
     const scale = el("div", "semdiff-scale cmp-scale");
     scale.innerHTML = `<div></div>
       <div class="opt-row cmp-scale-row">${[1, 2, 3, 4, 5, 6, 7].map(v =>
-        `<span>${v === 1 || v === 7 ? `<b>${m.endLabel}</b>` : v === 4 ? `<b>${m.middle}</b>` : ""}</span>`).join("")}</div>
+        `<span>${v === 1 || v === 7 ? `<b>${m.endLabel}</b>` : ""}</span>`).join("")}</div>
       <div></div>`;
     host.appendChild(scale);
 
