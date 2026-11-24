@@ -648,6 +648,11 @@ select{ appearance:none; background-image:
 .spec.test .spec-num{ color:var(--card); }
 .spec-sub{ font-size:12px; color:var(--ink-3); margin-top:5px; }
 
+/* the line under the headline that says which way the result went */
+.verdict-card .verdict-headline{ margin-bottom:4px; }
+.verdict-direction{ margin:0 0 4px; font-size:15px; line-height:1.5; color:var(--ink-2); }
+.verdict-direction strong{ color:var(--ink); font-weight:750; letter-spacing:.02em; }
+
 </style>
 </head>
 <body>
@@ -925,22 +930,25 @@ const STIMULUS = {
   methodText: "We timed the car from a standstill to 60 mph on our test track.",
   revealLabel: "Show the result",
 
-  /* Test cells only, shown after "Show the result". */
+  /* Test cells only, shown after "Show the result". The two cells that
+     miss the claim share one headline ("The claim was wrong."); only the
+     smaller line under it says which way (FASTER / SLOWER) and the time in
+     the tile differs. */
   result: {
     as_claimed: {
       seconds: "5.9",
-      headline: "It’s as quick as claimed.",
-      body: "It went from 0 to 60 mph in <strong>5.9 seconds</strong>, <strong>the same</strong> as claimed."
+      headline: "The claim was right.",
+      direction: "It was <strong>EXACTLY</strong> as fast as claimed."
     },
     quicker: {
       seconds: "5.4",
-      headline: "It’s quicker than claimed.",
-      body: "It went from 0 to 60 mph in <strong>5.4 seconds</strong>, <strong>0.5 seconds quicker</strong> than claimed."
+      headline: "The claim was wrong.",
+      direction: "It was <strong>FASTER</strong> by 0.5 seconds."
     },
     slower: {
       seconds: "6.4",
-      headline: "It’s slower than claimed.",
-      body: "It went from 0 to 60 mph in <strong>6.4 seconds</strong>, <strong>0.5 seconds slower</strong> than claimed."
+      headline: "The claim was wrong.",
+      direction: "It was <strong>SLOWER</strong> by 0.5 seconds."
     }
   }
 };
@@ -1247,8 +1255,8 @@ const LAST_QUESTIONS = [
           <div class="verdict-slot" id="result" hidden>
             <div class="verdict-eyebrow">Our result</div>
             <h3 class="verdict-headline">${r.headline}</h3>
+            <p class="verdict-direction">${r.direction}</p>
             ${tilesHTML(r.seconds)}
-            <p class="verdict-body">${r.body}</p>
           </div>
         </article>
         <div class="btn-row reveal-row" id="reveal-row">
